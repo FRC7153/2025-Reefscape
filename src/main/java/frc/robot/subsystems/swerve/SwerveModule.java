@@ -184,6 +184,12 @@ public final class SwerveModule {
     steerPID.setReference(0.0, ControlType.kPosition);
     driveMotor.setControl(driveVoltageRequest.withOutput(voltage));
   }
+  /**
+   * Drive Motors will stop
+   */
+  public void staticBrakeRequest(){
+    driveMotor.setControl(staticBrakeRequest);
+  }
 
   public void updateSwerveState() {
     // Refresh signals
