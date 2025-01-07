@@ -41,8 +41,10 @@ public final class SwerveModule {
 
   private final VelocityVoltage driveVelocityRequest = new VelocityVoltage(0.0)
     .withOverrideBrakeDurNeutral(true);
-  private final DutyCycleOut driveDutyCycleRequest = new DutyCycleOut(0.0);
-  private final VoltageOut driveVoltageRequest = new VoltageOut(0.0);
+  private final DutyCycleOut driveDutyCycleRequest = new DutyCycleOut(0.0)
+    .withOverrideBrakeDurNeutral(true);
+  private final VoltageOut driveVoltageRequest = new VoltageOut(0.0)
+    .withOverrideBrakeDurNeutral(true);
   private final StaticBrake staticBrakeRequest = new StaticBrake();
 
   // Steer hardware
