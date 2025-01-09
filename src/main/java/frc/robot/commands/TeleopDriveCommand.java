@@ -43,8 +43,8 @@ public class TeleopDriveCommand extends Command {
 
         // Apply deadbands
         x = Math.abs(x) > 0.075 ? x : 0.0;
-        y = Math.abs(y) > 0.075 ? x : 0.0;
-        theta = Math.abs(theta) > 0.075 ? x : 0.0;
+        y = Math.abs(y) > 0.075 ? y : 0.0;
+        theta = Math.abs(theta) > 0.075 ? theta : 0.0;
 
         drive.drive(
             y * (fastMode.getAsBoolean() ? SwerveConstants.FAST_TRANSLATIONAL_SPEED : SwerveConstants.SLOW_TRANSLATIONAL_SPEED), 

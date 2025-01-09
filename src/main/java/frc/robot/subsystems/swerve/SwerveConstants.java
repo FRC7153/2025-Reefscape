@@ -46,8 +46,8 @@ public final class SwerveConstants {
 
   //TODO
   private static final Slot0Configs DRIVE_MOTOR_GAINS = new Slot0Configs()
-    .withKP(0.1).withKI(0.02).withKD(0.0)
-    .withKS(0.0).withKV(0.0).withKA(0.0);
+    .withKP(0.92852).withKI(0.00).withKD(0.0)
+    .withKS(0.095497).withKV(0.76675).withKA(0.011784);
 
   private static final CurrentLimitsConfigs DRIVE_MOTOR_CURRENT = new CurrentLimitsConfigs()
     .withSupplyCurrentLimit(45).withSupplyCurrentLimitEnable(true)

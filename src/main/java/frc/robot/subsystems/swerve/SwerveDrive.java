@@ -1,5 +1,7 @@
 package frc.robot.subsystems.swerve;
 
+import com.ctre.phoenix6.SignalLogger;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -14,6 +16,7 @@ import edu.wpi.first.util.datalog.IntegerLogEntry;
 import edu.wpi.first.util.datalog.StructArrayLogEntry;
 import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog.State;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.BuildConstants;
@@ -110,13 +113,20 @@ public final class SwerveDrive implements Subsystem {
     }
   }
 
-  /** Gets routine for SysID characterization */
+  /** Gets routine for SysID characterization. This will start the CTRE SignalLogger */
   public SysIdRoutine getRoutine() {
+    System.out.println("Starting CTRE SignalLogger due to getRoutine call in SwerveDrive");
+    SignalLogger.start();
+
     if (routine == null) {
-      // Init routine
+      // No cached routine, instantiate it
       routine = new SysIdRoutine(
-        new SysIdRoutine.Config(), 
+        new SysIdRoutine.Config(null, null, null, (State state) -> {
+          // Log state
+          SignalLogger.writeString("drive-sysid-state", state.toString());
+        }), 
         new SysIdRoutine.Mechanism((Voltage v) -> {
+          // Apply voltages
           for (int m = 0; m < 4; m++) {
             modules[m].setVoltageRequest(v.baseUnitMagnitude());
           }

@@ -215,6 +215,6 @@ public final class SwerveModule {
     steerMotorAlert.set(steerMotor.hasActiveFault() || steerMotor.hasActiveWarning());
 
     // Check steer encoder faults
-    steerCANCoderAlert.set(steerCANCoder.isConnected());
+    steerCANCoderAlert.set(!steerCANCoder.isConnected());
   }
 }
