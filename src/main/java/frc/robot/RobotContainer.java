@@ -5,16 +5,58 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.PregameCommand;
+import frc.robot.commands.TeleopDriveCommand;
+import frc.robot.subsystems.swerve.SwerveDrive;
+import frc.robot.util.AutoChooser;
+import frc.robot.util.Dashboard;
 
 public class RobotContainer {
+  // Subsystems
+  private final SwerveDrive base = new SwerveDrive();
+
+  // Controllers
+  private final CommandXboxController controller = new CommandXboxController(0);
+
+  // Dashboard
+  private final AutoChooser auto = new AutoChooser(base);
+  private final Dashboard dashboard = new Dashboard(this, auto);
+
   public RobotContainer() {
     configureBindings();
   }
 
-  private void configureBindings() {}
+  private void configureBindings() {
+    // SwerveDrive default command (teleop driving)
+    base.setDefaultCommand(
+      new TeleopDriveCommand(
+        base, 
+        () -> -controller.getLeftX(), 
+        () -> -controller.getLeftY(), 
+        () -> -controller.getRightX(), 
+        controller.leftTrigger())
+    );
+  }
 
+  /** Checks all hardware, called periodically */
+  public void checkHardware() {
+    base.checkHardware();
+  }
+
+  /** Logs everything, called periodically */
+  public void log() {
+    base.log();
+    dashboard.refresh();
+  }
+
+  /** Returns a PregameCommand, which is scheduled if the command wasn't run before teleopInit() */
+  public Command getPregameCommand() {
+    return new PregameCommand(base);
+  }
+
+  /** Returns a Command to run in autonomous */
   public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
+    return auto.getCurrentSelectedCommand();
   }
 }

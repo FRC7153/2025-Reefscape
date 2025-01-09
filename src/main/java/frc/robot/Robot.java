@@ -4,9 +4,15 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
+
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.PregameCommand;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
@@ -14,7 +20,24 @@ public class Robot extends TimedRobot {
   private final RobotContainer m_robotContainer;
 
   public Robot() {
+    // Configure CTRE SignalLogger
+    SignalLogger.enableAutoLogging(false);
+    SignalLogger.stop();
+    SignalLogger.setPath("/U/CTRE_Signal_Logger");
+
+    // Init logging
+    DataLogManager.logNetworkTables(true);
+    DataLogManager.logConsoleOutput(true);
+
+    DriverStation.startDataLog(DataLogManager.getLog(), true);
+    NetworkTableInstance.getDefault().startConnectionDataLog(DataLogManager.getLog(), "NTConnections");
+
+    // Init robot base
     m_robotContainer = new RobotContainer();
+
+    // Add logging periodic
+    addPeriodic(m_robotContainer::log, 0.1, 0.001); // every 100 ms
+    addPeriodic(m_robotContainer::checkHardware, 0.5, 0.001); // every 500 ms
   }
 
   @Override
@@ -48,13 +71,22 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    // Cancel auto
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
+    }
+
+    // Check pregame
+    if (!PregameCommand.getHasPregamed()) {
+      DriverStation.reportError("No pregame before teleopInit()!", false);
+      m_robotContainer.getPregameCommand().schedule();
     }
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+
+  }
 
   @Override
   public void teleopExit() {}
