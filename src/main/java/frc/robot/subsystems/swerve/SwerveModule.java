@@ -40,7 +40,8 @@ public final class SwerveModule {
   private final StatusSignal<AngularVelocity> driveVelocity;
 
   private final VelocityVoltage driveVelocityRequest = new VelocityVoltage(0.0)
-    .withOverrideBrakeDurNeutral(true);
+    .withOverrideBrakeDurNeutral(true)
+    .withSlot(0);
   private final DutyCycleOut driveDutyCycleRequest = new DutyCycleOut(0.0)
     .withOverrideBrakeDurNeutral(true);
   private final VoltageOut driveVoltageRequest = new VoltageOut(0.0)
@@ -57,6 +58,7 @@ public final class SwerveModule {
 
   /** State (for logging) */
   public final SwerveModuleState state = new SwerveModuleState();
+  private SwerveModuleState lastStateRequest = new SwerveModuleState();
 
   /**
    * Initializes a new Swerve Module. 
@@ -159,22 +161,28 @@ public final class SwerveModule {
     Rotation2d currentAngle = Rotation2d.fromRotations(steerAngle.getValueAsDouble());
     request.optimize(currentAngle);
     request.cosineScale(currentAngle);
+    lastStateRequest = request;
 
-    // Set angle
-    steerPID.setReference(
-      request.angle.getRotations() * SwerveConstants.STEER_RATIO, ControlType.kPosition);
-
-    // Set velocity
-    if (closedLoop) {
-      // Closed loop velocity control (auto)
-      driveMotor.setControl(driveVelocityRequest.withVelocity(
-        request.speedMetersPerSecond / SwerveConstants.WHEEL_CIRCUMFERENCE
-      ));
+    if (Math.abs(request.speedMetersPerSecond) < 0.1) {
+      // No movement, apply deadband
+      driveMotor.setControl(staticBrakeRequest);
     } else {
-      // Open loop control (teleop)
-      driveMotor.setControl(driveDutyCycleRequest.withOutput(
-        request.speedMetersPerSecond / SwerveConstants.MAX_WHEEL_VELOCITY
-      ));
+      // Set angle
+      steerPID.setReference(
+        request.angle.getRotations() * SwerveConstants.STEER_RATIO, ControlType.kPosition);
+
+      // Set velocity
+      if (closedLoop) {
+        // Closed loop velocity control (auto)
+        driveMotor.setControl(driveVelocityRequest.withVelocity(
+          request.speedMetersPerSecond / SwerveConstants.WHEEL_CIRCUMFERENCE
+        ));
+      } else {
+        // Open loop control (teleop)
+        driveMotor.setControl(driveDutyCycleRequest.withOutput(
+          request.speedMetersPerSecond / SwerveConstants.MAX_WHEEL_VELOCITY
+        ));
+      }
     }
   }
 
@@ -191,9 +199,13 @@ public final class SwerveModule {
    */
   public void staticBrakeRequest(){
     driveMotor.setControl(staticBrakeRequest);
+    // TODO: add lastStateRequest = 0;
   }
 
-  public void updateSwerveState() {
+  /**
+   * This will UPDATE the CURRENT STATE {@code this.state} in place, and RETURN the REQUESTED STATE.
+   */
+  public SwerveModuleState getAndUpdateStates() {
     // Refresh signals
     driveVelocity.refresh();
     steerAngle.refresh();
@@ -202,6 +214,8 @@ public final class SwerveModule {
     state.angle = Rotation2d.fromRotations(steerAngle.getValueAsDouble());
     //state.angle = Rotation2d.fromRotations(steerBuiltInEncoder.getPosition() / SwerveConstants.STEER_RATIO);
     state.speedMetersPerSecond = driveVelocity.getValueAsDouble() * SwerveConstants.WHEEL_CIRCUMFERENCE;
+
+    return lastStateRequest;
   }
 
   /**

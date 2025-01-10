@@ -63,7 +63,9 @@
     "CANCODER",
     "CANIVORE",
     "CTRE",
+    "deadband",
     "odometry",
+    "Pregamed",
     "quasistatic",
     "teleop"
   ]

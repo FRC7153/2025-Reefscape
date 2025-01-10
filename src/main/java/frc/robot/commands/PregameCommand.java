@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import com.ctre.phoenix6.SignalLogger;
+
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -25,6 +27,9 @@ public class PregameCommand extends InstantCommand {
             // Run pregame actions:
             drive.homeEncoders();
             drive.cacheAllianceColor();
+
+            SignalLogger.stop();
+            System.out.println("Stopped CTRE SignalLogger");
 
             // Notify:
             System.out.println("Pregame complete");
