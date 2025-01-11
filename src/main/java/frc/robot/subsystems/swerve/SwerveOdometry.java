@@ -7,6 +7,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
+import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -171,10 +172,8 @@ public final class SwerveOdometry {
     public Pose2d getAllianceRelativePosition() {
         Pose2d pose = getFieldRelativePosition();
 
-        if (isRedAlliance)
-            pose = Pose2d.kZero; // TODO invert pose, once field is released
-
-        return pose;
+        // Flip if red alliance
+        return isRedAlliance ? FlippingUtil.flipFieldPose(pose) : pose;
     }
 
     /**
