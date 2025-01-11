@@ -1,9 +1,11 @@
 package frc.robot.commands;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.swerve.SwerveDrive;
 
@@ -30,6 +32,11 @@ public class PregameCommand extends InstantCommand {
 
             SignalLogger.stop();
             System.out.println("Stopped CTRE SignalLogger");
+
+            // Only warmup our FollowPathCommand if we are not already in teleop
+            if (!DriverStation.isTeleop()) {
+                FollowPathCommand.warmupCommand().schedule();
+            }
 
             // Notify:
             System.out.println("Pregame complete");

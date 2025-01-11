@@ -19,6 +19,8 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.CalibrationTime;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SPI.Port;
@@ -36,6 +38,7 @@ public final class SwerveOdometry {
     private final AtomicInteger failedDAQs = new AtomicInteger();
 
     private final ADIS16470_IMU imu;
+    private final Alert imuHardwareAlert = new Alert("ADIS16470 IMU is not connected", AlertType.kError);
 
     private final SwerveModulePosition[] swervePositions;
     private final BaseStatusSignal[] allSignals;
@@ -210,5 +213,9 @@ public final class SwerveOdometry {
         }  finally {
             stateLock.writeLock().unlock();
         }
+    }
+
+    public void checkHardware() {
+        imuHardwareAlert.set(!imu.isConnected());
     }
 }

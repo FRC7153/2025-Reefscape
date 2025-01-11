@@ -15,7 +15,7 @@ public final class Dashboard {
             .withSize(1, 1);
         
         // Auto chooser
-        drive.add(autoChooser.chooser)
+        drive.add(autoChooser.getSendableChooser())
             .withPosition(1, 0)
             .withSize(2, 1);
     }

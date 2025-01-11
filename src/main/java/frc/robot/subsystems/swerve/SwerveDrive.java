@@ -1,5 +1,7 @@
 package frc.robot.subsystems.swerve;
 
+import java.util.Optional;
+
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.config.RobotConfig;
@@ -22,17 +24,18 @@ import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.IntegerLogEntry;
 import edu.wpi.first.util.datalog.StructArrayLogEntry;
 import edu.wpi.first.util.datalog.StructLogEntry;
-import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog.State;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.HardwareConstants;
+import frc.robot.util.StickyAlerts;
 
 public final class SwerveDrive implements Subsystem {
   // Swerve Modules
@@ -91,6 +94,7 @@ public final class SwerveDrive implements Subsystem {
   // Autonomous
   private final RobotConfig autoConfig;
 
+  @SuppressWarnings("UseSpecificCatch")
   public SwerveDrive() {
     if (BuildConstants.PUBLISH_EVERYTHING) {
       // Init NT publishers
@@ -126,12 +130,9 @@ public final class SwerveDrive implements Subsystem {
       config = null;
       DriverStation.reportWarning(
         String.format("Failed to load PathPlanner's config: %s", e.getMessage()), 
-        false
+        true
       );
-      // TODO error handler
-      e.printStackTrace();
-
-      new Alert("Failed to load PathPlanner's RobotConfig", AlertType.kError);
+      StickyAlerts.create("Failed to load PathPlanner's config");
     }
 
     autoConfig = config;
@@ -164,25 +165,39 @@ public final class SwerveDrive implements Subsystem {
    * @param fieldOriented
    */
   public void drive(double y, double x, double theta, boolean closedLoop, boolean fieldOriented) {
-    ChassisSpeeds speeds = fieldOriented ?
-      // Field oriented driving
-      ChassisSpeeds.fromRobotRelativeSpeeds(x, y, theta, odometry.getFieldRelativePosition().getRotation().unaryMinus())
-      // Robot oriented driving
-      : new ChassisSpeeds(x, y, theta);
-
-    drive(speeds, closedLoop);
+    drive(
+      fieldOriented ? 
+        // Field oriented driving
+        ChassisSpeeds.fromRobotRelativeSpeeds(x, y, theta, odometry.getFieldRelativePosition().getRotation().unaryMinus())
+        // Robot oriented driving
+        : new ChassisSpeeds(x, y, theta), 
+      closedLoop
+    );
   }
 
   /**
    * @param pathName Name of path to follow
    * @return
    */
+  @SuppressWarnings("UseSpecificCatch")
   public Command getFollowPathCommand(String pathName, boolean resetPosition) {
     try {
+      // Load path and alliance color
       PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
-      Pose2d start = path.getStartingHolonomicPose().get(); // TODO this
+      Optional<Alliance> alliance = DriverStation.getAlliance();
+
+      if (alliance.isEmpty()) {
+        // Attempted to create paths before Alliance was received!
+        String msg = String.format("Attempted to create path '%s' before alliance was received", pathName);
+        DriverStation.reportError(msg, false);
+        StickyAlerts.create(msg);
+      } else if (alliance.get().equals(Alliance.Red)) {
+        // Red alliance, need to flip path
+        path = path.flipPath();
+      }
       
-      return new FollowPathCommand(
+      // Create path follow command
+      Command followCommand = new FollowPathCommand(
         path, 
         odometry::getFieldRelativePosition, 
         this::getCurrentChassisSpeeds, 
@@ -194,19 +209,41 @@ public final class SwerveDrive implements Subsystem {
         () -> false, 
         this
       );
+
+      if (resetPosition) {
+        // Reset position before running the path
+        Pose2d origin = path.getStartingHolonomicPose().get();
+        return getResetOdometryCommand(origin, followCommand);
+      } else {
+        // Just run the path
+        return followCommand;
+      }
     } catch (Exception e) {
-      // TODO error handling
+      // Failed to load path file
+      DriverStation.reportError(String.format("Failed to load path '%s': %s", pathName, e.getMessage()), true);
+      StickyAlerts.create(String.format("Failed to load path '%s'", pathName));
       return new PrintCommand(String.format("Running failed path: '%s'", pathName));
     }
   }
 
+  /** Gets robot-relative chassis speeds */
   public ChassisSpeeds getCurrentChassisSpeeds() {
     // currentStates is updated in place periodically
     return kinematics.toChassisSpeeds(currentStates);
   }
 
+  /** Gets alliance-relative position */
   public Pose2d getAllianceRelativePose() {
     return odometry.getAllianceRelativePosition();
+  }
+
+  /** Resets from a FIELD RELATIVE position, then runs other commands */
+  public Command getResetOdometryCommand(Pose2d newPose, Command... andThen) {
+    return new InstantCommand(() -> {
+      Pose2d pose = odometry.getFieldRelativePosition();
+      odometry.resetPosition(newPose);
+      System.out.printf("Reset odometry from %s -> %s\n", pose, newPose);
+    }).andThen(andThen);
   }
 
   @Override
@@ -305,5 +342,7 @@ public final class SwerveDrive implements Subsystem {
     for (int m = 0; m < 4; m++) {
       modules[m].checkHardware();
     }
+
+    odometry.checkHardware();
   }
 }
