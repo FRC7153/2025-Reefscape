@@ -64,6 +64,8 @@
     "CANIVORE",
     "CTRE",
     "deadband",
+    "feedforwards",
+    "Holonomic",
     "odometry",
     "Pregamed",
     "quasistatic",

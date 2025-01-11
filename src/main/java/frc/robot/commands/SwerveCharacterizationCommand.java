@@ -21,8 +21,8 @@ public class SwerveCharacterizationCommand extends ConditionalCommand {
             new PrintCommand("Will not characterize while FMS is connected!"),
             // FMS is not connected, run characterization (quasistatic or dynamic):
             quasistatic ?
-                drive.getRoutine().quasistatic(direction ? Direction.kForward : Direction.kReverse)
-                : drive.getRoutine().dynamic(direction ? Direction.kForward : Direction.kReverse),
+                drive.getModuleRoutine().quasistatic(direction ? Direction.kForward : Direction.kReverse)
+                : drive.getModuleRoutine().dynamic(direction ? Direction.kForward : Direction.kReverse),
             // Check if FMS is connected
             DriverStation::isFMSAttached
         );

@@ -215,6 +215,7 @@ public final class SwerveModule {
     //state.angle = Rotation2d.fromRotations(steerBuiltInEncoder.getPosition() / SwerveConstants.STEER_RATIO);
     state.speedMetersPerSecond = driveVelocity.getValueAsDouble() * SwerveConstants.WHEEL_CIRCUMFERENCE;
 
+    // Return last request
     return lastStateRequest;
   }
 

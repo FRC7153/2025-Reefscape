@@ -11,16 +11,18 @@ public class SimpleDriveAuto extends Command {
 
     public SimpleDriveAuto(SwerveDrive drive) {
         this.drive = drive;
+
+        addRequirements(drive);
     }
 
     @Override
     public void initialize() {
-        drive.drive(0.0, 1.5, 0.0, true, true);
+        drive.drive(0.0, 2.5, 0.0, true, false);
     }
 
     @Override
     public void execute() {
-        drive.drive(0.0, 1.5, 0.0, true, true);
+        drive.drive(0.0, 2.5, 0.0, true, false);
     }
 
     @Override

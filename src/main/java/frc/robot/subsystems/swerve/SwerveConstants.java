@@ -6,6 +6,8 @@ import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -46,8 +48,8 @@ public final class SwerveConstants {
 
   //TODO
   private static final Slot0Configs DRIVE_MOTOR_GAINS = new Slot0Configs()
-    .withKP(0.92852).withKI(0.00).withKD(0.0)
-    .withKS(0.095497).withKV(0.76675).withKA(0.011784);
+    .withKP(0.96573).withKI(0.0).withKD(0.0)
+    .withKS(0.088062).withKV(0.77811).withKA(0.013299);
 
   private static final CurrentLimitsConfigs DRIVE_MOTOR_CURRENT = new CurrentLimitsConfigs()
     .withSupplyCurrentLimit(45).withSupplyCurrentLimitEnable(true)
@@ -55,6 +57,7 @@ public final class SwerveConstants {
 
   private static final FeedbackConfigs DRIVE_ENCODER = new FeedbackConfigs()
     .withSensorToMechanismRatio(DRIVE_RATIO);
+    //.withSensorToMechanismRatio(1.0);
 
   private static final AudioConfigs DRIVE_MOTOR_AUDIO = new AudioConfigs()
     .withBeepOnBoot(false).withBeepOnConfig(true);
@@ -84,7 +87,7 @@ public final class SwerveConstants {
   public static final IMUAxis GYRO_ROLL = IMUAxis.kY;
 
   // Base size
-  public static final Translation2d kBASE_DIMENSIONS = 
+  public static final Translation2d BASE_DIMENSIONS = 
     new Translation2d(Units.inchesToMeters(30), Units.inchesToMeters(25));
 
   // Module positions
@@ -95,9 +98,16 @@ public final class SwerveConstants {
   private static final double EDGE = Units.inchesToMeters(2.625); // Distance edge of module to center of wheel
 
   public static final Translation2d[] POSITIONS = {
-    new Translation2d(kBASE_DIMENSIONS.getX() / 2.0 - EDGE, kBASE_DIMENSIONS.getY() / 2.0 - EDGE), // FL
-    new Translation2d(kBASE_DIMENSIONS.getX() / 2.0 - EDGE, kBASE_DIMENSIONS.getY() / -2.0 + EDGE), // FR
-    new Translation2d(kBASE_DIMENSIONS.getX() / -2.0 + EDGE, kBASE_DIMENSIONS.getY() / 2.0 - EDGE), // RL
-    new Translation2d(kBASE_DIMENSIONS.getX() / -2.0 + EDGE, kBASE_DIMENSIONS.getY() / -2.0 + EDGE)  // RR
+    new Translation2d(BASE_DIMENSIONS.getX() / 2.0 - EDGE, BASE_DIMENSIONS.getY() / 2.0 - EDGE), // FL
+    new Translation2d(BASE_DIMENSIONS.getX() / 2.0 - EDGE, BASE_DIMENSIONS.getY() / -2.0 + EDGE), // FR
+    new Translation2d(BASE_DIMENSIONS.getX() / -2.0 + EDGE, BASE_DIMENSIONS.getY() / 2.0 - EDGE), // RL
+    new Translation2d(BASE_DIMENSIONS.getX() / -2.0 + EDGE, BASE_DIMENSIONS.getY() / -2.0 + EDGE)  // RR
   };
+
+  // Auto config
+  public static final PPHolonomicDriveController AUTO_CONTROLLER = 
+    new PPHolonomicDriveController(
+      new PIDConstants(2.25, 0.0, 0.0), // Translational
+      new PIDConstants(0.0, 0.0, 0.0) // Rotational
+    );
 }
