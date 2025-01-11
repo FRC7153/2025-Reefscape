@@ -13,7 +13,7 @@ import edu.wpi.first.util.datalog.IntegerLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.Constants.BuildConstants;
+
 
 public class Limelight {
     private String name;
@@ -37,14 +37,13 @@ public class Limelight {
 
     // Logging
     private DoubleLogEntry fpsLog, cpuTempLog, ramLog, tempLog, distLog, tagYawLog; 
-    private IntegerLogEntry tagIdLong;
+    private IntegerLogEntry tagIdLog;
 
-
+    
     /**
-     * 
      * @param name Host Camera ID
      */
-    public LimelightCamera(String name){
+    public Limelight(String name){
         this.name = name;
 
         // Network Table
@@ -79,6 +78,97 @@ public class Limelight {
         String logName = String.format("Hardware/Limelight -%s/", name);
 
         fpsLog = new DoubleLogEntry(DataLogManager.getLog(), logName + "fps");
-        cpuTempLog = new DoubleLogEntry(DataLogManager.getLog(), logName)
+        cpuTempLog = new DoubleLogEntry(DataLogManager.getLog(), logName + "cpu temp", "f" );
+        ramLog = new DoubleLogEntry(DataLogManager.getLog(), logName + "ram log");
+        tempLog = new DoubleLogEntry(DataLogManager.getLog(), logName + "temp", "f");
+        distLog = new DoubleLogEntry(DataLogManager.getLog(), logName + "distance", "m");
+        tagYawLog = new DoubleLogEntry(DataLogManager.getLog(), logName + "tag yaw", "deg");
+        tagIdLog = new IntegerLogEntry(DataLogManager.getLog(), logName + "tag id");
     }
+
+    /**
+     * Caches the latest results, checks the heartbeat, and logs stats.
+     * Called periodically
+     */
+    public void refresh(){
+            // Check heartbeat
+    double newHeartbeat = heartbeatSub.get();
+
+    if (newHeartbeat == -1.0) {
+      // No heartbeat
+      alive = false;
+    } else if (newHeartbeat != lastHeartbeat) {
+      // New heartbeat
+      lastHeartbeat = newHeartbeat;
+      lastHeartbeatTS = Timer.getFPGATimestamp();
+      alive = true;
+    } else if (Timer.getFPGATimestamp() - lastHeartbeatTS <= 0.75) {
+      // Recent heartbeat
+      alive = true;
+    } else {
+      // No recent or new heartbeats
+      alive = false;
+    }
+
+    // Get stats
+    double[] stats = statsSub.get();
+
+    if (stats.length < 4) {
+      DriverStation.reportWarning("Invalid limelight stats length", false);
+    } else {
+      fpsLog.append(stats[0]);
+      cpuTempLog.append(stats[1]);
+      ramLog.append(stats[2]);
+      tempLog.append(stats[3]);
+    }
+
+    // Get pose
+    tagIdCache = (int)tagInViewSub.get();
+
+    if (tagIdCache != -1) {
+      double[] poseData = poseSub.get();
+      poseCache = new Translation3d(
+        poseData[0], 
+        poseData[1], 
+        poseData[2]
+      );
+
+      txAngleCache = txSub.get();
+    }
+
+    // Log and output
+    distLog.append(getDistanceToTag());
+    tagIdLog.append(tagIdCache);
+    tagYawLog.append(getTagYaw());
+
+    }
+
+    /**
+     * @return Distance, in meters, to the primary in-view tag.
+     */
+    public double getDistanceToTag(){
+      return poseCache.getNorm();
+    }
+    /**
+     * 
+     * @return The yaw (deg) tp the primary in-view tag
+     */
+    public double getTagYaw(){
+      return txAngleCache;
+    }
+
+    /**
+    * @return The fiducial id of the primary tag in-view, or -1 if none.
+    */
+    public int getTagId() {
+      return tagIdCache;
+    }
+
+    /**
+    * @return If the limelight is returning a heartbeat.
+    */
+    public boolean isAlive() {
+      return alive;
+    }
+
 }
