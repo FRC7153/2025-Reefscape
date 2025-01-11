@@ -13,10 +13,11 @@ import edu.wpi.first.util.datalog.IntegerLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 public class Limelight {
-    private String name;
+    private String cameraName;
 
     // Network tables
     private DoubleArraySubscriber poseSub, statsSub;
@@ -39,40 +40,42 @@ public class Limelight {
     private DoubleLogEntry fpsLog, cpuTempLog, ramLog, tempLog, distLog, tagYawLog; 
     private IntegerLogEntry tagIdLog;
 
+    // Tag View
+    private boolean tagInView;
     
     /**
      * @param name Host Camera ID
      */
     public Limelight(String name){
-        this.name = name;
+        name = cameraName;
 
         // Network Table
-        NetworkTable camera = NetworkTableInstance.getDefault().getTable(name);
-        NetworkTable out = NetworkTableInstance.getDefault().getTable(String.format("%s-out", name));
+        NetworkTable cameraTable = NetworkTableInstance.getDefault().getTable(cameraName);
+        NetworkTable outTable = NetworkTableInstance.getDefault().getTable(String.format("%s-out", name));
 
         poseSub = 
-            camera.getDoubleArrayTopic("targetpose_robotspace").subscribe(new double[6]);
+            cameraTable.getDoubleArrayTopic("targetpose_robotspace").subscribe(new double[6]);
 
         txSub = 
-            camera.getDoubleTopic("tx").subscribe(0.0);
+            cameraTable.getDoubleTopic("tx").subscribe(0.0);
 
         statsSub = 
-            camera.getDoubleArrayTopic("stats").subscribe(new double[4]);
+            cameraTable.getDoubleArrayTopic("stats").subscribe(new double[4]);
         
         heartbeatSub = 
-            camera.getDoubleTopic("heartbeat").subscribe(-1.0);
+            cameraTable.getDoubleTopic("heartbeat").subscribe(-1.0);
 
         tagInViewSub = 
-            camera.getIntegerTopic("tagInView").subscribe(-1);
+            cameraTable.getIntegerTopic("tagInView").subscribe(-1);
         
         distOut =
-            out.getDoubleTopic("dist").publish();
+            outTable.getDoubleTopic("dist").publish();
         
         yawOut =
-          out.getDoubleTopic("yaw").publish();
+          outTable.getDoubleTopic("yaw").publish();
 
         // Enforce Pipeline
-        camera.getIntegerTopic("pipeline").publish().set(1);
+        cameraTable.getIntegerTopic("pipeline").publish().set(1);
         
         // Init logging
         String logName = String.format("Hardware/Limelight -%s/", name);
@@ -84,6 +87,23 @@ public class Limelight {
         distLog = new DoubleLogEntry(DataLogManager.getLog(), logName + "distance", "m");
         tagYawLog = new DoubleLogEntry(DataLogManager.getLog(), logName + "tag yaw", "deg");
         tagIdLog = new IntegerLogEntry(DataLogManager.getLog(), logName + "tag id");
+
+
+        double x = LimelightHelpers.getTX(cameraName);
+        double y = LimelightHelpers.getTY(cameraName);
+        double area = LimelightHelpers.getTA(cameraName);
+  
+        if(area == 0){
+          tagInView = false;
+        } else {
+          tagInView = true;
+        }
+  
+        SmartDashboard.putNumber(cameraName, area);
+        SmartDashboard.putNumber(cameraName, y);
+        SmartDashboard.putNumber(cameraName, x);
+        SmartDashboard.putNumber(cameraName, getDistanceToTag());
+        SmartDashboard.putBoolean(cameraName, tagInView);
     }
 
     /**
@@ -170,5 +190,6 @@ public class Limelight {
     public boolean isAlive() {
       return alive;
     }
+
 
 }
