@@ -7,8 +7,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.Constants.BuildConstants;
-import frc.robot.auto.BackAndForthAuto;
-import frc.robot.auto.SimpleDriveAuto;
+import frc.robot.auto.BackAndForthTestAuto;
+import frc.robot.auto.SimpleDriveTestAuto;
 import frc.robot.commands.SwerveCharacterizationCommand;
 import frc.robot.subsystems.swerve.SwerveDrive;
 
@@ -37,8 +37,8 @@ public final class AutoChooser {
             chooser.addOption("SYSID Swerve D-", () -> new SwerveCharacterizationCommand(drive, false, false));
 
             // Drive characterization test auto
-            chooser.addOption("Auto Drive Test", () -> new SimpleDriveAuto(drive));
-            chooser.addOption("Back and Forth Drive Test", () -> new BackAndForthAuto(drive));
+            chooser.addOption("Auto Drive Test", () -> new SimpleDriveTestAuto(drive));
+            chooser.addOption("Back and Forth Drive Test", () -> new BackAndForthTestAuto(drive));
             chooser.addOption("Follow Path Test", () -> drive.getFollowPathCommand("Example Path 1", true));
         }
     }

@@ -6,10 +6,10 @@ import frc.robot.subsystems.swerve.SwerveDrive;
 /**
  * Simple auto that drives forward at a constant rate to test drive base gains.
  */
-public class SimpleDriveAuto extends Command {
+public class SimpleDriveTestAuto extends Command {
     private final SwerveDrive drive;
 
-    public SimpleDriveAuto(SwerveDrive drive) {
+    public SimpleDriveTestAuto(SwerveDrive drive) {
         this.drive = drive;
 
         addRequirements(drive);

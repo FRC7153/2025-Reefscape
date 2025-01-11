@@ -9,8 +9,8 @@ import frc.robot.subsystems.swerve.SwerveDrive;
 /**
  * Simple auto that drives forward and backward at a constant rate to test drive base gains.
  */
-public class BackAndForthAuto extends RepeatCommand {
-    public BackAndForthAuto(SwerveDrive drive) {
+public class BackAndForthTestAuto extends RepeatCommand {
+    public BackAndForthTestAuto(SwerveDrive drive) {
         super(
             new SequentialCommandGroup(
                 new InstantCommand(() -> drive.drive(0.0, 2.5, 0.0, true, false)),
