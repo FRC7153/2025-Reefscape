@@ -1,5 +1,7 @@
 package frc.robot.subsystems.swerve;
 
+import com.ctre.phoenix6.SignalLogger;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -9,11 +11,14 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.IntegerLogEntry;
 import edu.wpi.first.util.datalog.StructArrayLogEntry;
 import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog.State;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.BuildConstants;
@@ -45,13 +50,17 @@ public final class SwerveDrive implements Subsystem {
   private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(SwerveConstants.POSITIONS);
 
   // NT Logging
-  private final StructArrayPublisher<SwerveModuleState> statePublisher;
+  private final StructArrayPublisher<SwerveModuleState> statePublisher, reqStatePublisher;
   private final StructPublisher<Pose2d> posePublisher;
   private final IntegerPublisher successfulDAQPublisher, failedDAQPublisher;
 
   // DL Logging
   private final StructArrayLogEntry<SwerveModuleState> stateLogger = 
     StructArrayLogEntry.create(DataLogManager.getLog(), "Swerve/State", SwerveModuleState.struct);
+  private final StructArrayLogEntry<SwerveModuleState> reqStateLogger = 
+    StructArrayLogEntry.create(DataLogManager.getLog(), "Swerve/Request", SwerveModuleState.struct);
+  private final BooleanLogEntry isClosedLoopLogger =
+    new BooleanLogEntry(DataLogManager.getLog(), "Swerve/ClosedLoop");
   private final StructLogEntry<Pose2d> poseLogger =
     StructLogEntry.create(DataLogManager.getLog(), "Swerve/Pose", Pose2d.struct);
   private final IntegerLogEntry successfulDAQLogger = 
@@ -62,6 +71,7 @@ public final class SwerveDrive implements Subsystem {
   private final SwerveModuleState[] loggedStates = {
     modules[0].state, modules[1].state, modules[2].state, modules[3].state
   };
+  private final SwerveModuleState[] loggedRequests = new SwerveModuleState[4];
 
   // Pose estimation
   private final SwerveOdometry odometry = new SwerveOdometry(modules, kinematics);
@@ -73,12 +83,14 @@ public final class SwerveDrive implements Subsystem {
       NetworkTable ntTable = NetworkTableInstance.getDefault().getTable("Swerve");
 
       statePublisher = ntTable.getStructArrayTopic("State", SwerveModuleState.struct).publish();
+      reqStatePublisher = ntTable.getStructArrayTopic("Request", SwerveModuleState.struct).publish();
       posePublisher = ntTable.getStructTopic("Pose", Pose2d.struct).publish();
       successfulDAQPublisher = ntTable.getIntegerTopic("Successful_DAQs").publish();
       failedDAQPublisher = ntTable.getIntegerTopic("Failed_DAQs").publish();
     } else {
       // Do not init NT publishers
       statePublisher = null;
+      reqStatePublisher = null;
       posePublisher = null;
       successfulDAQPublisher = null;
       failedDAQPublisher = null;
@@ -103,22 +115,31 @@ public final class SwerveDrive implements Subsystem {
       : new ChassisSpeeds(x, y, theta);
 
     SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
-    //SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveConstants.MAX_WHEEL_VELOCITY);
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveConstants.MAX_WHEEL_VELOCITY);
 
     for (int m = 0; m < 4; m++) {
       modules[m].setRequest(states[m], closedLoop);
     }
+
+    isClosedLoopLogger.append(closedLoop);
   }
 
-  /** Gets routine for SysID characterization */
+  /** Gets routine for SysID characterization. This will start the CTRE SignalLogger */
   public SysIdRoutine getRoutine() {
+    System.out.println("Starting CTRE SignalLogger due to getRoutine call in SwerveDrive");
+    SignalLogger.start();
+
     if (routine == null) {
-      // Init routine
+      // No cached routine, instantiate it
       routine = new SysIdRoutine(
-        new SysIdRoutine.Config(), 
+        new SysIdRoutine.Config(null, null, null, (State state) -> {
+          // Log state
+          SignalLogger.writeString("drive-sysid-state", state.toString());
+        }), 
         new SysIdRoutine.Mechanism((Voltage v) -> {
+          // Apply voltages
           for (int m = 0; m < 4; m++) {
-            modules[m].setVoltageRequest(v.baseUnitMagnitude());
+            modules[m].setVoltageRequest(v.in(Volts));
           }
         }, null, this)
       );
@@ -142,19 +163,25 @@ public final class SwerveDrive implements Subsystem {
   public void log() {
     // Update all states
     for (int m = 0; m < 4; m++) {
-      modules[m].updateSwerveState();
+      /*
+       * The method below updates the SwerveModuleState objects in the 'loggedStates' array in place
+       * and returns the most recently requested state.
+       */
+      loggedRequests[m] = modules[m].getAndUpdateStates();
     }
 
     Pose2d pose = odometry.getFieldRelativePosition();
 
     // Log
     stateLogger.append(loggedStates);
+    reqStateLogger.append(loggedRequests);
     poseLogger.append(pose);
     successfulDAQLogger.append(odometry.getSuccessfulDAQs());
     failedDAQLogger.append(odometry.getFailedDAQs());
 
     if (BuildConstants.PUBLISH_EVERYTHING) {
       statePublisher.set(loggedStates);
+      reqStatePublisher.set(loggedRequests);
       posePublisher.set(pose);
       successfulDAQPublisher.set(odometry.getSuccessfulDAQs());
       failedDAQPublisher.set(odometry.getFailedDAQs());

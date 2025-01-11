@@ -56,6 +56,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    // Check pregame
+    if (!PregameCommand.getHasPregamed()) {
+      DriverStation.reportError("No pregame before autonomousInit()!", false);
+      m_robotContainer.getPregameCommand().schedule();
+    }
+
+    // Run auto command
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
@@ -84,9 +91,7 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {
-
-  }
+  public void teleopPeriodic() {}
 
   @Override
   public void teleopExit() {}

@@ -56,5 +56,17 @@
     "edu.wpi.first.math.proto.*",
     "edu.wpi.first.math.**.proto.*",
     "edu.wpi.first.math.**.struct.*",
+  ],
+  "cSpell.words": [
+    "ADIS",
+    "Brushless",
+    "CANCODER",
+    "CANIVORE",
+    "CTRE",
+    "deadband",
+    "odometry",
+    "Pregamed",
+    "quasistatic",
+    "teleop"
   ]
 }
