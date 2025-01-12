@@ -14,40 +14,40 @@ import frc.robot.subsystems.swerve.SwerveDrive;
  * but BEFORE the match actually starts
  */
 public class PregameCommand extends InstantCommand {
-    private static boolean hasPregamed = false;
-    private static final Alert noPregameAlert = new Alert("Pregame not run yet!", AlertType.kWarning);
+  private static boolean hasPregamed = false;
+  private static final Alert noPregameAlert = new Alert("Pregame not run yet!", AlertType.kWarning);
 
-    static {
-        // By default, this alert should be true:
-        noPregameAlert.set(true);
-    }
+  static {
+    // By default, this alert should be true:
+    noPregameAlert.set(true);
+  }
 
-    public static boolean getHasPregamed() { return hasPregamed;  }
+  public static boolean getHasPregamed() { return hasPregamed;  }
 
-    public PregameCommand(SwerveDrive drive) {
-        super(() -> {
-            // Run pregame actions:
-            drive.homeEncoders();
-            drive.cacheAllianceColor();
+  public PregameCommand(SwerveDrive drive) {
+    super(() -> {
+      // Run pregame actions:
+      drive.homeEncoders();
+      drive.cacheAllianceColor();
 
-            SignalLogger.stop();
-            System.out.println("Stopped CTRE SignalLogger");
+      SignalLogger.stop();
+      System.out.println("Stopped CTRE SignalLogger");
 
-            // Only warmup our FollowPathCommand if we are not already in teleop
-            if (!DriverStation.isTeleop()) {
-                FollowPathCommand.warmupCommand().schedule();
-            }
+      // Only warmup our FollowPathCommand if we are not already in teleop
+      if (!DriverStation.isTeleop()) {
+        FollowPathCommand.warmupCommand().schedule();
+      }
 
-            // Notify:
-            System.out.println("Pregame complete");
-            hasPregamed = true;
-            noPregameAlert.set(false);
-        });
-    }
+      // Notify:
+      System.out.println("Pregame complete");
+      hasPregamed = true;
+      noPregameAlert.set(false);
+    });
+  }
 
-    @Override
-    public String getName() { return "PREGAME"; }
+  @Override
+  public String getName() { return "PREGAME"; }
 
-    @Override
-    public boolean runsWhenDisabled() { return true; }
+  @Override
+  public boolean runsWhenDisabled() { return true; }
 }
