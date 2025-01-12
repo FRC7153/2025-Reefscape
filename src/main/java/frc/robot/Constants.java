@@ -25,6 +25,7 @@ public final class Constants {
     public static final int FL_STEER_NEO_CAN = 12;
     public static final int FL_STEER_CANCODER_CAN = 13;
 
+    public static final CANBus RIO_CAN = new CANBus("rio");
     public static final CANBus CANIVORE = new CANBus("CANivore");
   }
 }

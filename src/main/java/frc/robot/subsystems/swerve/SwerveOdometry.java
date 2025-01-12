@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.Threads;
+import edu.wpi.first.wpilibj.Timer;
 
 /**
  * 4-module SwerveOdometry thread based off of CTRE's SwerveBase.
@@ -37,6 +38,7 @@ public final class SwerveOdometry {
     private final ReadWriteLock stateLock = new ReentrantReadWriteLock();
     private final AtomicInteger successfulDAQs = new AtomicInteger();
     private final AtomicInteger failedDAQs = new AtomicInteger();
+    private final AtomicInteger actualFreq = new AtomicInteger();
 
     private final ADIS16470_IMU imu;
     private final Alert imuHardwareAlert = new Alert("ADIS16470 IMU is not connected", AlertType.kError);
@@ -45,6 +47,8 @@ public final class SwerveOdometry {
     private final BaseStatusSignal[] allSignals;
     private final SwerveDrivePoseEstimator poseEstimator;
     private boolean isRedAlliance = false; // Cached later
+
+    private double startTime;
 
     /**
      * Automatically starts odometry thread.
@@ -90,9 +94,10 @@ public final class SwerveOdometry {
     public void start() {
         if (thread.isAlive()) {
             DriverStation.reportError("SwerveOdometry.start() called multiple times", false);
+        } else {
+            startTime = Timer.getFPGATimestamp() + 3.0; // 3 seconds before average frequency is calculated
+            thread.start();
         }
-
-        thread.start();
     }
 
     /**
@@ -115,6 +120,8 @@ public final class SwerveOdometry {
         BaseStatusSignal.setUpdateFrequencyForAll(UPDATE_FREQ, allSignals);
         Threads.setCurrentThreadPriority(true, 1); // Priority 1
 
+        int totalRuns = 0; // for calculating frequency, not including first 3 seconds
+
         // Run as fast as possible
         while (true) {
             // Wait up to twice period of update frequency
@@ -124,6 +131,7 @@ public final class SwerveOdometry {
                 successfulDAQs.incrementAndGet();
             } else {
                 failedDAQs.incrementAndGet();
+                continue;
             }
 
             try {
@@ -143,6 +151,14 @@ public final class SwerveOdometry {
                     swervePositions);
             } finally {
                 stateLock.writeLock().unlock();
+            }
+
+            // Update frequency
+            double timeDelta = Timer.getFPGATimestamp() - startTime;
+
+            if (timeDelta >= 0.0) {
+                totalRuns++;
+                actualFreq.set((int)(totalRuns / timeDelta));
             }
 
             // Use this to determine which axis is yaw:
@@ -188,6 +204,13 @@ public final class SwerveOdometry {
      */
     public int getFailedDAQs() {
         return failedDAQs.get();
+    }
+
+    /**
+     * @return The approximate frequency of the odometry loop, in hertz (per second).
+     */
+    public int getFrequency() {
+        return actualFreq.get();
     }
 
     public void cacheAllianceColor() {

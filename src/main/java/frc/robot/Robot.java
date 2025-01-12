@@ -12,7 +12,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.HardwareConstants;
 import frc.robot.commands.PregameCommand;
+import frc.robot.util.CANLogger;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
@@ -31,6 +33,10 @@ public class Robot extends TimedRobot {
 
     DriverStation.startDataLog(DataLogManager.getLog(), true);
     NetworkTableInstance.getDefault().startConnectionDataLog(DataLogManager.getLog(), "NTConnections");
+
+    // Init CAN logging
+    CANLogger canLogger = new CANLogger(HardwareConstants.RIO_CAN, HardwareConstants.CANIVORE);
+    canLogger.start();
 
     // Init robot base
     m_robotContainer = new RobotContainer();
