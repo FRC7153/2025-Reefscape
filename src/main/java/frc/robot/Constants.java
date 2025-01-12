@@ -6,6 +6,7 @@ public final class Constants {
   public static final class BuildConstants {
     public static final boolean PUBLISH_EVERYTHING = true;
     public static final boolean INCLUDE_TEST_AUTOS = true;
+    public static final String LOG_DIR = "TESTING"; // change to match comp name
   }
   
   public static final class HardwareConstants {
