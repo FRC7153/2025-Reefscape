@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.commands.PregameCommand;
 import frc.robot.util.CANLogger;
@@ -29,7 +30,7 @@ public class Robot extends TimedRobot {
     SignalLogger.setPath("/U/CTRE_Signal_Logger");
 
     // Init logging
-    DataLogManager.start(RobotBase.isReal() ? "/U/" + Constants.BuildConstants.LOG_DIR : "");
+    DataLogManager.start(RobotBase.isReal() ? "/U/" + BuildConstants.LOG_DIR : "");
     DataLogManager.logNetworkTables(true);
     DataLogManager.logConsoleOutput(true);
 
