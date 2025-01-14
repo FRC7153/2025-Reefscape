@@ -49,6 +49,7 @@ public final class SwerveOdometry {
   private boolean isRedAlliance = false; // Cached later
 
   private double startTime;
+  public static double swerveHeading; 
 
   /**
    * Automatically starts odometry thread.
