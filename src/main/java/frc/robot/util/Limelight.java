@@ -197,7 +197,10 @@ public class Limelight {
     }
 
     public double setSwerveHeading(){
-      return SwerveOdometry.swerveHeading = x + LimelightConstants.correctionAngle;
+      //return SwerveOdometry.swerveHeading = x + LimelightConstants.correctionAngle;
+      // Need to get a reference to the SwerveDrive subsystem, then to get heading:
+      // drive.getAllianceRelativePose().getRotation()
+      return 0.0;
     }
 
 }
