@@ -53,7 +53,7 @@ public final class SwerveDrive implements Subsystem {
         HardwareConstants.RL_DRIVE_KRAKEN_CAN, HardwareConstants.RL_STEER_NEO_CAN, 
         HardwareConstants.RL_STEER_CANCODER_CAN, SwerveConstants.RL_CANCODER_OFFSET
     ), new SwerveModule(
-        "FL", 
+        "RR", 
         HardwareConstants.RR_DRIVE_KRAKEN_CAN, HardwareConstants.RR_STEER_NEO_CAN, 
         HardwareConstants.RR_STEER_CANCODER_CAN, SwerveConstants.RR_CANCODER_OFFSET
     )
@@ -172,7 +172,7 @@ public final class SwerveDrive implements Subsystem {
     drive(
       fieldOriented ? 
         // Field oriented driving
-        ChassisSpeeds.fromRobotRelativeSpeeds(x, y, theta, odometry.getFieldRelativePosition().getRotation().unaryMinus())
+        ChassisSpeeds.fromRobotRelativeSpeeds(x, y, theta, odometry.getAllianceRelativePosition().getRotation().unaryMinus())
         // Robot oriented driving
         : new ChassisSpeeds(x, y, theta), 
       closedLoop
@@ -217,7 +217,7 @@ public final class SwerveDrive implements Subsystem {
       if (resetPosition) {
         // Reset position before running the path
         Pose2d origin = path.getStartingHolonomicPose().get();
-        return getResetOdometryCommand(origin, followCommand);
+        return getResetOdometryCommand(origin).andThen(followCommand);
       } else {
         // Just run the path
         return followCommand;
@@ -241,13 +241,13 @@ public final class SwerveDrive implements Subsystem {
     return odometry.getAllianceRelativePosition();
   }
 
-  /** Resets from a FIELD RELATIVE position, then runs other commands */
-  public Command getResetOdometryCommand(Pose2d newPose, Command... andThen) {
+  /** Resets from a FIELD RELATIVE position */
+  public Command getResetOdometryCommand(Pose2d newPose) {
     return new InstantCommand(() -> {
       Pose2d pose = odometry.getFieldRelativePosition();
       odometry.resetPosition(newPose);
       System.out.printf("Reset odometry from %s -> %s\n", pose, newPose);
-    }).andThen(andThen);
+    });
   }
 
   @Override
@@ -317,9 +317,10 @@ public final class SwerveDrive implements Subsystem {
     }
   }
 
-  /** Caches alliance color for odometry. Run in pregame. */
-  public void cacheAllianceColor() {
+  /** Caches alliance color for odometry and sets default position. Run in pregame. */
+  public void configOdometry() {
     odometry.cacheAllianceColor();
+    odometry.setDefaultPosition();
   }
 
   public void log() {

@@ -39,7 +39,10 @@ public final class AutoChooser {
       // Drive characterization test auto
       chooser.addOption("Auto Drive Test", () -> new SimpleDriveTestAuto(drive));
       chooser.addOption("Back and Forth Drive Test", () -> new BackAndForthTestAuto(drive));
-      chooser.addOption("Follow Path Test", () -> drive.getFollowPathCommand("Example Path 1", true));
+      chooser.addOption("Path 1 Test", 
+        () -> drive.getFollowPathCommand("Path 1 Test", true).withName("Path 1 Test"));
+      chooser.addOption("Rotate 1 Test", 
+        () -> drive.getFollowPathCommand("Rotate 1 Test", true).withName("Rotate 1 Test"));
     }
   }
 

@@ -19,7 +19,7 @@ public class StickyAlerts {
     count++;
 
     @SuppressWarnings("resource")
-    Alert alert = new Alert("Sticky", String.format("(%d) %s", count, message), AlertType.kError);
+    Alert alert = new Alert("StickyAlerts", String.format("(%d) %s", count, message), AlertType.kError);
     alert.set(true);
   }
 

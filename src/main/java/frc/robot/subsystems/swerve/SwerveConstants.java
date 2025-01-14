@@ -8,11 +8,14 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.util.FlippingUtil;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
@@ -25,8 +28,12 @@ public final class SwerveConstants {
   public static final double MAX_WHEEL_VELOCITY = 5.0; // Absolute max wheel m/s
 
   // Max drive speeds
+  /**
+   * Distance center to wheel = 0.402 meters
+   * TODO finish...
+   */
   public static final double FAST_TRANSLATIONAL_SPEED = 5.0; // m/s
-  public static final double FAST_ROTATIONAL_SPEED = 3.0 * 2.0 * Math.PI; // rad/s
+  public static final double FAST_ROTATIONAL_SPEED = 12.438; // rad/s
 
   public static final double SLOW_TRANSLATIONAL_SPEED = FAST_TRANSLATIONAL_SPEED * 0.5;
   public static final double SLOW_ROTATIONAL_SPEED = FAST_TRANSLATIONAL_SPEED * 0.5;
@@ -108,6 +115,10 @@ public final class SwerveConstants {
   public static final PPHolonomicDriveController AUTO_CONTROLLER = 
     new PPHolonomicDriveController(
       new PIDConstants(2.25, 0.0, 0.0), // Translational
-      new PIDConstants(0.0, 0.0, 0.0) // Rotational
+      new PIDConstants(2.0, 0.0, 0.0) // Rotational
     );
+
+  // Default positions, if none is set by the auto program by PREGAME
+  public static final Pose2d DEFAULT_BLUE_POSE = new Pose2d(2.0, 4.0, Rotation2d.kZero);
+  public static final Pose2d DEFAULT_RED_POSE = FlippingUtil.flipFieldPose(DEFAULT_BLUE_POSE);
 }

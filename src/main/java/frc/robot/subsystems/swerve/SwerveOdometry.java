@@ -47,8 +47,9 @@ public final class SwerveOdometry {
   private final BaseStatusSignal[] allSignals;
   private final SwerveDrivePoseEstimator poseEstimator;
   private boolean isRedAlliance = false; // Cached later
+  private boolean hasSetInitialPosition = false; // Set later
 
-  private double startTime;
+  private double startTime; // For freq calculation
 
   /**
    * Automatically starts odometry thread.
@@ -112,6 +113,23 @@ public final class SwerveOdometry {
         newPosition);
     } finally {
       stateLock.writeLock().unlock();
+    }
+
+    hasSetInitialPosition = true;
+  }
+
+  /**
+   * If no initial position has yet been set, it will set one depending on the cached alliance
+   * color.
+   */
+  public void setDefaultPosition() {
+    if (!hasSetInitialPosition) {
+      Pose2d initial = isRedAlliance ? SwerveConstants.DEFAULT_RED_POSE : SwerveConstants.DEFAULT_BLUE_POSE;
+      System.out.printf(
+        "Configured an initial position for %s alliance: %s\n", 
+        isRedAlliance ? "RED" : "BLUE", 
+        initial);
+      resetPosition(initial);
     }
   }
 

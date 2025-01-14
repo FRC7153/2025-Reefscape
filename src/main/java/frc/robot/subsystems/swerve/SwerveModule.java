@@ -83,7 +83,6 @@ public final class SwerveModule {
     steerMotorAlert = new Alert("Swerve Module " + name + " steer motor error", AlertType.kError);
     steerCANCoderAlert = new Alert("Swerve Module " + name + " steer CANCoder error", AlertType.kError);
     steerNotHomedAlert = new Alert("Swerve Module " + name + " steer encoder failed to home", AlertType.kError);
-    steerNotHomedAlert.set(true);
 
     // Initialize DRIVE MOTOR
     driveMotor = new TalonFX(driveMotorCAN, HardwareConstants.CANIVORE);
@@ -163,7 +162,7 @@ public final class SwerveModule {
     request.cosineScale(currentAngle);
     lastStateRequest = request;
 
-    if (Math.abs(request.speedMetersPerSecond) < 0.1) {
+    if (Math.abs(request.speedMetersPerSecond) < 0.01) {
       // No movement, apply deadband
       driveMotor.setControl(staticBrakeRequest);
     } else {
@@ -199,7 +198,7 @@ public final class SwerveModule {
    */
   public void staticBrakeRequest(){
     driveMotor.setControl(staticBrakeRequest);
-    // TODO: add lastStateRequest = 0;
+    lastStateRequest = new SwerveModuleState();
   }
 
   /**

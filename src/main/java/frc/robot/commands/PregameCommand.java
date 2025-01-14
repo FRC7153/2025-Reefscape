@@ -28,7 +28,8 @@ public class PregameCommand extends InstantCommand {
     super(() -> {
       // Run pregame actions:
       drive.homeEncoders();
-      drive.cacheAllianceColor();
+      drive.configOdometry();
+
 
       SignalLogger.stop();
       System.out.println("Stopped CTRE SignalLogger");
