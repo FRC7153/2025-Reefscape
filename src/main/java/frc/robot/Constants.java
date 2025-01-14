@@ -9,6 +9,13 @@ public final class Constants {
     public static final String LOG_DIR = "TESTING"; // change to match comp name
   }
   
+
+  public static final class LimelightConstants {
+    // TODO
+    public static final double limelightMountingAngle = 0.0; // Limelight Mounting Angle in degrees
+    // TODO
+    public static final double correctionAngle = Math.atan(Math.toRadians(limelightMountingAngle)); 
+  }
   public static final class HardwareConstants {
     public static final int PDH_CAN = 1;
 

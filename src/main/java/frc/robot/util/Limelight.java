@@ -14,7 +14,9 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import frc.robot.subsystems.swerve.SwerveOdometry;
+import frc.robot.Constants;
+import frc.robot.Constants.LimelightConstants;
 
 public class Limelight {
     private String cameraName;
@@ -43,6 +45,8 @@ public class Limelight {
     // Tag View
     private boolean tagInView;
     
+    // Limelight Helper variables
+    public double x, y, area; 
     /**
      * @param name Host Camera ID
      */
@@ -73,6 +77,7 @@ public class Limelight {
         
         yawOut =
           outTable.getDoubleTopic("yaw").publish();
+      
 
         // Enforce Pipeline
         cameraTable.getIntegerTopic("pipeline").publish().set(1);
@@ -89,9 +94,9 @@ public class Limelight {
         tagIdLog = new IntegerLogEntry(DataLogManager.getLog(), logName + "tag id");
 
 
-        double x = LimelightHelpers.getTX(cameraName);
-        double y = LimelightHelpers.getTY(cameraName);
-        double area = LimelightHelpers.getTA(cameraName);
+         x = LimelightHelpers.getTX(cameraName);
+         y = LimelightHelpers.getTY(cameraName);
+         area = LimelightHelpers.getTA(cameraName);
   
         if(area == 0){
           tagInView = false;
@@ -191,5 +196,8 @@ public class Limelight {
       return alive;
     }
 
+    public double setSwerveHeading(){
+      return SwerveOdometry.swerveHeading = x + LimelightConstants.correctionAngle;
+    }
 
 }
