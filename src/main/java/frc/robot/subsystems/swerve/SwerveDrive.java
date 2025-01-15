@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.HardwareConstants;
+import frc.robot.util.Limelight;
 import frc.robot.util.StickyAlerts;
 
 public final class SwerveDrive implements Subsystem {
@@ -92,6 +93,7 @@ public final class SwerveDrive implements Subsystem {
   // Pose estimation
   private final SwerveOdometry odometry = new SwerveOdometry(modules, kinematics);
   private SysIdRoutine moduleRoutine, pathRoutine;
+  private final Limelight limelightMain = new Limelight("main");
 
   // Autonomous
   private final RobotConfig autoConfig;
@@ -260,6 +262,8 @@ public final class SwerveDrive implements Subsystem {
        */
       currentRequests[m] = modules[m].getAndUpdateStates();
     }
+
+    limelightMain.updateLimelight();
   }
 
   /** Gets routine for MODULE SysId characterization. This will start the CTRE SignalLogger */

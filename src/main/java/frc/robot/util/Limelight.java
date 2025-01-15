@@ -1,5 +1,6 @@
 package frc.robot.util;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoublePublisher;
@@ -15,11 +16,13 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.swerve.SwerveOdometry;
+import frc.robot.util.LimelightHelpers.PoseEstimate;
 import frc.robot.Constants;
 import frc.robot.Constants.LimelightConstants;
 
 public class Limelight {
     private String cameraName;
+    private SwerveOdometry odometry;
 
     // Network tables
     private DoubleArraySubscriber poseSub, statsSub;
@@ -203,4 +206,14 @@ public class Limelight {
       return 0.0;
     }
 
+    public void updateLimelight(){
+      LimelightHelpers.SetRobotOrientation(cameraName, 
+      odometry.getFieldRelativePosition().getRotation().getDegrees(), 
+      odometry.getYawRate(), 0.0, 0.0, 0.0, 0.0);
+
+      PoseEstimate limelightPoseEst = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName);
+
+      odometry.addVisionMeasurement(limelightPoseEst.pose, limelightPoseEst.timestampSeconds,
+      VecBuilder.fill(0.01, 0.01, 99999999999.0));
+    }
 }

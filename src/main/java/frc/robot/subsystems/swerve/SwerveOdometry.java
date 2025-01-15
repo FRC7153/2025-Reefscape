@@ -258,4 +258,8 @@ public final class SwerveOdometry {
   public void checkHardware() {
     imuHardwareAlert.set(!imu.isConnected());
   }
+
+  public double getYawRate(){
+   return imu.getRate(IMUAxis.kYaw);
+  }
 }
