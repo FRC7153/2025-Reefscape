@@ -189,7 +189,7 @@ public class Limelight {
       alive = false;
     }
 
-    notConnectedAlert.set(alive);
+    notConnectedAlert.set(!alive);
   }
 
   /**
