@@ -240,7 +240,7 @@ public final class SwerveOdometry {
 
   /**
    * @param visionRobotPoseMeters Position of robot (center) from vision estimation.
-   * @param timestampSeconds The timestamp of the vision estimation.
+   * @param timestampSeconds The timestamp of the vision estimation (seconds).
    * @param visionMeasurementStdDevs The standard deviations of the vision estimation.
    */
   public void addVisionMeasurement(

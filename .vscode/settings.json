@@ -59,6 +59,7 @@
   ],
   "cSpell.words": [
     "ADIS",
+    "botpose",
     "Brushless",
     "CANCODER",
     "CANIVORE",
@@ -70,6 +71,7 @@
     "odometry",
     "Pregamed",
     "quasistatic",
-    "teleop"
+    "teleop",
+    "wpiblue"
   ]
 }

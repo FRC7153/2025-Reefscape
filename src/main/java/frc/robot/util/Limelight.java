@@ -130,14 +130,14 @@ public class Limelight {
       new Translation2d(data[0], data[1]),
       Rotation2d.fromDegrees(data[5])
     );
-    double timestamp = event.valueData.value.getTime() - data[6];
+    double timestamp = event.valueData.value.getTime() - data[6]; // Microseconds
     
     // Update standard deviations
-    stdDevs.set(0, 0, stdDevsUpdate[0]); // X
-    stdDevs.set(1, 0, stdDevsUpdate[1]); // Y
-    stdDevs.set(2, 0, stdDevsUpdate[2]); // Yaw
+    stdDevs.set(0, 0, stdDevsUpdate[6]); // X
+    stdDevs.set(1, 0, stdDevsUpdate[7]); // Y
+    stdDevs.set(2, 0, stdDevsUpdate[11]); // Yaw
 
-    odometry.addVisionMeasurement(receivedPose, timestamp, stdDevs);
+    odometry.addVisionMeasurement(receivedPose, timestamp / 1.0e+6, stdDevs);
     frameCount++;
   }
 
