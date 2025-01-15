@@ -10,6 +10,7 @@ import com.ctre.phoenix6.StatusCode;
 import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -88,7 +89,10 @@ public final class SwerveOdometry {
       kinematics, 
       Rotation2d.fromDegrees(imu.getAngle(IMUAxis.kYaw)), 
       swervePositions, 
-      Pose2d.kZero);
+      Pose2d.kZero,
+      SwerveConstants.STATE_STD_DEVS, // State std devs
+      VecBuilder.fill(0.9, 0.9, 0.9) // Vision std devs, will be changed in calls to addVisionMeasurement(...)
+    );
   }
 
   /** Start the odometry thread. */

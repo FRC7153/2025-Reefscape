@@ -14,9 +14,13 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 
@@ -92,6 +96,9 @@ public final class SwerveConstants {
   public static final IMUAxis GYRO_YAW = IMUAxis.kZ;
   public static final IMUAxis GYRO_PITCH = IMUAxis.kX;
   public static final IMUAxis GYRO_ROLL = IMUAxis.kY;
+
+  // Odometry
+  public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(0.3, 0.3, 0.1);
 
   // Base size
   public static final Translation2d BASE_DIMENSIONS = 
