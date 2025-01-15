@@ -263,7 +263,7 @@ public final class SwerveDrive implements Subsystem {
       currentRequests[m] = modules[m].getAndUpdateStates();
     }
 
-    limelightMain.updateLimelight();
+    limelightMain.refresh();
   }
 
   /** Gets routine for MODULE SysId characterization. This will start the CTRE SignalLogger */

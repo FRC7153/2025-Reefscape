@@ -1,0 +1,25 @@
+{
+  "NetworkTables": {
+    "transitory": {
+      "limelight-main": {
+        "double[]##v_/limelight-main/stddevs": {
+          "open": true
+        },
+        "open": true
+      }
+    },
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Drive/Auto": "String Chooser",
+      "/Shuffleboard/Drive/Pregame": "Command",
+      "/SmartDashboard/Alerts": "Alerts"
+    }
+  },
+  "NetworkTables Info": {
+    "visible": true
+  },
+  "NetworkTables Settings": {
+    "mode": "Client (NT4)",
+    "serverTeam": "7153"
+  }
+}
