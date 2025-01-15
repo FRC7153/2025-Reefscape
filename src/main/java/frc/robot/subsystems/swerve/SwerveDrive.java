@@ -93,6 +93,7 @@ public final class SwerveDrive implements Subsystem {
   // Pose estimation
   private final SwerveOdometry odometry = new SwerveOdometry(modules, kinematics);
   private SysIdRoutine moduleRoutine, pathRoutine;
+  
   private final Limelight limelightMain = new Limelight("main", odometry);
 
   // Autonomous
@@ -263,7 +264,8 @@ public final class SwerveDrive implements Subsystem {
       currentRequests[m] = modules[m].getAndUpdateStates();
     }
 
-    limelightMain.refresh();
+    // Update limelights
+    limelightMain.sendOrientation();
   }
 
   /** Gets routine for MODULE SysId characterization. This will start the CTRE SignalLogger */
@@ -347,6 +349,9 @@ public final class SwerveDrive implements Subsystem {
       failedDAQPublisher.set(odometry.getFailedDAQs());
       odometryFreqPublisher.set(odometry.getFrequency());
     }
+
+    // Log limelights
+    limelightMain.log();
   }
 
   public void checkHardware() {
@@ -355,5 +360,6 @@ public final class SwerveDrive implements Subsystem {
     }
 
     odometry.checkHardware();
+    limelightMain.checkHardware();
   }
 }
