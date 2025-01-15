@@ -15,13 +15,19 @@ import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.TimestampedDoubleArray;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.IntegerLogEntry;
+import edu.wpi.first.util.datalog.StructArrayLogEntry;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants.BuildConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.swerve.SwerveOdometry;
 
 /**
@@ -32,7 +38,7 @@ public class Limelight {
   private final SwerveOdometry odometry;
 
   // Network tables
-  private final DoubleArraySubscriber poseSub, statsSub, stdDevSub;
+  private final DoubleArraySubscriber poseSub, statsSub, stdDevSub, rawFiducialSub;
   private final DoubleSubscriber heartbeatSub;
   private final DoubleArrayPublisher orientationPub;
   private final Alert notConnectedAlert;
@@ -46,6 +52,11 @@ public class Limelight {
   // Logging
   private final DoubleLogEntry fpsLog, cpuTempLog, ramLog, tempLog;
   private final IntegerLogEntry frameCountLog;
+  private final BooleanLogEntry isAliveLog;
+  private final StructArrayLogEntry<Translation2d> seenTagsLog;
+
+  // NT Logging
+  private final StructArrayPublisher<Translation2d> seenTagsPub;
 
   // Cached values
   private final Matrix<N3, N1> stdDevs = VecBuilder.fill(0, 0, 0);
@@ -57,13 +68,14 @@ public class Limelight {
   public Limelight(String name, SwerveOdometry odometry) {
     cameraName = name;
     this.odometry = odometry;
-    notConnectedAlert = new Alert(String.format("Limelight %s is not alive", name), AlertType.kError);
+    notConnectedAlert = new Alert(String.format("Limelight %s is not alive", name), AlertType.kWarning);
 
     // Get NT topics
     NetworkTable cameraTable = NetworkTableInstance.getDefault().getTable(cameraName);
 
     poseSub = cameraTable.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(new double[0]);
     stdDevSub = cameraTable.getDoubleArrayTopic("stdDevs").subscribe(new double[0]);
+    rawFiducialSub = cameraTable.getDoubleArrayTopic("rawfiducials").subscribe(new double[0]);
     orientationPub = cameraTable.getDoubleArrayTopic("robot_orientation_set").publish();
     
     statsSub = cameraTable.getDoubleArrayTopic("hw").subscribe(new double[4]);
@@ -79,9 +91,20 @@ public class Limelight {
     cpuTempLog = new DoubleLogEntry(DataLogManager.getLog(), logName + "cpu_temp", "f");
     ramLog = new DoubleLogEntry(DataLogManager.getLog(), logName + "ram", "%");
     tempLog = new DoubleLogEntry(DataLogManager.getLog(), logName + "temp", "f");
+    isAliveLog = new BooleanLogEntry(DataLogManager.getLog(), logName + "is_alive");
     frameCountLog = new IntegerLogEntry(DataLogManager.getLog(), logName + "frame_count");
+    
+    seenTagsLog = StructArrayLogEntry.create(DataLogManager.getLog(), "Limelight/AllTags/" + name, Translation2d.struct);
 
-    // Limelight MegaTag pose listener
+    // Init NT logging
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      NetworkTable nt = NetworkTableInstance.getDefault().getTable("Limelight/AllTags");
+      seenTagsPub = nt.getStructArrayTopic(name, Translation2d.struct).publish();
+    } else {
+      seenTagsPub = null;
+    }
+
+    // Limelight MegaTag2 pose listener
     NetworkTableInstance.getDefault().addListener(
       poseSub, 
       EnumSet.of(NetworkTableEvent.Kind.kValueRemote),
@@ -90,11 +113,11 @@ public class Limelight {
   }
 
   /***
-   * Runs when NetworkTables detects a change on the robot pose entry.
+   * Runs when NT detects a change on the robot pose entry.
    * @param event
    */
   private void processPose(NetworkTableEvent event) {
-    // Check that the NetworkTable value is correct
+    // Check that the NT type is correct
     if (!event.valueData.value.isDoubleArray()) {
       DriverStation.reportError(
         String.format(
@@ -130,19 +153,19 @@ public class Limelight {
       new Translation2d(data[0], data[1]),
       Rotation2d.fromDegrees(data[5])
     );
-    double timestamp = event.valueData.value.getTime() - data[6]; // Microseconds
+    double timestamp = (event.valueData.value.getTime() / 1000000.0) - (data[6] / 1000.0); // Seconds
     
     // Update standard deviations
     stdDevs.set(0, 0, stdDevsUpdate[6]); // X
     stdDevs.set(1, 0, stdDevsUpdate[7]); // Y
     stdDevs.set(2, 0, stdDevsUpdate[11]); // Yaw
 
-    odometry.addVisionMeasurement(receivedPose, timestamp / 1.0e+6, stdDevs);
+    odometry.addVisionMeasurement(receivedPose, timestamp, stdDevs);
     frameCount++;
   }
 
   /**
-   * Sends the robot orientation to the  limelight.
+   * Sends the robot orientation to the  limelight. Call periodically.
    */
   public void sendOrientation() {
     orientation[0] = odometry.getFieldRelativePosition().getRotation().getDegrees();
@@ -167,6 +190,25 @@ public class Limelight {
     }
 
     frameCountLog.append(frameCount);
+
+    // Log last raw fiducial
+    TimestampedDoubleArray lastRaw = rawFiducialSub.getAtomic();
+    Translation2d[] tagPoses;
+
+    if (lastRaw.value.length == 0 || lastRaw.value.length % 7 != 0) {
+      // Nothing, or nothing of value
+      tagPoses = new Translation2d[0];
+    } else {
+      // Log these new tags
+      tagPoses = new Translation2d[lastRaw.value.length / 7];  
+
+      for (int t = 0; t < lastRaw.value.length / 7; t++) {
+        tagPoses[t] = FieldConstants.APRIL_TAG_POSITIONS[(int)lastRaw.value[t*7]];
+      }
+    }
+
+    seenTagsLog.append(tagPoses);
+    if (BuildConstants.PUBLISH_EVERYTHING) seenTagsPub.set(tagPoses);
   }
 
   /**
@@ -190,6 +232,7 @@ public class Limelight {
     }
 
     notConnectedAlert.set(!alive);
+    isAliveLog.append(alive);
   }
 
   /**

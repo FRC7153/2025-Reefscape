@@ -71,6 +71,7 @@
     "odometry",
     "Pregamed",
     "quasistatic",
+    "rawfiducials",
     "teleop",
     "wpiblue"
   ]
