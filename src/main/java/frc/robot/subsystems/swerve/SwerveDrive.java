@@ -93,7 +93,7 @@ public final class SwerveDrive implements Subsystem {
   // Pose estimation
   private final SwerveOdometry odometry = new SwerveOdometry(modules, kinematics);
   private SysIdRoutine moduleRoutine, pathRoutine;
-  private final Limelight limelightMain = new Limelight("main");
+  private final Limelight limelightMain = new Limelight("main", odometry);
 
   // Autonomous
   private final RobotConfig autoConfig;

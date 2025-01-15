@@ -53,8 +53,9 @@ public class Limelight {
     /**
      * @param name Host Camera ID
      */
-    public Limelight(String name){
+    public Limelight(String name, SwerveOdometry odometry){
         name = cameraName;
+        this.odometry = odometry;
 
         // Network Table
         NetworkTable cameraTable = NetworkTableInstance.getDefault().getTable(cameraName);
@@ -197,13 +198,6 @@ public class Limelight {
     */
     public boolean isAlive() {
       return alive;
-    }
-
-    public double setSwerveHeading(){
-      //return SwerveOdometry.swerveHeading = x + LimelightConstants.correctionAngle;
-      // Need to get a reference to the SwerveDrive subsystem, then to get heading:
-      // drive.getAllianceRelativePose().getRotation()
-      return 0.0;
     }
 
     public void updateLimelight(){
