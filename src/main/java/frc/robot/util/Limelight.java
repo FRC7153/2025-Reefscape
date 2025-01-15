@@ -34,6 +34,20 @@ import frc.robot.subsystems.swerve.SwerveOdometry;
  * @see https://docs.limelightvision.io/docs/docs-limelight/apis/complete-networktables-api
  */
 public class Limelight {
+  // Shared orientation array for MegaTag2
+  private static final double[] orientation = new double[6];
+
+  /**
+   * Sets the shared orientation array output. Pitch, pitch rate, roll, and roll rate will remain
+   * 0.0.
+   * @param yaw degrees, CCW+
+   * @param yawRate degrees/second
+   */
+  public static void setOrientation(double yaw, double yawRate) {
+    orientation[0] = yaw;
+    orientation[1] = yawRate;
+  }
+
   private final String cameraName;
   private final SwerveOdometry odometry;
 
@@ -60,7 +74,6 @@ public class Limelight {
 
   // Cached values
   private final Matrix<N3, N1> stdDevs = VecBuilder.fill(0, 0, 0);
-  private final double[] orientation = new double[6];
 
   /**
    * @param name Host Camera ID
@@ -165,13 +178,10 @@ public class Limelight {
   }
 
   /**
-   * Sends the robot orientation to the  limelight. Call periodically.
+   * Sends the robot orientation to the  limelight. Call periodically, after 
+   * {@code Limelight.setOrientation(...)}.
    */
   public void sendOrientation() {
-    orientation[0] = odometry.getFieldRelativePosition().getRotation().getDegrees();
-    orientation[1] = odometry.getYawRate();
-    // pitch, pitch rate, roll, and roll rate can remain 0.0 indefinitely
-
     orientationPub.set(orientation);
   }
 
