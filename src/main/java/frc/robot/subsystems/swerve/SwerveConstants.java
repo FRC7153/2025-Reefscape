@@ -126,6 +126,7 @@ public final class SwerveConstants {
     );
 
   // Default positions, if none is set by the auto program by PREGAME
-  public static final Pose2d DEFAULT_BLUE_POSE = new Pose2d(2.0, 4.0, Rotation2d.kZero);
+  //public static final Pose2d DEFAULT_BLUE_POSE = new Pose2d(2.0, 4.0, Rotation2d.kZero);
+  public static final Pose2d DEFAULT_BLUE_POSE = new Pose2d(1, 0.74, Rotation2d.kZero);
   public static final Pose2d DEFAULT_RED_POSE = FlippingUtil.flipFieldPose(DEFAULT_BLUE_POSE);
 }
