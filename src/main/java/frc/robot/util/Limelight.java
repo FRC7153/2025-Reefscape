@@ -16,7 +16,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
-import edu.wpi.first.networktables.TimestampedDoubleArray;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.IntegerLogEntry;
@@ -27,7 +26,6 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.BuildConstants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.swerve.SwerveOdometry;
 
 /**
@@ -206,7 +204,7 @@ public class Limelight {
     frameCountLog.append(frameCount);
 
     // Log last raw fiducial
-    TimestampedDoubleArray lastRaw = rawFiducialSub.getAtomic();
+    /*TimestampedDoubleArray lastRaw = rawFiducialSub.getAtomic();
     Translation2d[] tagPoses;
 
     if (lastRaw.value.length == 0 || lastRaw.value.length % 7 != 0) {
@@ -222,7 +220,7 @@ public class Limelight {
     }
 
     seenTagsLog.append(tagPoses);
-    if (BuildConstants.PUBLISH_EVERYTHING) seenTagsPub.set(tagPoses);
+    if (BuildConstants.PUBLISH_EVERYTHING) seenTagsPub.set(tagPoses);*/
   }
 
   /**
