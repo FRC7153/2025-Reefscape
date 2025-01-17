@@ -28,7 +28,6 @@ public class Robot extends TimedRobot {
     SignalLogger.setPath("/U/CTRE_Signal_Logger");
 
     // Init logging
-    //DataLogManager.start(RobotBase.isReal() ? "/U/" + BuildConstants.LOG_DIR : "");
     DataLogManager.start();
     DataLogManager.logNetworkTables(true);
     DataLogManager.logConsoleOutput(true);
