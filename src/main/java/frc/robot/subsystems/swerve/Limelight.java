@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.subsystems.swerve;
 
 import java.util.EnumSet;
 
@@ -26,7 +26,8 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.BuildConstants;
-import frc.robot.subsystems.swerve.SwerveOdometry;
+import frc.robot.util.AprilTagMap;
+import frc.robot.util.LimelightHelpers;
 
 /**
  * @see https://docs.limelightvision.io/docs/docs-limelight/apis/complete-networktables-api
@@ -45,6 +46,9 @@ public class Limelight {
     orientation[0] = yaw;
     orientation[1] = yawRate;
   }
+
+  // Shared empty translation2d array, used for logging if a limelight sees no tags
+  private static final Translation2d[] EMPTY_TRANSLATION_ARRAY = new Translation2d[0];
 
   private final String cameraName;
   private final SwerveOdometry odometry;
@@ -71,7 +75,7 @@ public class Limelight {
   private final StructArrayPublisher<Translation2d> seenTagsPub;
 
   // Cached values
-  private final Matrix<N3, N1> stdDevs = VecBuilder.fill(0, 0, 9999); // NEVER trust yaw measurement
+  private final Matrix<N3, N1> stdDevs = VecBuilder.fill(0, 0, 99999); // NEVER trust yaw measurement
   private Translation2d[] seenTags = new Translation2d[0];
 
   /**
@@ -161,14 +165,15 @@ public class Limelight {
 
     if (data[7] == 0) {
       // No new tags here
-      seenTags = new Translation2d[0];
+      seenTags = EMPTY_TRANSLATION_ARRAY;
       return;
     }
 
     // Calculate new Pose
     Pose2d receivedPose = new Pose2d(
       new Translation2d(data[0], data[1]),
-      Rotation2d.fromDegrees(data[5])
+      //Rotation2d.fromDegrees(data[5])
+      Rotation2d.kZero // this is ignored by stddevs anyways
     );
     double timestamp = (event.valueData.value.getTime() / 1000000.0) - (data[6] / 1000.0); // Seconds
     
@@ -242,6 +247,22 @@ public class Limelight {
 
     notConnectedAlert.set(!alive);
     isAliveLog.append(alive);
+  }
+
+  /**
+   * Takes a photo with the limelight
+   * @param snapshotName Name to save the photo.
+   */
+  public void takeSnapshot(String snapshotName) {
+    LimelightHelpers.takeSnapshot(cameraName, snapshotName).thenAccept((Boolean success) -> {
+      if (success) {
+        // Photo was successful
+        System.out.printf("Successfully snapped '%s' with limelight '%s'\n", snapshotName, cameraName);
+      } else {
+        // Photo failed
+        System.out.printf("Failed to snap '%s' with limelight '%s'\n", snapshotName, cameraName);
+      }
+    });
   }
 
   /**

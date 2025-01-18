@@ -39,7 +39,6 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.HardwareConstants;
-import frc.robot.util.Limelight;
 import frc.robot.util.StickyAlerts;
 
 public final class SwerveDrive implements Subsystem {
