@@ -128,11 +128,6 @@ public class Limelight {
    * @param event
    */
   private void processPose(NetworkTableEvent event) {
-    // Check that odometry has started yet
-    if (!odometry.getHasSetInitialPosition()) {
-      return;
-    }
-
     // Check that the NT type is correct
     if (!event.valueData.value.isDoubleArray()) {
       DriverStation.reportError(

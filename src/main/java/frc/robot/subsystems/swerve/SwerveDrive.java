@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -23,6 +24,7 @@ import edu.wpi.first.networktables.StructPublisher;
 import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.IntegerLogEntry;
 import edu.wpi.first.util.datalog.StructArrayLogEntry;
 import edu.wpi.first.util.datalog.StructLogEntry;
@@ -69,7 +71,8 @@ public final class SwerveDrive implements Subsystem {
   private final StructArrayPublisher<SwerveModuleState> statePublisher, reqStatePublisher;
   private final StructPublisher<Pose2d> posePublisher;
   private final StructArrayPublisher<Pose2d> trajectoryPublisher;
-  private final IntegerPublisher successfulDAQPublisher, failedDAQPublisher, odometryFreqPublisher;
+  private final IntegerPublisher successfulDAQPublisher, failedDAQPublisher;
+  private final DoublePublisher odometryFreqPublisher;
   private final BooleanPublisher isClosedLoopPublisher;
 
   // DL Logging
@@ -87,8 +90,8 @@ public final class SwerveDrive implements Subsystem {
     new IntegerLogEntry(DataLogManager.getLog(), "Swerve/Successful_DAQs");
   private final IntegerLogEntry failedDAQLogger =
     new IntegerLogEntry(DataLogManager.getLog(), "Swerve/Failed_DAQs");
-  private final IntegerLogEntry odometryFreqLogger =
-    new IntegerLogEntry(DataLogManager.getLog(), "Swerve/Odometry_Freq");
+  private final DoubleLogEntry odometryFreqLogger =
+    new DoubleLogEntry(DataLogManager.getLog(), "Swerve/Odometry_Freq");
 
   private final SwerveModuleState[] currentStates = {
     modules[0].state, modules[1].state, modules[2].state, modules[3].state
@@ -116,7 +119,7 @@ public final class SwerveDrive implements Subsystem {
       trajectoryPublisher = ntTable.getStructArrayTopic("Trajectory", Pose2d.struct).publish();
       successfulDAQPublisher = ntTable.getIntegerTopic("Successful_DAQs").publish();
       failedDAQPublisher = ntTable.getIntegerTopic("Failed_DAQs").publish();
-      odometryFreqPublisher = ntTable.getIntegerTopic("Odometry_Freq").publish();
+      odometryFreqPublisher = ntTable.getDoubleTopic("Odometry_Freq").publish();
       isClosedLoopPublisher = ntTable.getBooleanTopic("IsClosedLoop").publish();
     } else {
       // Do not init NT publishers
