@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swerve;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -7,6 +8,7 @@ import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
+import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -66,6 +68,7 @@ public final class SwerveDrive implements Subsystem {
   // NT Logging
   private final StructArrayPublisher<SwerveModuleState> statePublisher, reqStatePublisher;
   private final StructPublisher<Pose2d> posePublisher;
+  private final StructArrayPublisher<Pose2d> trajectoryPublisher;
   private final IntegerPublisher successfulDAQPublisher, failedDAQPublisher, odometryFreqPublisher;
   private final BooleanPublisher isClosedLoopPublisher;
 
@@ -78,6 +81,8 @@ public final class SwerveDrive implements Subsystem {
     new BooleanLogEntry(DataLogManager.getLog(), "Swerve/ClosedLoop");
   private final StructLogEntry<Pose2d> poseLogger =
     StructLogEntry.create(DataLogManager.getLog(), "Swerve/Pose", Pose2d.struct);
+  private final StructArrayLogEntry<Pose2d> trajectoryLogger =
+    StructArrayLogEntry.create(DataLogManager.getLog(), "Swerve/Trajectory", Pose2d.struct);
   private final IntegerLogEntry successfulDAQLogger = 
     new IntegerLogEntry(DataLogManager.getLog(), "Swerve/Successful_DAQs");
   private final IntegerLogEntry failedDAQLogger =
@@ -108,6 +113,7 @@ public final class SwerveDrive implements Subsystem {
       statePublisher = ntTable.getStructArrayTopic("State", SwerveModuleState.struct).publish();
       reqStatePublisher = ntTable.getStructArrayTopic("Request", SwerveModuleState.struct).publish();
       posePublisher = ntTable.getStructTopic("Pose", Pose2d.struct).publish();
+      trajectoryPublisher = ntTable.getStructArrayTopic("Trajectory", Pose2d.struct).publish();
       successfulDAQPublisher = ntTable.getIntegerTopic("Successful_DAQs").publish();
       failedDAQPublisher = ntTable.getIntegerTopic("Failed_DAQs").publish();
       odometryFreqPublisher = ntTable.getIntegerTopic("Odometry_Freq").publish();
@@ -117,6 +123,7 @@ public final class SwerveDrive implements Subsystem {
       statePublisher = null;
       reqStatePublisher = null;
       posePublisher = null;
+      trajectoryPublisher = null;
       successfulDAQPublisher = null;
       failedDAQPublisher = null;
       odometryFreqPublisher = null;
@@ -143,6 +150,14 @@ public final class SwerveDrive implements Subsystem {
     }
 
     autoConfig = config;
+
+    // Initialize trajectory logging
+    PathPlannerLogging.setLogActivePathCallback((List<Pose2d> path) -> {
+      trajectoryLogger.append(path);
+      if (BuildConstants.PUBLISH_EVERYTHING) {
+        trajectoryPublisher.set(path.toArray(Pose2d[]::new));
+      }
+    });
   }
 
   /**
