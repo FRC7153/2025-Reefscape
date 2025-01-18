@@ -6,37 +6,59 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveDrive;
 
 public class GoToPointCommand extends Command {
-    PIDController pidXController =  new PIDController(0.1, 0, 0) ;
-    PIDController pidYController = new PIDController(0.1, 0, 0);
-    PIDController pidThetaController = new PIDController(0.1 , 0, 0);
+  private PIDController pidXController = new PIDController(0.1, 0, 0);
+  private PIDController pidYController = new PIDController(0.1, 0, 0);
+  private PIDController pidThetaController = new PIDController(0.1, 0, 0);
 
-    private SwerveDrive drive;
-    public Pose2d target;
+  private SwerveDrive drive;
+  private final Pose2d target;
 
-    public GoToPointCommand (SwerveDrive drive, Pose2d target) {
-        this.drive = drive;
-        pidXController.setSetpoint(target.getX());
+  /**
+   * Command that goes to a certain point.
+   * @param drive
+   * @param target Alliance relative target position
+   */
+  public GoToPointCommand(SwerveDrive drive, Pose2d target) {
+    this.drive = drive;
+    this.target = target;
 
-        addRequirements(drive);
+    pidXController.setSetpoint(target.getX());
+    pidYController.setSetpoint(target.getY());
+    pidThetaController.setSetpoint(target.getRotation().getDegrees());
+
+    pidThetaController.enableContinuousInput(0, 360);
+
+    addRequirements(drive);
+  }
+
+  @Override
+  public void initialize() {
+    pidXController.reset();
+    pidYController.reset();
+    pidThetaController.reset();
+  }
+
+  @Override
+  public void execute() {
+    Pose2d pose = drive.getAllianceRelativePose();
+    drive.drive(
+        pidYController.calculate(pose.getY()),
+        pidXController.calculate(pose.getX()),
+        pidThetaController.calculate(pose.getRotation().getDegrees()),
+        true,
+        false);
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    if (interrupted) {
+      drive.drive(0, 0, 0, false, false);
     }
-   @Override
-    public void initialize(){
-        
-    }
-    @Override
-    public void execute(){
-        Pose2d pose = drive.getAllianceRelativePose();
-        drive.drive(
-            pidYController.calculate(pose.getY()),
-            pidXController.calculate(pose.getX()), 
-            pidThetaController.calculate(pose.getRotation().getDegrees()), 
-            true, 
-            false);
-    }
-    @Override
-    public void end(boolean interrupted){
-        if (interrupted) {
-            drive.drive(0, 0, 0, false, false);  
-        }
-    }
+  }
+
+  @Override
+  public String getName() {
+    return "goToPoint " + target.toString();
+  }
+
 }
