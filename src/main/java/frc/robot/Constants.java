@@ -2,17 +2,11 @@ package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
-
 public final class Constants {
   public static final class BuildConstants {
     public static final boolean PUBLISH_EVERYTHING = true;
     public static final boolean INCLUDE_TEST_AUTOS = true;
-
-    public static final AprilTagFieldLayout APRIL_TAG_LAYOUT = 
-      AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
-      //new AprilTagFieldLayout(Filesystem.getDeployDirectory().toPath().resolve("TempAprilTags.json"));
+    public static final boolean USE_OFFICIAL_APRIL_TAG_LAYOUT = false;
   }
 
   public static final class HardwareConstants {

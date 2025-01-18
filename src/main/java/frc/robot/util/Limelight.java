@@ -50,7 +50,7 @@ public class Limelight {
   private final SwerveOdometry odometry;
 
   // Network tables
-  private final DoubleArraySubscriber poseSub, statsSub, stdDevSub, rawFiducialSub;
+  private final DoubleArraySubscriber poseSub, statsSub, stdDevSub;
   private final DoubleSubscriber heartbeatSub;
   private final DoubleArrayPublisher orientationPub;
   private final Alert notConnectedAlert;
@@ -72,6 +72,7 @@ public class Limelight {
 
   // Cached values
   private final Matrix<N3, N1> stdDevs = VecBuilder.fill(0, 0, 0);
+  private Translation2d[] seenTags;
 
   /**
    * @param name Host Camera ID
@@ -86,7 +87,6 @@ public class Limelight {
 
     poseSub = cameraTable.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(new double[0]);
     stdDevSub = cameraTable.getDoubleArrayTopic("stddevs").subscribe(new double[0]);
-    rawFiducialSub = cameraTable.getDoubleArrayTopic("rawfiducials").subscribe(new double[0]);
     orientationPub = cameraTable.getDoubleArrayTopic("robot_orientation_set").publish();
     
     statsSub = cameraTable.getDoubleArrayTopic("hw").subscribe(new double[4]);
@@ -145,9 +145,9 @@ public class Limelight {
     double[] stdDevsUpdate = stdDevSub.get();
 
     // Check that lengths are correct
-    if (data.length != 11) {
+    if (data.length < 11 || (data.length != 11 + (int)(data[7] * 7))) {
       DriverStation.reportError(
-        String.format("Limelight %s received invalid pose length (expected 11, was %d)", cameraName, data.length),
+        String.format("Limelight %s received invalid pose length (was %d)", cameraName, data.length),
         false
       );
       return;
@@ -159,7 +159,9 @@ public class Limelight {
       return;
     }
 
-    if(data[7] == 0){
+    if (data[7] == 0) {
+      // No new tags here
+      seenTags = new Translation2d[0];
       return;
     }
 
@@ -177,6 +179,14 @@ public class Limelight {
 
     odometry.addVisionMeasurement(receivedPose, timestamp, stdDevs);
     frameCount++;
+
+    // Update seen tags array
+    int numTags = (int)data[7];
+    seenTags = new Translation2d[numTags];
+
+    for (int t = 0; t < numTags; t++) {
+      seenTags[t] = AprilTagMap.getTagPose((int)data[11 + (t * 7)]);
+    }
   }
 
   /**
@@ -203,24 +213,9 @@ public class Limelight {
 
     frameCountLog.append(frameCount);
 
-    // Log last raw fiducial
-    /*TimestampedDoubleArray lastRaw = rawFiducialSub.getAtomic();
-    Translation2d[] tagPoses;
-
-    if (lastRaw.value.length == 0 || lastRaw.value.length % 7 != 0) {
-      // Nothing, or nothing of value
-      tagPoses = new Translation2d[0];
-    } else {
-      // Log these new tags
-      tagPoses = new Translation2d[lastRaw.value.length / 7];  
-
-      for (int t = 0; t < lastRaw.value.length / 7; t++) {
-        tagPoses[t] = FieldConstants.APRIL_TAG_POSITIONS[(int)lastRaw.value[t*7]];
-      }
-    }
-
-    seenTagsLog.append(tagPoses);
-    if (BuildConstants.PUBLISH_EVERYTHING) seenTagsPub.set(tagPoses);*/
+    // Log seen fiducial
+    seenTagsLog.append(seenTags);
+    if (BuildConstants.PUBLISH_EVERYTHING) seenTagsPub.set(seenTags);
   }
 
   /**
