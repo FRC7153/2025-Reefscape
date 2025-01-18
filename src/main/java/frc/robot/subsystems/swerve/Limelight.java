@@ -89,7 +89,9 @@ public class Limelight {
     // Get NT topics
     NetworkTable cameraTable = NetworkTableInstance.getDefault().getTable(cameraName);
 
-    poseSub = cameraTable.getDoubleArrayTopic("botpose_orb").subscribe(new double[0]); // TODO botpose_orb_wpiblue?
+    poseSub = cameraTable
+      .getDoubleArrayTopic(BuildConstants.ON_OFFICIAL_FIELD ? "botpose_orb_wpiblue" : "botpose_orb")
+      .subscribe(new double[0]);
     stdDevSub = cameraTable.getDoubleArrayTopic("stddevs").subscribe(new double[0]);
     orientationPub = cameraTable.getDoubleArrayTopic("robot_orientation_set").publish();
     
