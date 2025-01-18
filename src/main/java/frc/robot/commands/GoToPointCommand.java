@@ -6,11 +6,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveDrive;
 
 public class GoToPointCommand extends Command {
-  private PIDController pidXController = new PIDController(0.1, 0, 0);
-  private PIDController pidYController = new PIDController(0.1, 0, 0);
-  private PIDController pidThetaController = new PIDController(0.1, 0, 0);
+  private final PIDController pidXController = new PIDController(0.1, 0, 0);
+  private final PIDController pidYController = new PIDController(0.1, 0, 0);
+  private final PIDController pidThetaController = new PIDController(0.1, 0, 0);
 
-  private SwerveDrive drive;
+  private final SwerveDrive drive;
   private final Pose2d target;
 
   /**
