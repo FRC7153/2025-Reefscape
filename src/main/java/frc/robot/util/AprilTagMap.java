@@ -18,14 +18,14 @@ public class AprilTagMap {
     AprilTagFieldLayout mapLayout;
 
     // Load AprilTagLayout
-    if (BuildConstants.USE_OFFICIAL_APRIL_TAG_LAYOUT) {
+    if (BuildConstants.ON_OFFICIAL_FIELD) {
       // Use official map
       mapLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
       System.out.println("Loaded official 2025 AprilTag layout");
     } else {
       try {
         // Try to load fmap file
-        mapLayout = new AprilTagFieldLayout(Filesystem.getDeployDirectory().toPath().resolve("AprilTagMaps/ITCMap.fmap"));
+        mapLayout = new AprilTagFieldLayout(Filesystem.getDeployDirectory().toPath().resolve("AprilTagMaps/ITCMap.json"));
         System.out.println("Loaded practice AprilTag layout");
       } catch (IOException e) {
         // Failed to load fmap file, use official one

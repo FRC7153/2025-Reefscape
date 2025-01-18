@@ -162,14 +162,14 @@ public final class SwerveModule {
     request.cosineScale(currentAngle);
     lastStateRequest = request;
 
+    // Set angle
+    steerPID.setReference(
+      request.angle.getRotations() * SwerveConstants.STEER_RATIO, ControlType.kPosition);
+
     if (Math.abs(request.speedMetersPerSecond) < 0.01) {
       // No movement, apply deadband
       driveMotor.setControl(staticBrakeRequest);
     } else {
-      // Set angle
-      steerPID.setReference(
-        request.angle.getRotations() * SwerveConstants.STEER_RATIO, ControlType.kPosition);
-
       // Set velocity
       if (closedLoop) {
         // Closed loop velocity control (auto)

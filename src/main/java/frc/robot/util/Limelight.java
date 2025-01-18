@@ -71,8 +71,8 @@ public class Limelight {
   private final StructArrayPublisher<Translation2d> seenTagsPub;
 
   // Cached values
-  private final Matrix<N3, N1> stdDevs = VecBuilder.fill(0, 0, 0);
-  private Translation2d[] seenTags;
+  private final Matrix<N3, N1> stdDevs = VecBuilder.fill(0, 0, 9999); // NEVER trust yaw measurement
+  private Translation2d[] seenTags = new Translation2d[0];
 
   /**
    * @param name Host Camera ID
@@ -85,7 +85,7 @@ public class Limelight {
     // Get NT topics
     NetworkTable cameraTable = NetworkTableInstance.getDefault().getTable(cameraName);
 
-    poseSub = cameraTable.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(new double[0]);
+    poseSub = cameraTable.getDoubleArrayTopic("botpose_orb").subscribe(new double[0]); // TODO botpose_orb_wpiblue?
     stdDevSub = cameraTable.getDoubleArrayTopic("stddevs").subscribe(new double[0]);
     orientationPub = cameraTable.getDoubleArrayTopic("robot_orientation_set").publish();
     
@@ -93,7 +93,7 @@ public class Limelight {
     heartbeatSub = cameraTable.getDoubleTopic("hb").subscribe(-1.0);
 
     // Enforce Pipeline
-    cameraTable.getIntegerTopic("pipeline").publish().set(0);
+    cameraTable.getDoubleTopic("pipeline").publish().set(BuildConstants.ON_OFFICIAL_FIELD ? 1 : 0);
 
     // Init logging
     String logName = String.format("Limelight/%s/", name);
@@ -128,6 +128,11 @@ public class Limelight {
    * @param event
    */
   private void processPose(NetworkTableEvent event) {
+    // Check that odometry has started yet
+    if (!odometry.getHasSetInitialPosition()) {
+      return;
+    }
+
     // Check that the NT type is correct
     if (!event.valueData.value.isDoubleArray()) {
       DriverStation.reportError(
@@ -175,18 +180,20 @@ public class Limelight {
     // Update standard deviations
     stdDevs.set(0, 0, stdDevsUpdate[6]); // X
     stdDevs.set(1, 0, stdDevsUpdate[7]); // Y
-    stdDevs.set(2, 0, stdDevsUpdate[11]); // Yaw
+    //stdDevs.set(2, 0, stdDevsUpdate[11]); // Yaw
 
     odometry.addVisionMeasurement(receivedPose, timestamp, stdDevs);
     frameCount++;
 
     // Update seen tags array
     int numTags = (int)data[7];
-    seenTags = new Translation2d[numTags];
+    Translation2d[] seenTagsTemp = new Translation2d[numTags];
 
     for (int t = 0; t < numTags; t++) {
-      seenTags[t] = AprilTagMap.getTagPose((int)data[11 + (t * 7)]);
+      seenTagsTemp[t] = AprilTagMap.getTagPose((int)data[11 + (t * 7)]);
     }
+
+    seenTags = seenTagsTemp;
   }
 
   /**

@@ -152,6 +152,8 @@ public final class SwerveDrive implements Subsystem {
     autoConfig = config;
 
     // Initialize trajectory logging
+    trajectoryPublisher.set(new Pose2d[0]);
+
     PathPlannerLogging.setLogActivePathCallback((List<Pose2d> path) -> {
       trajectoryLogger.append(path);
       if (BuildConstants.PUBLISH_EVERYTHING) {

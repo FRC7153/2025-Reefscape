@@ -235,6 +235,13 @@ public final class SwerveOdometry {
     return actualFreq.get();
   }
 
+  /**
+   * @return Whether the initial pose has been configured yet.
+   */
+  public boolean getHasSetInitialPosition() {
+    return hasSetInitialPosition;
+  }
+
   public void cacheAllianceColor() {
     Optional<Alliance> alliance = DriverStation.getAlliance();
     isRedAlliance = (alliance.isPresent() && alliance.get().equals(Alliance.Red));

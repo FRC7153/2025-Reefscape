@@ -67,13 +67,16 @@
     "deadband",
     "Devs",
     "feedforwards",
+    "fiducials",
     "fmap",
     "Holonomic",
+    "linalg",
     "odometry",
     "Pregamed",
     "quasistatic",
     "rawfiducials",
     "Reefscape",
+    "stddevs",
     "teleop",
     "wpiblue"
   ]
