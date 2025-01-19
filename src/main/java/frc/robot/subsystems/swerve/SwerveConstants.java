@@ -130,7 +130,7 @@ public final class SwerveConstants {
   // Default positions, if none is set by the auto program by PREGAME
   public static final Pose2d DEFAULT_BLUE_POSE = BuildConstants.ON_OFFICIAL_FIELD ?
     // Actual field, against the reef
-    new Pose2d() :
+    new Pose2d(3.3 - (BASE_DIMENSIONS.getX() / 2.0) - BUMPER_WIDTH, 4.026, Rotation2d.kZero) :
     // ITC map default pose, 1 square from the origin
     new Pose2d(0.6096, 0.6096, Rotation2d.kZero);
   

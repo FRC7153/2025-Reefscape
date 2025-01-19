@@ -120,21 +120,6 @@ public final class SwerveOdometry {
     hasSetInitialPosition = true;
   }
 
-  /**
-   * If no initial position has yet been set, it will set one depending on the cached alliance
-   * color.
-   */
-  public void setDefaultPosition() {
-    if (!hasSetInitialPosition) {
-      Pose2d initial = isRedAlliance ? SwerveConstants.DEFAULT_RED_POSE : SwerveConstants.DEFAULT_BLUE_POSE;
-      System.out.printf(
-        "Configured an initial position for %s alliance: %s\n", 
-        isRedAlliance ? "RED" : "BLUE", 
-        initial);
-      resetPosition(initial);
-    }
-  }
-
   private void run() {
     // Init update frequency
     BaseStatusSignal.setUpdateFrequencyForAll(UPDATE_FREQ, allSignals);
@@ -229,6 +214,16 @@ public final class SwerveOdometry {
     isRedAlliance = (alliance.isPresent() && alliance.get().equals(Alliance.Red));
     
     System.out.printf("Odometry thread cached isRedAlliance: %b\n", isRedAlliance);
+
+    // Set a default pose, if none has been set yet
+    if (!hasSetInitialPosition) {
+      Pose2d initial = isRedAlliance ? SwerveConstants.DEFAULT_RED_POSE : SwerveConstants.DEFAULT_BLUE_POSE;
+      System.out.printf(
+        "Configured an initial position for %s alliance: %s\n", 
+        isRedAlliance ? "RED" : "BLUE", 
+        initial);
+      resetPosition(initial);
+    }
   }
 
   /**

@@ -21,7 +21,7 @@ public class RobotContainer {
 
   // Dashboard
   private final AutoChooser auto = new AutoChooser(base);
-  private final Dashboard dashboard = new Dashboard(this, auto);
+  private final Dashboard dashboard = new Dashboard(this, auto, base);
 
   public RobotContainer() {
     configureBindings();

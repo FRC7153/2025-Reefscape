@@ -239,7 +239,7 @@ public final class SwerveDrive implements Subsystem {
       if (resetPosition) {
         // Reset position before running the path
         Pose2d origin = path.getStartingHolonomicPose().get();
-        return getResetOdometryCommand(origin).andThen(followCommand);
+        return new InstantCommand(() -> resetOdometry(origin)).andThen(followCommand);
       } else {
         // Just run the path
         return followCommand;
@@ -264,12 +264,10 @@ public final class SwerveDrive implements Subsystem {
   }
 
   /** Resets from a FIELD RELATIVE position */
-  public Command getResetOdometryCommand(Pose2d newPose) {
-    return new InstantCommand(() -> {
-      Pose2d pose = odometry.getFieldRelativePosition();
-      odometry.resetPosition(newPose);
-      System.out.printf("Reset odometry from %s -> %s\n", pose, newPose);
-    });
+  public void resetOdometry(Pose2d newPose) {
+    Pose2d pose = odometry.getFieldRelativePosition();
+    odometry.resetPosition(newPose);
+    System.out.printf("Reset odometry from %s -> %s\n", pose, newPose);
   }
 
   @Override
@@ -347,7 +345,6 @@ public final class SwerveDrive implements Subsystem {
   /** Caches alliance color for odometry and sets default position. Run in pregame. */
   public void configOdometry() {
     odometry.cacheAllianceColor();
-    odometry.setDefaultPosition();
   }
 
   public void log() {
