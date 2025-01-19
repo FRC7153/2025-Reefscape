@@ -1,12 +1,12 @@
 package frc.robot.commands;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.auto.AutoChooser;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.util.Dashboard;
 
@@ -25,20 +25,20 @@ public class PregameCommand extends InstantCommand {
 
   public static boolean getHasPregamed() { return hasPregamed;  }
 
-  public PregameCommand(SwerveDrive drive, Dashboard dashboard) {
+  public PregameCommand(SwerveDrive drive, Dashboard dashboard, AutoChooser chooser) {
     super(() -> {
       // Run pregame actions:
       drive.homeEncoders();
       drive.configOdometry();
 
-      SignalLogger.stop();
-      System.out.println("Stopped CTRE SignalLogger");
-
       dashboard.stopWebServerIfFMS();
 
-      // Only warmup our FollowPathCommand if we are not already in teleop
-      if (!DriverStation.isTeleop()) {
+      // Only run auto pregame actions if we are not already in teleop
+      if (DriverStation.isTeleop() && DriverStation.isEnabled()) {
+        System.out.println("Did not pregame auto because teleop is already enabled!");
+      } else {
         FollowPathCommand.warmupCommand().schedule();
+        chooser.loadAutoCommand();
       }
 
       // Notify:

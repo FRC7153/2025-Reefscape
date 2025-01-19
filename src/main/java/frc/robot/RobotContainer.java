@@ -56,7 +56,7 @@ public final class RobotContainer {
 
   /** Returns a PregameCommand, which is scheduled if the command wasn't run before teleopInit() */
   public Command getPregameCommand() {
-    return new PregameCommand(base, dashboard);
+    return new PregameCommand(base, dashboard, auto);
   }
 
   /** Returns a Command to run in autonomous */

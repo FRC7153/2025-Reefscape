@@ -2,6 +2,8 @@ package frc.robot.auto;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,13 +16,15 @@ public final class AutoChooser {
   private static final Command noOpCommand = new PrintCommand("No-op auto selected.");
 
   private final SendableChooser<Supplier<Command>> chooser = new SendableChooser<>();
-  private Command currentSelectedCommand = noOpCommand;
+  private Command currentLoadedCommand = null;
+
+  private final Alert noAutoLoadedAlert = new Alert("No auto loaded yet (run pregame)", AlertType.kInfo);
 
   public AutoChooser(SwerveDrive drive) {
     // On change
     chooser.onChange((Supplier<Command> newAuto) -> {
-      currentSelectedCommand = newAuto.get();
-      System.out.printf("New auto loaded: %s\n", currentSelectedCommand.getName());
+      currentLoadedCommand = null;
+      noAutoLoadedAlert.set(true);
     });
 
     // Add default option
@@ -45,9 +49,26 @@ public final class AutoChooser {
 
     // Add to dashboard
     SmartDashboard.putData("Auto", chooser);
+    noAutoLoadedAlert.set(true);
   }
 
+  /**
+   * Loads the currently selected command.
+   */
+  public void loadAutoCommand() {
+    currentLoadedCommand = chooser.getSelected().get();
+    System.out.printf("New auto loaded: %s\n", currentLoadedCommand.getName());
+    noAutoLoadedAlert.set(false);
+  }
+
+  /**
+   * @return The currently selected command, loading it if it's not already loaded.
+   */
   public Command getCurrentSelectedCommand() {
-    return currentSelectedCommand;
+    if (currentLoadedCommand == null) {
+      loadAutoCommand();
+    }
+
+    return currentLoadedCommand;
   }
 }
