@@ -15,6 +15,10 @@ public final class Constants {
     public static final boolean ON_OFFICIAL_FIELD = false;
   }
 
+  public static final class DashboardConstants {
+    public static final int ELASTIC_SERVER_PORT = 5800;
+  }
+
   public static final class HardwareConstants {
     public static final int PDH_CAN = 1;
 
