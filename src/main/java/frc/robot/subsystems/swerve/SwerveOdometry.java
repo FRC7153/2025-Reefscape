@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.Threads;
+import frc.robot.util.ConsoleLogger;
 
 /**
  * 4-module SwerveOdometry thread based off of CTRE's SwerveBase.
@@ -96,7 +97,7 @@ public final class SwerveOdometry {
   /** Start the odometry thread. */
   public void start() {
     if (thread.isAlive()) {
-      DriverStation.reportError("SwerveOdometry.start() called multiple times", false);
+      ConsoleLogger.reportError("SwerveOdometry.start() called multiple times");
     } else {
       thread.start();
     }

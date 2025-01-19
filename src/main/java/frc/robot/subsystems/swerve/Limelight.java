@@ -23,10 +23,10 @@ import edu.wpi.first.util.datalog.StructArrayLogEntry;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.util.AprilTagMap;
+import frc.robot.util.ConsoleLogger;
 import frc.robot.util.LimelightHelpers;
 
 /**
@@ -136,13 +136,12 @@ public class Limelight {
   private void processPose(NetworkTableEvent event) {
     // Check that the NT type is correct
     if (!event.valueData.value.isDoubleArray()) {
-      DriverStation.reportError(
+      ConsoleLogger.reportError(
         String.format(
           "Robot pose from limelight %s wasn't double[], was %s", 
           cameraName,
           event.valueData.value.getType().getValueStr()
-        ),
-        false
+        )
       );
       return;
     }
@@ -152,15 +151,13 @@ public class Limelight {
 
     // Check that lengths are correct
     if (data.length < 11 || (data.length != 11 + (int)(data[7] * 7))) {
-      DriverStation.reportError(
-        String.format("Limelight %s received invalid pose length (was %d)", cameraName, data.length),
-        false
+      ConsoleLogger.reportError(
+        String.format("Limelight %s received invalid pose length (was %d)", cameraName, data.length)
       );
       return;
     } else if (stdDevsUpdate.length != 12) {
-      DriverStation.reportError(
-        String.format("Limelight %s received invalid std devs length (expected 12, was %d)", cameraName, stdDevsUpdate.length),
-        false
+      ConsoleLogger.reportError(
+        String.format("Limelight %s received invalid std devs length (expected 12, was %d)", cameraName, stdDevsUpdate.length)
       );
       return;
     }

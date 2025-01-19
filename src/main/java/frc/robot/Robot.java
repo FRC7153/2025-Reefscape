@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.commands.PregameCommand;
 import frc.robot.util.CANLogger;
+import frc.robot.util.ConsoleLogger;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
@@ -28,9 +29,8 @@ public class Robot extends TimedRobot {
     SignalLogger.setPath("/U/CTRE_Signal_Logger");
 
     // Init logging
-    DataLogManager.start();
     DataLogManager.logNetworkTables(true);
-    DataLogManager.logConsoleOutput(true);
+    DataLogManager.logConsoleOutput(true); // this is sometimes garbled
 
     DriverStation.startDataLog(DataLogManager.getLog(), true);
     NetworkTableInstance.getDefault().startConnectionDataLog(DataLogManager.getLog(), "NTConnections");
@@ -65,7 +65,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     // Check pregame
     if (!PregameCommand.getHasPregamed()) {
-      DriverStation.reportError("No pregame before autonomousInit()!", false);
+      ConsoleLogger.reportError("No pregame before autonomousInit()!");
       m_robotContainer.getPregameCommand().schedule();
     }
 
@@ -92,7 +92,7 @@ public class Robot extends TimedRobot {
 
     // Check pregame
     if (!PregameCommand.getHasPregamed()) {
-      DriverStation.reportError("No pregame before teleopInit()!", false);
+      ConsoleLogger.reportError("No pregame before teleopInit()!");
       m_robotContainer.getPregameCommand().schedule();
     }
   }

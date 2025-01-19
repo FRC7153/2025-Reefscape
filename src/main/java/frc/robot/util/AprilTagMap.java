@@ -7,7 +7,6 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants.BuildConstants;
 
@@ -29,7 +28,7 @@ public class AprilTagMap {
         System.out.println("Loaded practice AprilTag layout");
       } catch (IOException e) {
         // Failed to load fmap file, use official one
-        DriverStation.reportError(String.format("Failed to load fmap file: %s", e.getMessage()), false);
+        ConsoleLogger.reportError(String.format("Failed to load fmap file: %s", e.getMessage()));
         mapLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
         System.out.println("Loaded official 2025 AprilTag layout");
       }
@@ -47,7 +46,7 @@ public class AprilTagMap {
 
     if (pose.isEmpty()) {
       // Unknown tag
-      DriverStation.reportWarning(String.format("Unknown tag request (id %d)", tag), false);
+      ConsoleLogger.reportWarning(String.format("Unknown tag request (id %d)", tag));
       return Translation2d.kZero;
     } else {
       return new Translation2d(pose.get().getX(), pose.get().getY());

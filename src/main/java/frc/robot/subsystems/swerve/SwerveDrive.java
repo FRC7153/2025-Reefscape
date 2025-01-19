@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.HardwareConstants;
+import frc.robot.util.ConsoleLogger;
 import frc.robot.util.StickyAlerts;
 
 public final class SwerveDrive implements Subsystem {
@@ -144,9 +145,8 @@ public final class SwerveDrive implements Subsystem {
     } catch (Exception e) {
       // Failed to load RobotConfig
       config = null;
-      DriverStation.reportWarning(
-        String.format("Failed to load PathPlanner's config: %s", e.getMessage()), 
-        true
+      ConsoleLogger.reportWarning(
+        String.format("Failed to load PathPlanner's config: %s", e.getMessage()) 
       );
       StickyAlerts.create("Failed to load PathPlanner's config");
     }
@@ -215,7 +215,7 @@ public final class SwerveDrive implements Subsystem {
       if (alliance.isEmpty()) {
         // Attempted to create paths before Alliance was received!
         String msg = String.format("Attempted to create path '%s' before alliance was received", pathName);
-        DriverStation.reportError(msg, false);
+        ConsoleLogger.reportError(msg);
         StickyAlerts.create(msg);
       } else if (alliance.get().equals(Alliance.Red)) {
         // Red alliance, need to flip path
@@ -246,7 +246,7 @@ public final class SwerveDrive implements Subsystem {
       }
     } catch (Exception e) {
       // Failed to load path file
-      DriverStation.reportError(String.format("Failed to load path '%s': %s", pathName, e.getMessage()), true);
+      ConsoleLogger.reportError(String.format("Failed to load path '%s': %s", pathName, e.getMessage()));
       StickyAlerts.create(String.format("Failed to load path '%s'", pathName));
       return new PrintCommand(String.format("Running failed path: '%s'", pathName));
     }
