@@ -34,11 +34,11 @@ public class PregameCommand extends InstantCommand {
       dashboard.stopWebServerIfFMS();
 
       // Only run auto pregame actions if we are not already in teleop
-      if (DriverStation.isTeleop() && DriverStation.isEnabled()) {
-        System.out.println("Did not pregame auto because teleop is already enabled!");
-      } else {
+      if (!DriverStation.isTeleopEnabled()) {
         FollowPathCommand.warmupCommand().schedule();
         chooser.loadAutoCommand();
+      } else {
+        System.out.println("Did not pregame auto because teleop is already enabled!");
       }
 
       // Notify:
