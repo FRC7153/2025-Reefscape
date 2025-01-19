@@ -1,7 +1,7 @@
 //LimelightHelpers v1.10 (REQUIRES LLOS 2024.9.1 OR LATER)
 // Slight modifications made by FRC 7153
 
-package frc.robot.util;
+package libs;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;

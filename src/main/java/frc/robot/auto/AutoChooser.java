@@ -1,14 +1,12 @@
-package frc.robot.util;
+package frc.robot.auto;
 
 import java.util.function.Supplier;
 
-import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.Constants.BuildConstants;
-import frc.robot.auto.BackAndForthTestAuto;
-import frc.robot.auto.SimpleDriveTestAuto;
 import frc.robot.commands.SwerveCharacterizationCommand;
 import frc.robot.subsystems.swerve.SwerveDrive;
 
@@ -44,13 +42,12 @@ public final class AutoChooser {
       chooser.addOption("Rotate 1 Test", 
         () -> drive.getFollowPathCommand("Rotate 1 Test", true).withName("Rotate 1 Test"));
     }
+
+    // Add to dashboard
+    SmartDashboard.putData("Auto", chooser);
   }
 
   public Command getCurrentSelectedCommand() {
     return currentSelectedCommand;
-  }
-
-  public Sendable getSendableChooser() {
-    return chooser;
   }
 }

@@ -18,7 +18,7 @@ import frc.robot.commands.PregameCommand;
 import frc.robot.util.CANLogger;
 import frc.robot.util.ConsoleLogger;
 
-public class Robot extends TimedRobot {
+public final class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
