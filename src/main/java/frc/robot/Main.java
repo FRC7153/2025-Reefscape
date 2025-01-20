@@ -5,11 +5,15 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.util.ConsoleLogger;
 
 public final class Main {
   private Main() {}
 
   public static void main(String... args) {
+    // Immediately begin capturing console
+    ConsoleLogger.init();
+    
     RobotBase.startRobot(Robot::new);
   }
 }

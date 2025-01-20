@@ -4,15 +4,16 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.auto.AutoChooser;
 import frc.robot.commands.PregameCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.subsystems.swerve.SwerveDrive;
-import frc.robot.util.AutoChooser;
 import frc.robot.util.Dashboard;
 
-public class RobotContainer {
+public final class RobotContainer {
   // Subsystems
   private final SwerveDrive base = new SwerveDrive();
 
@@ -21,9 +22,12 @@ public class RobotContainer {
 
   // Dashboard
   private final AutoChooser auto = new AutoChooser(base);
-  private final Dashboard dashboard = new Dashboard(this, auto);
+  private final Dashboard dashboard = new Dashboard();
 
   public RobotContainer() {
+    // Add Pregame command to the dashboard
+    SmartDashboard.putData("Pregame", getPregameCommand());
+
     configureBindings();
   }
 
@@ -47,12 +51,12 @@ public class RobotContainer {
   /** Logs everything, called periodically */
   public void log() {
     base.log();
-    dashboard.refresh();
+    dashboard.update();
   }
 
   /** Returns a PregameCommand, which is scheduled if the command wasn't run before teleopInit() */
   public Command getPregameCommand() {
-    return new PregameCommand(base);
+    return new PregameCommand(base, dashboard, auto);
   }
 
   /** Returns a Command to run in autonomous */

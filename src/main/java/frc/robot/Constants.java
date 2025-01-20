@@ -4,9 +4,19 @@ import com.ctre.phoenix6.CANBus;
 
 public final class Constants {
   public static final class BuildConstants {
-    public static final boolean PUBLISH_EVERYTHING = true;
+    public static final boolean PUBLISH_EVERYTHING = false;
     public static final boolean INCLUDE_TEST_AUTOS = true;
-    public static final boolean USE_OFFICIAL_APRIL_TAG_LAYOUT = false;
+
+    /**
+     * If true, the real field layout is used and limelight pipeline 1 is used.
+     * If false, the ITC layout is used and limelight pipeline 0 is used.
+     * Also effects default positions
+     */
+    public static final boolean ON_OFFICIAL_FIELD = false;
+  }
+
+  public static final class DashboardConstants {
+    public static final int ELASTIC_SERVER_PORT = 5800;
   }
 
   public static final class ClimberConstants {

@@ -52,6 +52,7 @@ public final class SwerveModule {
   private final SparkMax steerMotor;
   private final SparkClosedLoopController steerPID;
   private final RelativeEncoder steerBuiltInEncoder;
+  private boolean hasBuiltInEncoderHomed = false;
 
   private final CANcoder steerCANCoder;
   private final StatusSignal<Angle> steerAngle;
@@ -137,6 +138,7 @@ public final class SwerveModule {
 
     REVLibError resp = steerBuiltInEncoder.setPosition(steerAngle.getValueAsDouble() * SwerveConstants.STEER_RATIO);
     steerNotHomedAlert.set(!resp.equals(REVLibError.kOk));
+    hasBuiltInEncoderHomed = resp.equals(REVLibError.kOk);
   }
 
   /**
@@ -155,6 +157,9 @@ public final class SwerveModule {
    * @param closedLoop Open loop control (teleop) or closed loop control (auto).
    */
   public void setRequest(SwerveModuleState request, boolean closedLoop) {
+    // Do not run if the Neo's built-in encoder is not homed
+    if (!hasBuiltInEncoderHomed) return;
+
     // Optimize
     steerAngle.refresh();
     Rotation2d currentAngle = Rotation2d.fromRotations(steerAngle.getValueAsDouble());
@@ -162,14 +167,14 @@ public final class SwerveModule {
     request.cosineScale(currentAngle);
     lastStateRequest = request;
 
+    // Set angle
+    steerPID.setReference(
+      request.angle.getRotations() * SwerveConstants.STEER_RATIO, ControlType.kPosition);
+
     if (Math.abs(request.speedMetersPerSecond) < 0.01) {
       // No movement, apply deadband
       driveMotor.setControl(staticBrakeRequest);
     } else {
-      // Set angle
-      steerPID.setReference(
-        request.angle.getRotations() * SwerveConstants.STEER_RATIO, ControlType.kPosition);
-
       // Set velocity
       if (closedLoop) {
         // Closed loop velocity control (auto)

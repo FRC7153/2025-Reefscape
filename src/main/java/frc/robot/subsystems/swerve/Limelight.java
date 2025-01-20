@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.subsystems.swerve;
 
 import java.util.EnumSet;
 
@@ -23,10 +23,11 @@ import edu.wpi.first.util.datalog.StructArrayLogEntry;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.BuildConstants;
-import frc.robot.subsystems.swerve.SwerveOdometry;
+import frc.robot.util.AprilTagMap;
+import frc.robot.util.ConsoleLogger;
+import libs.LimelightHelpers;
 
 /**
  * @see https://docs.limelightvision.io/docs/docs-limelight/apis/complete-networktables-api
@@ -45,6 +46,9 @@ public class Limelight {
     orientation[0] = yaw;
     orientation[1] = yawRate;
   }
+
+  // Shared empty translation2d array, used for logging if a limelight sees no tags
+  private static final Translation2d[] EMPTY_TRANSLATION_ARRAY = new Translation2d[0];
 
   private final String cameraName;
   private final SwerveOdometry odometry;
@@ -71,8 +75,8 @@ public class Limelight {
   private final StructArrayPublisher<Translation2d> seenTagsPub;
 
   // Cached values
-  private final Matrix<N3, N1> stdDevs = VecBuilder.fill(0, 0, 0);
-  private Translation2d[] seenTags;
+  private final Matrix<N3, N1> stdDevs = VecBuilder.fill(0, 0, 99999); // NEVER trust yaw measurement
+  private Translation2d[] seenTags = new Translation2d[0];
 
   /**
    * @param name Host Camera ID
@@ -85,7 +89,9 @@ public class Limelight {
     // Get NT topics
     NetworkTable cameraTable = NetworkTableInstance.getDefault().getTable(cameraName);
 
-    poseSub = cameraTable.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(new double[0]);
+    poseSub = cameraTable
+      .getDoubleArrayTopic(BuildConstants.ON_OFFICIAL_FIELD ? "botpose_orb_wpiblue" : "botpose_orb")
+      .subscribe(new double[0]);
     stdDevSub = cameraTable.getDoubleArrayTopic("stddevs").subscribe(new double[0]);
     orientationPub = cameraTable.getDoubleArrayTopic("robot_orientation_set").publish();
     
@@ -93,7 +99,7 @@ public class Limelight {
     heartbeatSub = cameraTable.getDoubleTopic("hb").subscribe(-1.0);
 
     // Enforce Pipeline
-    cameraTable.getIntegerTopic("pipeline").publish().set(0);
+    cameraTable.getDoubleTopic("pipeline").publish().set(BuildConstants.ON_OFFICIAL_FIELD ? 1 : 0);
 
     // Init logging
     String logName = String.format("Limelight/%s/", name);
@@ -130,13 +136,12 @@ public class Limelight {
   private void processPose(NetworkTableEvent event) {
     // Check that the NT type is correct
     if (!event.valueData.value.isDoubleArray()) {
-      DriverStation.reportError(
+      ConsoleLogger.reportError(
         String.format(
           "Robot pose from limelight %s wasn't double[], was %s", 
           cameraName,
           event.valueData.value.getType().getValueStr()
-        ),
-        false
+        )
       );
       return;
     }
@@ -146,47 +151,48 @@ public class Limelight {
 
     // Check that lengths are correct
     if (data.length < 11 || (data.length != 11 + (int)(data[7] * 7))) {
-      DriverStation.reportError(
-        String.format("Limelight %s received invalid pose length (was %d)", cameraName, data.length),
-        false
+      ConsoleLogger.reportError(
+        String.format("Limelight %s received invalid pose length (was %d)", cameraName, data.length)
       );
       return;
     } else if (stdDevsUpdate.length != 12) {
-      DriverStation.reportError(
-        String.format("Limelight %s received invalid std devs length (expected 12, was %d)", cameraName, stdDevsUpdate.length),
-        false
+      ConsoleLogger.reportError(
+        String.format("Limelight %s received invalid std devs length (expected 12, was %d)", cameraName, stdDevsUpdate.length)
       );
       return;
     }
 
     if (data[7] == 0) {
       // No new tags here
-      seenTags = new Translation2d[0];
+      seenTags = EMPTY_TRANSLATION_ARRAY;
       return;
     }
 
     // Calculate new Pose
     Pose2d receivedPose = new Pose2d(
       new Translation2d(data[0], data[1]),
-      Rotation2d.fromDegrees(data[5])
+      //Rotation2d.fromDegrees(data[5])
+      Rotation2d.kZero // this is ignored by stddevs anyways
     );
     double timestamp = (event.valueData.value.getTime() / 1000000.0) - (data[6] / 1000.0); // Seconds
     
     // Update standard deviations
     stdDevs.set(0, 0, stdDevsUpdate[6]); // X
     stdDevs.set(1, 0, stdDevsUpdate[7]); // Y
-    stdDevs.set(2, 0, stdDevsUpdate[11]); // Yaw
+    //stdDevs.set(2, 0, stdDevsUpdate[11]); // Yaw
 
     odometry.addVisionMeasurement(receivedPose, timestamp, stdDevs);
     frameCount++;
 
     // Update seen tags array
     int numTags = (int)data[7];
-    seenTags = new Translation2d[numTags];
+    Translation2d[] seenTagsTemp = new Translation2d[numTags];
 
     for (int t = 0; t < numTags; t++) {
-      seenTags[t] = AprilTagMap.getTagPose((int)data[11 + (t * 7)]);
+      seenTagsTemp[t] = AprilTagMap.getTagPose((int)data[11 + (t * 7)]);
     }
+
+    seenTags = seenTagsTemp;
   }
 
   /**
@@ -240,6 +246,22 @@ public class Limelight {
 
     notConnectedAlert.set(!alive);
     isAliveLog.append(alive);
+  }
+
+  /**
+   * Takes a photo with the limelight
+   * @param snapshotName Name to save the photo.
+   */
+  public void takeSnapshot(String snapshotName) {
+    LimelightHelpers.takeSnapshot(cameraName, snapshotName).thenAccept((Boolean success) -> {
+      if (success) {
+        // Photo was successful
+        System.out.printf("Successfully snapped '%s' with limelight '%s'\n", snapshotName, cameraName);
+      } else {
+        // Photo failed
+        System.out.printf("Failed to snap '%s' with limelight '%s'\n", snapshotName, cameraName);
+      }
+    });
   }
 
   /**

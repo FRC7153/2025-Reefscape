@@ -3,6 +3,7 @@ package frc.robot.commands;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveDrive;
@@ -37,6 +38,12 @@ public class TeleopDriveCommand extends Command {
 
   @Override
   public void execute() {
+    // Do not do anything if not in teleop
+    if (!DriverStation.isTeleopEnabled()) {
+      drive.drive(0, 0, 0, false, false);
+      return;
+    }
+
     double x = xSupplier.get();
     double y = ySupplier.get();
     double theta = thetaSupplier.get();

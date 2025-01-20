@@ -10,27 +10,30 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.commands.PregameCommand;
 import frc.robot.util.CANLogger;
+import frc.robot.util.ConsoleLogger;
 
-public class Robot extends TimedRobot {
+public final class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
 
   public Robot() {
+    System.out.printf("Built with WPILib %s\n", WPILibVersion.Version);
+
     // Configure CTRE SignalLogger
     SignalLogger.enableAutoLogging(false);
     SignalLogger.stop();
     SignalLogger.setPath("/U/CTRE_Signal_Logger");
 
     // Init logging
-    DataLogManager.start();
     DataLogManager.logNetworkTables(true);
-    DataLogManager.logConsoleOutput(true);
+    DataLogManager.logConsoleOutput(true); // this is sometimes garbled
 
     DriverStation.startDataLog(DataLogManager.getLog(), true);
     NetworkTableInstance.getDefault().startConnectionDataLog(DataLogManager.getLog(), "NTConnections");
@@ -65,7 +68,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     // Check pregame
     if (!PregameCommand.getHasPregamed()) {
-      DriverStation.reportError("No pregame before autonomousInit()!", false);
+      ConsoleLogger.reportError("No pregame before autonomousInit()!");
       m_robotContainer.getPregameCommand().schedule();
     }
 
@@ -92,7 +95,7 @@ public class Robot extends TimedRobot {
 
     // Check pregame
     if (!PregameCommand.getHasPregamed()) {
-      DriverStation.reportError("No pregame before teleopInit()!", false);
+      ConsoleLogger.reportError("No pregame before teleopInit()!");
       m_robotContainer.getPregameCommand().schedule();
     }
   }

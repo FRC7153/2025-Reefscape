@@ -1,29 +1,36 @@
 package frc.robot.util;
 
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import frc.robot.RobotContainer;
+import edu.wpi.first.net.WebServer;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants.DashboardConstants;
 
-public final class Dashboard {
-  public Dashboard(RobotContainer container, AutoChooser autoChooser) {
-    // Drive Tab
-    ShuffleboardTab drive = Shuffleboard.getTab("Drive");
+/**
+ * Handles some auxiliary Elastic utilities.
+ */
+public class Dashboard {
+  private final DoublePublisher matchTimePub = 
+    NetworkTableInstance.getDefault().getDoubleTopic("Elastic/matchTime").publish();
 
-    // Pregame command button
-    drive.add("Pregame", container.getPregameCommand())
-      .withPosition(0, 0)
-      .withSize(1, 1)
-      .withWidget(BuiltInWidgets.kCommand);
-    
-    // Auto chooser
-    drive.add("Auto", autoChooser.getSendableChooser())
-      .withPosition(1, 0)
-      .withSize(2, 1)
-      .withWidget(BuiltInWidgets.kComboBoxChooser);
+  public Dashboard() {
+    // Host Elastic configuration file
+    WebServer.start(DashboardConstants.ELASTIC_SERVER_PORT, Filesystem.getDeployDirectory().toPath().resolve("Elastic").toString());
   }
 
-  public void refresh() {
-    // TODO output
+  /**
+   * Stops the WebServer hosting Elastic's configuration file if the FMS is attached.
+   */
+  public void stopWebServerIfFMS() {
+    if (DriverStation.isFMSAttached()) {
+      System.out.println("Stopped Elastic's WebServer because FMS is attached");
+      WebServer.stop(DashboardConstants.ELASTIC_SERVER_PORT);
+    }
+  }
+  
+  public void update() {
+    matchTimePub.set(Timer.getMatchTime());
   }
 }

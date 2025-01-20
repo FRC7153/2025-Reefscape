@@ -1,7 +1,6 @@
 package frc.robot.subsystems.swerve;
 
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -12,6 +11,7 @@ import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.Threads;
-import edu.wpi.first.wpilibj.Timer;
+import frc.robot.util.ConsoleLogger;
 
 /**
  * 4-module SwerveOdometry thread based off of CTRE's SwerveBase.
@@ -37,9 +37,10 @@ public final class SwerveOdometry {
 
   private final Thread thread;
   private final ReadWriteLock stateLock = new ReentrantReadWriteLock();
-  private final AtomicInteger successfulDAQs = new AtomicInteger();
-  private final AtomicInteger failedDAQs = new AtomicInteger();
-  private final AtomicInteger actualFreq = new AtomicInteger();
+  private volatile Pose2d mostRecentPose = Pose2d.kZero;
+  private volatile int successfulDAQs = 0;
+  private volatile int failedDAQs = 0;
+  private volatile double actualFreq = 0.0;
 
   private final ADIS16470_IMU imu;
   private final Alert imuHardwareAlert = new Alert("ADIS16470 IMU is not connected", AlertType.kError);
@@ -49,8 +50,6 @@ public final class SwerveOdometry {
   private final SwerveDrivePoseEstimator poseEstimator;
   private boolean isRedAlliance = false; // Cached later
   private boolean hasSetInitialPosition = false; // Set later
-
-  private double startTime; // For freq calculation
 
   /**
    * Automatically starts odometry thread.
@@ -91,16 +90,15 @@ public final class SwerveOdometry {
       swervePositions, 
       Pose2d.kZero,
       SwerveConstants.STATE_STD_DEVS, // State std devs
-      VecBuilder.fill(0.9, 0.9, 0.9) // Vision std devs, will be changed in calls to addVisionMeasurement(...)
+      VecBuilder.fill(0.9, 0.9, 0.9) // Vision std devs will be changed in calls to addVisionMeasurement(...)
     );
   }
 
   /** Start the odometry thread. */
   public void start() {
     if (thread.isAlive()) {
-      DriverStation.reportError("SwerveOdometry.start() called multiple times", false);
+      ConsoleLogger.reportError("SwerveOdometry.start() called multiple times");
     } else {
-      startTime = Timer.getFPGATimestamp() + 3.0; // 3 seconds before average frequency is calculated
       thread.start();
     }
   }
@@ -122,37 +120,24 @@ public final class SwerveOdometry {
     hasSetInitialPosition = true;
   }
 
-  /**
-   * If no initial position has yet been set, it will set one depending on the cached alliance
-   * color.
-   */
-  public void setDefaultPosition() {
-    if (!hasSetInitialPosition) {
-      Pose2d initial = isRedAlliance ? SwerveConstants.DEFAULT_RED_POSE : SwerveConstants.DEFAULT_BLUE_POSE;
-      System.out.printf(
-        "Configured an initial position for %s alliance: %s\n", 
-        isRedAlliance ? "RED" : "BLUE", 
-        initial);
-      resetPosition(initial);
-    }
-  }
-
   private void run() {
     // Init update frequency
     BaseStatusSignal.setUpdateFrequencyForAll(UPDATE_FREQ, allSignals);
     Threads.setCurrentThreadPriority(true, 1); // Priority 1
 
-    int totalRuns = 0; // for calculating frequency, not including first 3 seconds
+    LinearFilter freqFilter = LinearFilter.movingAverage(10);
 
     // Run as fast as possible
     while (true) {
+      long startTime = System.nanoTime();
+
       // Wait up to twice period of update frequency
       StatusCode status = BaseStatusSignal.waitForAll(2.0 / UPDATE_FREQ, allSignals);
 
       if (status.isOK()) {
-        successfulDAQs.incrementAndGet();
+        successfulDAQs++;
       } else {
-        failedDAQs.incrementAndGet();
+        failedDAQs++;
         continue;
       }
 
@@ -171,17 +156,14 @@ public final class SwerveOdometry {
         poseEstimator.update(
           Rotation2d.fromDegrees(imu.getAngle(IMUAxis.kYaw)), 
           swervePositions);
+
+        mostRecentPose = poseEstimator.getEstimatedPosition();
       } finally {
         stateLock.writeLock().unlock();
       }
 
-      // Update frequency
-      double timeDelta = Timer.getFPGATimestamp() - startTime;
-
-      if (timeDelta >= 0.0) {
-        totalRuns++;
-        actualFreq.set((int)(totalRuns / timeDelta));
-      }
+      // Update frequency and count
+      actualFreq = freqFilter.calculate((1000000000.0 / (System.nanoTime() - startTime)));
 
       // Use this to determine which axis is yaw:
       /*System.out.printf(
@@ -195,44 +177,36 @@ public final class SwerveOdometry {
    * @return The most recent position estimation, relative to the field.
    */
   public Pose2d getFieldRelativePosition() {
-    try {
-      stateLock.readLock().lock();
-      return poseEstimator.getEstimatedPosition();
-    } finally {
-      stateLock.readLock().unlock();
-    }
+    return mostRecentPose;
   }
 
   /**
-   * @see https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html#robot-drive-kinematics
+   * @see https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html#origin-follows-your-alliance
    * @return The most recent position estimation, relative to the alliance.
    */
   public Pose2d getAllianceRelativePosition() {
-    Pose2d pose = getFieldRelativePosition();
-
-    // Flip if red alliance
-    return isRedAlliance ? FlippingUtil.flipFieldPose(pose) : pose;
+    return isRedAlliance ? FlippingUtil.flipFieldPose(mostRecentPose) : mostRecentPose;
   }
 
   /**
    * @return The number of successful data acquisitions.
    */
   public int getSuccessfulDAQs() {
-    return successfulDAQs.get();
+    return successfulDAQs;
   }
 
   /**
    * @return The number of failed data acquisitions.
    */
   public int getFailedDAQs() {
-    return failedDAQs.get();
+    return failedDAQs;
   }
 
   /**
    * @return The approximate frequency of the odometry loop, in hertz (per second).
    */
-  public int getFrequency() {
-    return actualFreq.get();
+  public double getFrequency() {
+    return actualFreq;
   }
 
   public void cacheAllianceColor() {
@@ -240,6 +214,16 @@ public final class SwerveOdometry {
     isRedAlliance = (alliance.isPresent() && alliance.get().equals(Alliance.Red));
     
     System.out.printf("Odometry thread cached isRedAlliance: %b\n", isRedAlliance);
+
+    // Set a default pose, if none has been set yet
+    if (!hasSetInitialPosition) {
+      Pose2d initial = isRedAlliance ? SwerveConstants.DEFAULT_RED_POSE : SwerveConstants.DEFAULT_BLUE_POSE;
+      System.out.printf(
+        "Configured an initial position for %s alliance: %s\n", 
+        isRedAlliance ? "RED" : "BLUE", 
+        initial);
+      resetPosition(initial);
+    }
   }
 
   /**
