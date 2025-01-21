@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -46,6 +48,8 @@ public final class RobotContainer {
         () -> -controller.getRightX(), 
         controller.leftTrigger())
     );
+
+    controller.a().whileTrue(base.getGoToPointCommand(new Pose2d(0, 0, Rotation2d.kZero)));
 
     // Match timer start/stop
     isEnabledTrigger

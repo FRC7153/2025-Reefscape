@@ -10,26 +10,41 @@ import libs.Elastic.Notification.NotificationLevel;
 
 public class Util {
   /**
-   * @return If the current alliance is blue alliance
+   * @return The current stack trace, as a String.
    */
-  public static boolean isBlueAlliance() {
+  public static String getCurrentStackTrace() {
+    StringBuilder trace = new StringBuilder();
+
+    for (StackTraceElement s : Thread.currentThread().getStackTrace()) {
+      trace.append(s.toString());
+      trace.append(", ");
+    }
+
+    return trace.toString();
+  }
+
+  /**
+   * @return If the current alliance is red alliance
+   */
+  public static boolean isRedAlliance() {
     Optional<Alliance> alliance = DriverStation.getAlliance();
 
     if (alliance.isEmpty()) {
       // Attempted to check Alliance before it was received!
-      ConsoleLogger.reportError("Invalid alliance received");
-      Thread.dumpStack();
+      String trace = getCurrentStackTrace();
+      ConsoleLogger.reportError("Invalid alliance received in " + trace);
       
       Elastic.sendNotification(new Notification(
         NotificationLevel.WARNING,
         "Invalid alliance received from FMS",
-        ""
+        trace
       ));
     } else if (alliance.get().equals(Alliance.Red)) {
       // Red alliance confirmed
-      return false;
+      return true;
     }
 
-    return true;
+    // Either blue alliance or default
+    return false;
   }
 }

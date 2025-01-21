@@ -1,7 +1,6 @@
 package frc.robot.subsystems.swerve;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.FollowPathCommand;
@@ -35,8 +34,6 @@ import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog.State;
@@ -50,6 +47,7 @@ import frc.robot.Constants.HardwareConstants;
 import frc.robot.commands.CageLineUpCommand;
 import frc.robot.commands.ResetOdometryToDefaultCommand;
 import frc.robot.util.ConsoleLogger;
+import frc.robot.util.Util;
 import libs.Elastic;
 import libs.Elastic.Notification;
 import libs.Elastic.Notification.NotificationLevel;
@@ -231,18 +229,8 @@ public final class SwerveDrive implements Subsystem {
     try {
       // Load path and alliance color
       PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
-      Optional<Alliance> alliance = DriverStation.getAlliance();
-
-      if (alliance.isEmpty()) {
-        // Attempted to create paths before Alliance was received!
-        String msg = String.format("Attempted to create path '%s' before alliance was received", pathName);
-        ConsoleLogger.reportError(msg);
-        Elastic.sendNotification(new Notification(
-          NotificationLevel.WARNING,
-          "Alliance not received from FMS",
-          msg
-        ));
-      } else if (alliance.get().equals(Alliance.Red)) {
+      
+      if (Util.isRedAlliance()) {
         // Red alliance, need to flip path
         path = path.flipPath();
       }
@@ -282,8 +270,6 @@ public final class SwerveDrive implements Subsystem {
   }
 
   public Command getGoToPointCommand(Pose2d target) {
-
-  
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(target);
     PathConstraints constraints = PathConstraints.unlimitedConstraints(12);
             

@@ -1,6 +1,5 @@
 package frc.robot.subsystems.swerve;
 
-import java.util.Optional;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -23,11 +22,10 @@ import edu.wpi.first.wpilibj.ADIS16470_IMU.CalibrationTime;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.Threads;
 import frc.robot.util.ConsoleLogger;
+import frc.robot.util.Util;
 
 /**
  * 4-module SwerveOdometry thread based off of CTRE's SwerveBase.
@@ -210,8 +208,7 @@ public final class SwerveOdometry {
   }
 
   public void cacheAllianceColor() {
-    Optional<Alliance> alliance = DriverStation.getAlliance();
-    isRedAlliance = (alliance.isPresent() && alliance.get().equals(Alliance.Red));
+    isRedAlliance = Util.isRedAlliance();
     
     System.out.printf("Odometry thread cached isRedAlliance: %b\n", isRedAlliance);
 
