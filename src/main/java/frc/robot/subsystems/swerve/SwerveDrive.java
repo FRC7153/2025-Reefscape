@@ -275,10 +275,8 @@ public final class SwerveDrive implements Subsystem {
   }
 
   public Command getGoToPointCommand(Pose2d target) {
-if (condition) {
-  
-}
 
+  
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(target);
     PathConstraints constraints = PathConstraints.unlimitedConstraints(12);
             
