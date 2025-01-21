@@ -6,7 +6,9 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.DashboardConstants;
 import frc.robot.subsystems.swerve.SwerveDrive;
+import libs.Elastic;
 
 public class CageLineUpCommand extends Command {
   private static final SendableChooser<Integer> cageChooser = new SendableChooser<>();
@@ -51,10 +53,17 @@ public class CageLineUpCommand extends Command {
 
     pidYController.reset();
     pidThetaController.reset();
+
+    Elastic.selectTab("Cage View");
   }
 
   @Override
   public void execute() {
 
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    Elastic.selectTab(DashboardConstants.ELASTIC_DRIVE_TAB);
   }
 }

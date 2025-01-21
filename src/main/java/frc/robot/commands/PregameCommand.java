@@ -1,7 +1,5 @@
 package frc.robot.commands;
 
-import com.pathplanner.lib.commands.FollowPathCommand;
-
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -35,7 +33,7 @@ public class PregameCommand extends InstantCommand {
 
       // Only run auto pregame actions if we are not already in teleop
       if (!DriverStation.isTeleopEnabled()) {
-        FollowPathCommand.warmupCommand().schedule();
+        //FollowPathCommand.warmupCommand().schedule();
         chooser.loadAutoCommand();
       } else {
         System.out.println("Did not pregame auto because teleop is already enabled!");

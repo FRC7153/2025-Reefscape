@@ -9,6 +9,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.FlippingUtil;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -33,17 +34,12 @@ public final class SwerveConstants {
   public static final double MAX_WHEEL_VELOCITY = 5.0; // Absolute max wheel m/s
 
   // Max drive speeds
-  /**
-   * Distance center to wheel = 0.402 meters
-   * TODO finish...
-   */
   public static final double FAST_TRANSLATIONAL_SPEED = 5.0; // m/s
   public static final double FAST_ROTATIONAL_SPEED = 12.438; // rad/s
 
   public static final double SLOW_TRANSLATIONAL_SPEED = FAST_TRANSLATIONAL_SPEED * 0.5;
   public static final double SLOW_ROTATIONAL_SPEED = FAST_TRANSLATIONAL_SPEED * 0.5;
 
-  //TODO
   // CANCoder magnet offsets (in rotations, CCW+, -0.5 to 0.5 range)
   public static final double FL_CANCODER_OFFSET = 0.3884 * -1.0;
   public static final double FR_CANCODER_OFFSET = 0.21167 * -1.0;
@@ -58,7 +54,6 @@ public final class SwerveConstants {
   public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(4.0) * Math.PI;
   public static final double DRIVE_RATIO = 6.75; // SDS Mk4i L2
 
-  //TODO
   private static final Slot0Configs DRIVE_MOTOR_GAINS = new Slot0Configs()
     .withKP(0.96573).withKI(0.0).withKD(0.0)
     .withKS(0.088062).withKV(0.77811).withKA(0.013299);
@@ -88,7 +83,7 @@ public final class SwerveConstants {
     .smartCurrentLimit(20)
     .idleMode(IdleMode.kBrake)
     .apply(new ClosedLoopConfig()
-      .pidf(0.45, 0.00001, 0.0, 0.0)
+      .pidf(0.45, 0.00001, 0.0, 0.0, ClosedLoopSlot.kSlot0)
       .positionWrappingInputRange(-0.5 * STEER_RATIO, 0.5 * STEER_RATIO)
       .positionWrappingEnabled(true)
     );

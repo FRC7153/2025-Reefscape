@@ -24,12 +24,13 @@ public final class Robot extends TimedRobot {
   private final RobotContainer m_robotContainer;
 
   public Robot() {
+    ConsoleLogger.init();
     System.out.printf("Built with WPILib %s\n", WPILibVersion.Version);
 
     // Configure CTRE SignalLogger
     SignalLogger.enableAutoLogging(false);
     SignalLogger.stop();
-    SignalLogger.setPath("/U/CTRE_Signal_Logger");
+    SignalLogger.setPath("/u/CTRE_Signal_Logger");
 
     // Init logging
     DataLogManager.logNetworkTables(true);

@@ -6,7 +6,10 @@ import java.util.Optional;
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PPLibTelemetry;
 import com.pathplanner.lib.util.PathPlannerLogging;
@@ -21,6 +24,7 @@ import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
@@ -77,6 +81,7 @@ public final class SwerveDrive implements Subsystem {
 
   // NT Logging
   private final StructArrayPublisher<SwerveModuleState> statePublisher, reqStatePublisher;
+  private final StructPublisher<Pose2d> posePublisher;
   private final IntegerPublisher successfulDAQPublisher, failedDAQPublisher;
   private final DoublePublisher odometryFreqPublisher;
   private final BooleanPublisher isClosedLoopPublisher;
@@ -123,6 +128,7 @@ public final class SwerveDrive implements Subsystem {
 
       statePublisher = ntTable.getStructArrayTopic("State", SwerveModuleState.struct).publish();
       reqStatePublisher = ntTable.getStructArrayTopic("Request", SwerveModuleState.struct).publish();
+      posePublisher = ntTable.getStructTopic("Pose", Pose2d.struct).publish();
       successfulDAQPublisher = ntTable.getIntegerTopic("Successful_DAQs").publish();
       failedDAQPublisher = ntTable.getIntegerTopic("Failed_DAQs").publish();
       odometryFreqPublisher = ntTable.getDoubleTopic("Odometry_Freq").publish();
@@ -131,6 +137,7 @@ public final class SwerveDrive implements Subsystem {
       // Do not init NT publishers
       statePublisher = null;
       reqStatePublisher = null;
+      posePublisher = null;
       successfulDAQPublisher = null;
       failedDAQPublisher = null;
       odometryFreqPublisher = null;
@@ -173,6 +180,9 @@ public final class SwerveDrive implements Subsystem {
       trajectoryLogger.append(path);
       fieldPublisher.getObject("trajectory").setPoses(path);
     });
+
+    // Warm up PathPlanner
+    FollowPathCommand.warmupCommand().schedule();
   }
 
   /**
@@ -269,6 +279,32 @@ public final class SwerveDrive implements Subsystem {
       );
       return new PrintCommand(String.format("Running failed path: '%s'", pathName));
     }
+  }
+
+  public Command getGoToPointCommand(Pose2d target) {
+
+  
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(target);
+    PathConstraints constraints = PathConstraints.unlimitedConstraints(12);
+            
+    PathPlannerPath path = new PathPlannerPath(
+      waypoints, 
+      constraints, 
+      null, 
+      new GoalEndState(0, target.getRotation()));
+
+    return new FollowPathCommand(
+       path, 
+       odometry::getFieldRelativePosition, 
+       this::getCurrentChassisSpeeds, 
+       (ChassisSpeeds speeds, DriveFeedforwards feedforwards) -> {
+         drive(speeds, true);
+       }, 
+       SwerveConstants.AUTO_CONTROLLER, 
+       autoConfig, 
+       () -> false, 
+       this
+     );
   }
 
   /** Gets robot-relative chassis speeds */
@@ -384,6 +420,7 @@ public final class SwerveDrive implements Subsystem {
     if (BuildConstants.PUBLISH_EVERYTHING) {
       statePublisher.set(currentStates);
       reqStatePublisher.set(currentRequests);
+      posePublisher.set(pose);
       successfulDAQPublisher.set(odometry.getSuccessfulDAQs());
       failedDAQPublisher.set(odometry.getFailedDAQs());
       odometryFreqPublisher.set(odometry.getFrequency());
