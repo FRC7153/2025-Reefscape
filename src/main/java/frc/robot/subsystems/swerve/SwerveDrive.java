@@ -6,7 +6,10 @@ import java.util.Optional;
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PPLibTelemetry;
 import com.pathplanner.lib.util.PathPlannerLogging;
@@ -269,6 +272,34 @@ public final class SwerveDrive implements Subsystem {
       );
       return new PrintCommand(String.format("Running failed path: '%s'", pathName));
     }
+  }
+
+  public Command getGoToPointCommand(Pose2d target) {
+if (condition) {
+  
+}
+
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(target);
+    PathConstraints constraints = PathConstraints.unlimitedConstraints(12);
+            
+    PathPlannerPath path = new PathPlannerPath(
+      waypoints, 
+      constraints, 
+      null, 
+      new GoalEndState(0, target.getRotation()));
+
+    return new FollowPathCommand(
+       path, 
+       odometry::getFieldRelativePosition, 
+       this::getCurrentChassisSpeeds, 
+       (ChassisSpeeds speeds, DriveFeedforwards feedforwards) -> {
+         drive(speeds, true);
+       }, 
+       SwerveConstants.AUTO_CONTROLLER, 
+       autoConfig, 
+       () -> false, 
+       this
+     );
   }
 
   /** Gets robot-relative chassis speeds */

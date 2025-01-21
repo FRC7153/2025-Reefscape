@@ -5,7 +5,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveDrive;
 
-public class GoToPointCommand extends Command {
+/*public class GoToPointCommand extends Command {
   private final PIDController pidXController = new PIDController(0.1, 0, 0);
   private final PIDController pidYController = new PIDController(0.1, 0, 0);
   private final PIDController pidThetaController = new PIDController(0.1, 0, 0);
@@ -17,7 +17,7 @@ public class GoToPointCommand extends Command {
    * Command that goes to a certain point.
    * @param drive
    * @param target Alliance relative target position
-   */
+   
   public GoToPointCommand(SwerveDrive drive, Pose2d target) {
     this.drive = drive;
     this.target = target;
@@ -62,3 +62,5 @@ public class GoToPointCommand extends Command {
   }
 
 }
+*/
+
