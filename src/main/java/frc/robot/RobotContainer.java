@@ -4,9 +4,11 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.auto.AutoChooser;
 import frc.robot.commands.PregameCommand;
 import frc.robot.commands.TeleopDriveCommand;
@@ -32,6 +34,9 @@ public final class RobotContainer {
   }
 
   private void configureBindings() {
+    // Game mode triggers
+    Trigger isEnabledTrigger = new Trigger(DriverStation::isEnabled);
+
     // SwerveDrive default command (teleop driving)
     base.setDefaultCommand(
       new TeleopDriveCommand(
@@ -41,6 +46,11 @@ public final class RobotContainer {
         () -> -controller.getRightX(), 
         controller.leftTrigger())
     );
+
+    // Match timer start/stop
+    isEnabledTrigger
+      .onTrue(dashboard.getRestartTimerCommand())
+      .onFalse(dashboard.getStopTimerCommand());
   }
 
   /** Checks all hardware, called periodically */

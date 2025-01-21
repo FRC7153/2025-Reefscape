@@ -4,7 +4,7 @@ import com.ctre.phoenix6.CANBus;
 
 public final class Constants {
   public static final class BuildConstants {
-    public static final boolean PUBLISH_EVERYTHING = false;
+    public static final boolean PUBLISH_EVERYTHING = true;
     public static final boolean INCLUDE_TEST_AUTOS = true;
 
     /**
@@ -17,6 +17,7 @@ public final class Constants {
 
   public static final class DashboardConstants {
     public static final int ELASTIC_SERVER_PORT = 5800;
+    public static final String ELASTIC_DRIVE_TAB = "Drive";
   }
 
   public static final class ClimberConstants {

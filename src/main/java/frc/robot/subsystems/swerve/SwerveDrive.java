@@ -21,6 +21,7 @@ import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
@@ -77,6 +78,7 @@ public final class SwerveDrive implements Subsystem {
 
   // NT Logging
   private final StructArrayPublisher<SwerveModuleState> statePublisher, reqStatePublisher;
+  private final StructPublisher<Pose2d> posePublisher;
   private final IntegerPublisher successfulDAQPublisher, failedDAQPublisher;
   private final DoublePublisher odometryFreqPublisher;
   private final BooleanPublisher isClosedLoopPublisher;
@@ -123,6 +125,7 @@ public final class SwerveDrive implements Subsystem {
 
       statePublisher = ntTable.getStructArrayTopic("State", SwerveModuleState.struct).publish();
       reqStatePublisher = ntTable.getStructArrayTopic("Request", SwerveModuleState.struct).publish();
+      posePublisher = ntTable.getStructTopic("Pose", Pose2d.struct).publish();
       successfulDAQPublisher = ntTable.getIntegerTopic("Successful_DAQs").publish();
       failedDAQPublisher = ntTable.getIntegerTopic("Failed_DAQs").publish();
       odometryFreqPublisher = ntTable.getDoubleTopic("Odometry_Freq").publish();
@@ -131,6 +134,7 @@ public final class SwerveDrive implements Subsystem {
       // Do not init NT publishers
       statePublisher = null;
       reqStatePublisher = null;
+      posePublisher = null;
       successfulDAQPublisher = null;
       failedDAQPublisher = null;
       odometryFreqPublisher = null;
@@ -173,6 +177,9 @@ public final class SwerveDrive implements Subsystem {
       trajectoryLogger.append(path);
       fieldPublisher.getObject("trajectory").setPoses(path);
     });
+
+    // Warm up PathPlanner
+    FollowPathCommand.warmupCommand().schedule();
   }
 
   /**
@@ -384,6 +391,7 @@ public final class SwerveDrive implements Subsystem {
     if (BuildConstants.PUBLISH_EVERYTHING) {
       statePublisher.set(currentStates);
       reqStatePublisher.set(currentRequests);
+      posePublisher.set(pose);
       successfulDAQPublisher.set(odometry.getSuccessfulDAQs());
       failedDAQPublisher.set(odometry.getFailedDAQs());
       odometryFreqPublisher.set(odometry.getFrequency());
