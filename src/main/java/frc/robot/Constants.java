@@ -1,7 +1,11 @@
 package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
-
+import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.config.ClosedLoopConfig;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 public final class Constants {
   public static final class BuildConstants {
     public static final boolean PUBLISH_EVERYTHING = false;
@@ -25,10 +29,13 @@ public final class Constants {
 
     public static final int kCLIMBER_CURRENT_LIMIT = 40;
 
-    //TODO
-    public static final double kCLIMBER_P = 0.0;
-    public static final double kCLIMBER_I = 0.0;
-    public static final double kCLIMBER_D = 0.0;
+    //TODO find if inverted, config PIDF
+    public static final SparkBaseConfig CLIMBER_CONFIG = new SparkFlexConfig()
+    .idleMode(IdleMode.kBrake)
+    .inverted(false)
+    .smartCurrentLimit(40)
+    .apply(new ClosedLoopConfig()
+      .pidf(0.0, 0.0, 0.0, 0.0,  ClosedLoopSlot.kSlot0));
   }
 
   public static final class ManipulatorConstants {

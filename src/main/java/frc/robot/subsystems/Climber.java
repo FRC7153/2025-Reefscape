@@ -1,72 +1,50 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.*;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkRelativeEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.*;
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.REVLibError;
+import com.revrobotics.spark.config.SparkFlexConfig;
+
+import edu.wpi.first.wpilibj2.command.Subsystem;
+
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.HardwareConstants;
 
-public class Climber {
-    private SparkFlex climberLeft = new SparkFlex(HardwareConstants.CLIMBER_LEFT_CAN, MotorType.kBrushless);
-    private SparkFlex climberRight = new SparkFlex(HardwareConstants.CLIMBER_RIGHT_CAN, MotorType.kBrushless);
+public class Climber implements Subsystem {
+  private final SparkFlex climberLeft = new SparkFlex(HardwareConstants.CLIMBER_LEFT_CAN, MotorType.kBrushless);
+  private final SparkFlex climberRight = new SparkFlex(HardwareConstants.CLIMBER_RIGHT_CAN, MotorType.kBrushless);
 
-    private RelativeEncoder climberLeftEncoder = climberLeft.getEncoder();
-    private RelativeEncoder climberRightEncoder = climberRight.getEncoder();
+  private final RelativeEncoder climberLeftEncoder = climberLeft.getEncoder();
 
-    private SparkClosedLoopController climberLeftController, climberRightController;
+  /**
+   * Init
+   */
+  public Climber() {
+    climberLeft.configure(
+      ClimberConstants.CLIMBER_CONFIG,
+      ResetMode.kResetSafeParameters,
+      PersistMode.kPersistParameters);
 
-    private SparkFlexConfig climberLeftConfig = new SparkFlexConfig();
-    private SparkFlexConfig climberRightConfig = new SparkFlexConfig();
+    climberRight.configure(
+      new SparkFlexConfig()
+        .follow(climberLeft, false),
+      ResetMode.kResetSafeParameters,
+      PersistMode.kPersistParameters);
+  }
 
-    /**
-     * Init
-     */
-    public Climber(){
-        climberLeftConfig.idleMode(IdleMode.kBrake);
-        climberRightConfig.idleMode(IdleMode.kBrake);
+  /**
+   * @param percentage Runs climber in percentage
+   */
+  public void runClimber(double percentage) {
+    climberLeft.set(percentage);
+  }
 
-        //TODO
-        climberLeftConfig.inverted(false);
-        climberRightConfig.inverted(false);
-
-        climberLeftConfig.smartCurrentLimit(ClimberConstants.kCLIMBER_CURRENT_LIMIT);
-        climberRightConfig.smartCurrentLimit(ClimberConstants.kCLIMBER_CURRENT_LIMIT);
-
-        climberLeftController = climberLeft.getClosedLoopController();
-        climberRightController = climberRight.getClosedLoopController();
-
-        // Trouble adding pid slot 
-        climberLeftConfig.closedLoop.pid(ClimberConstants.kCLIMBER_P,
-        ClimberConstants.kCLIMBER_I,
-        ClimberConstants.kCLIMBER_D);
-
-        climberRightConfig.closedLoop.pid(ClimberConstants.kCLIMBER_P,
-        ClimberConstants.kCLIMBER_I, 
-        ClimberConstants.kCLIMBER_D);
-    }    
-
-    /**
-     * Sets Climber Height(in rots)
-     * @param leftHeight
-     * @param rightHeight
-     */
-    public void setClimberHeight(double leftHeight, double rightHeight){
-        climberLeftController.setReference(leftHeight, ControlType.kPosition);
-        climberRightController.setReference(rightHeight, ControlType.kPosition);
-    }
-
-
-    };
+  /**
+   * @return in rots
+   */
+  public double getPosition() {
+    return climberLeftEncoder.getPosition() / ClimberConstants.kCLIMBER_RATIO;
+  }
+};
