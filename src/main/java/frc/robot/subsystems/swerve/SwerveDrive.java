@@ -36,7 +36,6 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.HardwareConstants;
-import frc.robot.commands.CageLineUpCommand;
 import frc.robot.commands.ResetOdometryToDefaultCommand;
 import frc.robot.util.ConsoleLogger;
 
@@ -152,9 +151,6 @@ public final class SwerveDrive implements Subsystem {
 
     // Add reset position command to dashboard
     SmartDashboard.putData("Reset position", new ResetOdometryToDefaultCommand(this));
-
-    // Add Cage chooser to dashboard
-    SmartDashboard.putData("Cage", CageLineUpCommand.getCageChooser());
 
     // Add Field2d to dashboard
     SmartDashboard.putData("Field", fieldPublisher);
