@@ -26,7 +26,7 @@ public final class Constants {
 
   public static final class ClimberConstants {
     //TODO
-    public static final double kCLIMBER_RATIO = 0.0;
+    public static final double kCLIMBER_RATIO = 20.0;
 
     public static final int kCLIMBER_CURRENT_LIMIT = 40;
 
@@ -41,7 +41,7 @@ public final class Constants {
 
   public static final class ManipulatorConstants {
     //TODO
-    public static final double kManipulator_RATIO = 0.0;
+    public static final double kManipulator_RATIO = 1.0;
 
     public static final int kMANIPULATOR_CURRENT_LIMIT = 30;
 
@@ -53,11 +53,11 @@ public final class Constants {
 
   public static final class ElevatorConstants {
     //TODO
-    public static final double kELEVATOR_RATIO = 0.0;
-    public static final double kMANIPULATOR_PIVOT_RATIO = 0.0;
+    public static final double kELEVATOR_RATIO = 7.75;
+    public static final double kMANIPULATOR_PIVOT_RATIO = 4.0;
 
-    public static final double kMANIPULATOR_PIVOT_CURRENT_LIMIT = 40;
-    public static final double kELEVATOR_CURRENT_LIMIT = 0.0;
+    public static final int kMANIPULATOR_PIVOT_CURRENT_LIMIT = 40;
+    public static final int kELEVATOR_CURRENT_LIMIT = 40;
 
     //TODO 
     public static final double kELEVATOR_P = 0.0;
@@ -92,7 +92,6 @@ public final class Constants {
 
     // Manipulator Hardware 
     public static final int MANIPULATOR_CAN = 19;
-
 
     public static final CANBus RIO_CAN = new CANBus("rio");
     public static final CANBus CANIVORE = new CANBus("CANivore");
