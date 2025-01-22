@@ -26,8 +26,7 @@ public class PregameCommand extends InstantCommand {
   public PregameCommand(SwerveDrive drive, Dashboard dashboard, AutoChooser chooser) {
     super(() -> {
       // Run pregame actions:
-      drive.homeEncoders();
-      drive.configOdometry();
+      drive.pregame();
 
       dashboard.stopWebServerIfFMS();
 

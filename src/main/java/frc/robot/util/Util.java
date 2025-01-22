@@ -47,4 +47,7 @@ public class Util {
     // Either blue alliance or default
     return false;
   }
+
+  /** Prevent instantiation */
+  private Util() {}
 }

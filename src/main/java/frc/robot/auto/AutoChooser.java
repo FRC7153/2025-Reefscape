@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.commands.SwerveCharacterizationCommand;
 import frc.robot.subsystems.swerve.SwerveDrive;
+import frc.robot.subsystems.swerve.SwervePaths;
 
 public final class AutoChooser {
   private static final Command noOpCommand = new PrintCommand("No-op auto selected.");
@@ -42,9 +43,9 @@ public final class AutoChooser {
       chooser.addOption("Auto Drive Test", () -> new SimpleDriveTestAuto(drive));
       chooser.addOption("Back and Forth Drive Test", () -> new BackAndForthTestAuto(drive));
       chooser.addOption("Path 1 Test", 
-        () -> drive.getFollowPathCommand("Path 1 Test", true).withName("Path 1 Test"));
+        () -> SwervePaths.getFollowPathCommand(drive, "Path 1 Test", true).withName("Path 1 Test"));
       chooser.addOption("Rotate 1 Test", 
-        () -> drive.getFollowPathCommand("Rotate 1 Test", true).withName("Rotate 1 Test"));
+        () -> SwervePaths.getFollowPathCommand(drive, "Rotate 1 Test", true).withName("Rotate 1 Test"));
     }
 
     // Add to dashboard

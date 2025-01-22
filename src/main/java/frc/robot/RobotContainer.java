@@ -15,6 +15,7 @@ import frc.robot.auto.AutoChooser;
 import frc.robot.commands.PregameCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.subsystems.swerve.SwerveDrive;
+import frc.robot.subsystems.swerve.SwervePaths;
 import frc.robot.util.Dashboard;
 
 public final class RobotContainer {
@@ -49,7 +50,8 @@ public final class RobotContainer {
         controller.leftTrigger())
     );
 
-    controller.a().whileTrue(base.getGoToPointCommand(new Pose2d(0, 0, Rotation2d.kZero)));
+    // Test go to point command
+    controller.a().whileTrue(SwervePaths.getGoToPointCommand(base, new Pose2d(4, 3, Rotation2d.kZero)));
 
     // Match timer start/stop
     isEnabledTrigger

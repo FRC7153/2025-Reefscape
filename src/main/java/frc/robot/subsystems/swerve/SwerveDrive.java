@@ -5,11 +5,6 @@ import java.util.List;
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.path.GoalEndState;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.Waypoint;
-import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PPLibTelemetry;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
@@ -37,9 +32,6 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog.State;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.BuildConstants;
@@ -47,10 +39,6 @@ import frc.robot.Constants.HardwareConstants;
 import frc.robot.commands.CageLineUpCommand;
 import frc.robot.commands.ResetOdometryToDefaultCommand;
 import frc.robot.util.ConsoleLogger;
-import frc.robot.util.Util;
-import libs.Elastic;
-import libs.Elastic.Notification;
-import libs.Elastic.Notification.NotificationLevel;
 
 public final class SwerveDrive implements Subsystem {
   // Swerve Modules
@@ -109,13 +97,13 @@ public final class SwerveDrive implements Subsystem {
   private final SwerveModuleState[] currentRequests = new SwerveModuleState[4];
 
   // Pose estimation
-  private final SwerveOdometry odometry = new SwerveOdometry(modules, kinematics);
+  protected final SwerveOdometry odometry = new SwerveOdometry(modules, kinematics);
   private SysIdRoutine moduleRoutine, pathRoutine;
 
   private final Limelight limelightMain = new Limelight("limelight-main", odometry);
 
   // Autonomous
-  private final RobotConfig autoConfig;
+  protected final RobotConfig autoConfig;
   private final Alert failedToLoadConfigAlert = new Alert("Failed to load PathPlanner's config", AlertType.kError);
 
   @SuppressWarnings("UseSpecificCatch")
@@ -220,88 +208,10 @@ public final class SwerveDrive implements Subsystem {
     );
   }
 
-  /**
-   * @param pathName Name of path to follow
-   * @return
-   */
-  @SuppressWarnings("UseSpecificCatch")
-  public Command getFollowPathCommand(String pathName, boolean resetPosition) {
-    try {
-      // Load path and alliance color
-      PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
-      
-      if (Util.isRedAlliance()) {
-        // Red alliance, need to flip path
-        path = path.flipPath();
-      }
-      
-      // Create path follow command
-      Command followCommand = new FollowPathCommand(
-        path, 
-        odometry::getFieldRelativePosition, 
-        this::getCurrentChassisSpeeds, 
-        (ChassisSpeeds speeds, DriveFeedforwards feedforwards) -> {
-          drive(speeds, true);
-        }, 
-        SwerveConstants.AUTO_CONTROLLER, 
-        autoConfig, 
-        () -> false, 
-        this
-      );
-
-      if (resetPosition) {
-        // Reset position before running the path
-        Pose2d origin = path.getStartingHolonomicPose().get();
-        return new InstantCommand(() -> resetOdometry(origin)).andThen(followCommand);
-      } else {
-        // Just run the path
-        return followCommand;
-      }
-    } catch (Exception e) {
-      // Failed to load path file
-      ConsoleLogger.reportError(String.format("Failed to load path '%s': %s", pathName, e.getMessage()));
-      Elastic.sendNotification(new Notification(
-        NotificationLevel.ERROR, 
-        String.format("Failed to load path '%s'", pathName), 
-        e.getMessage())
-      );
-      return new PrintCommand(String.format("Running failed path: '%s'", pathName));
-    }
-  }
-
-  public Command getGoToPointCommand(Pose2d target) {
-    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(target);
-    PathConstraints constraints = PathConstraints.unlimitedConstraints(12);
-            
-    PathPlannerPath path = new PathPlannerPath(
-      waypoints, 
-      constraints, 
-      null, 
-      new GoalEndState(0, target.getRotation()));
-
-    return new FollowPathCommand(
-       path, 
-       odometry::getFieldRelativePosition, 
-       this::getCurrentChassisSpeeds, 
-       (ChassisSpeeds speeds, DriveFeedforwards feedforwards) -> {
-         drive(speeds, true);
-       }, 
-       SwerveConstants.AUTO_CONTROLLER, 
-       autoConfig, 
-       () -> false, 
-       this
-     );
-  }
-
   /** Gets robot-relative chassis speeds */
-  public ChassisSpeeds getCurrentChassisSpeeds() {
+  protected ChassisSpeeds getCurrentChassisSpeeds() {
     // currentStates is updated in place periodically
     return kinematics.toChassisSpeeds(currentStates);
-  }
-
-  /** Gets alliance-relative position */
-  public Pose2d getAllianceRelativePose() {
-    return odometry.getAllianceRelativePosition();
   }
 
   /** Resets from a FIELD RELATIVE position */
@@ -376,15 +286,12 @@ public final class SwerveDrive implements Subsystem {
     return pathRoutine;
   }
 
-  /** Homes all swerve modules. Run in pregame. */
-  public void homeEncoders() {
+  /** Homes all swerve modules and caches alliance color for odometry. Run in pregame. */
+  public void pregame() {
     for (int m = 0; m < 4; m++) {
       modules[m].homeEncoder();
     }
-  }
 
-  /** Caches alliance color for odometry and sets default position. Run in pregame. */
-  public void configOdometry() {
     odometry.cacheAllianceColor();
   }
 
