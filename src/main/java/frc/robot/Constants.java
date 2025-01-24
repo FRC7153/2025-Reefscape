@@ -96,7 +96,7 @@ public final class Constants {
       .inverted(false)
       .smartCurrentLimit(40)
       .apply(new ClosedLoopConfig()
-        .pidf(0.0, 0.0, 0.0, 0.0));
+        .pidf(0.0, 0.0, 0.0, 0.0, ClosedLoopSlot.kSlot0));
   }
   public static final class HardwareConstants {
     public static final int PDH_CAN = 1;
