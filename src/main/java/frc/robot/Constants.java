@@ -48,12 +48,13 @@ public final class Constants {
     //TODO
     public static final double kManipulator_RATIO = 1.0;
 
-    public static final int kMANIPULATOR_CURRENT_LIMIT = 30;
-
-    //TODO
-    public static final double kMANIPULATOR_P = 0.0;
-    public static final double kMANIPULATOR_I = 0.0;
-    public static final double kMANIPULATOR_D = 0.0;
+    //TODO find if inverted, config PID
+    public static final SparkBaseConfig MANIPULATOR_CONFIG = new SparkFlexConfig()
+      .idleMode(IdleMode.kBrake)
+      .inverted(false)
+      .smartCurrentLimit(30)
+      .apply(new ClosedLoopConfig()
+        .pidf(0.0, 0.0, 0.0, 0.0, ClosedLoopSlot.kSlot0)); 
   }
 
   public static final class ElevatorConstants {
