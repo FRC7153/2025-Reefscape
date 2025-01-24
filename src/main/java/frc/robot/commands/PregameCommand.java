@@ -4,9 +4,9 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.robot.auto.AutoChooser;
 import frc.robot.subsystems.swerve.SwerveDrive;
-import frc.robot.util.Dashboard;
+import frc.robot.util.dashboard.AutoChooser;
+import frc.robot.util.dashboard.Dashboard;
 
 /**
  * Runs all actions that should be run after the robot successfully boots/initializes/connects,

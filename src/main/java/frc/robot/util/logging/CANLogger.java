@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.util.logging;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

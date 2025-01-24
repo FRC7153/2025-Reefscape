@@ -12,13 +12,15 @@ import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import frc.robot.util.ConsoleLogger;
 import frc.robot.util.Util;
+import frc.robot.util.logging.ConsoleLogger;
 import libs.Elastic;
 import libs.Elastic.Notification;
 import libs.Elastic.Notification.NotificationLevel;
@@ -89,13 +91,21 @@ public class SwervePaths {
    * @return Command to follow path
    */
   public static Command getGoToPointCommand(SwerveDrive drive, Pose2d target) {
+    // TODO optimize this takes way to much time to construct
     // Return as a deferred command so that it is constructed when it begins to run
     return new DeferredCommand(() -> {
       // Get waypoints
       Pose2d fieldRelativeTarget = Util.isRedAlliance() ? FlippingUtil.flipFieldPose(target) : target;
       Pose2d start = drive.odometry.getFieldRelativePosition();
 
-      List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(start, fieldRelativeTarget);
+      // Get direction of travel
+      Translation2d diff = fieldRelativeTarget.getTranslation().minus(start.getTranslation());
+      Rotation2d directionOfTravel = new Rotation2d(diff.getX(), diff.getY());
+
+      List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
+        new Pose2d(start.getX(), start.getY(), directionOfTravel),
+        new Pose2d(fieldRelativeTarget.getX(), fieldRelativeTarget.getY(), directionOfTravel)
+      );
 
       // Create path
       PathPlannerPath path = new PathPlannerPath(

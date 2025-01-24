@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.util.logging.ConsoleLogger;
 import libs.Elastic;
 import libs.Elastic.Notification;
 import libs.Elastic.Notification.NotificationLevel;

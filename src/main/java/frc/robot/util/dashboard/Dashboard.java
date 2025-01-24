@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.util.dashboard;
 
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.networktables.DoublePublisher;
@@ -6,8 +6,11 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.DashboardConstants;
 
 /**
@@ -26,6 +29,11 @@ public class Dashboard {
     // Stop the timer (the robot is disabled by default)
     matchTimer.stop();
     matchTimer.reset();
+
+    // Begin hosting CommandScheduler for debugging
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      SmartDashboard.putData("Commands", CommandScheduler.getInstance());
+    }
   }
 
   /**

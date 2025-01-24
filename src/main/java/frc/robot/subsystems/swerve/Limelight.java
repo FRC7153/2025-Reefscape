@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.util.AprilTagMap;
-import frc.robot.util.ConsoleLogger;
+import frc.robot.util.logging.ConsoleLogger;
 import libs.LimelightHelpers;
 
 /**

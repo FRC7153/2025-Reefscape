@@ -19,6 +19,9 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
@@ -31,13 +34,14 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog.State;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.commands.ResetOdometryToDefaultCommand;
-import frc.robot.util.ConsoleLogger;
+import frc.robot.util.logging.ConsoleLogger;
 
 public final class SwerveDrive implements Subsystem {
   // Swerve Modules
@@ -63,6 +67,7 @@ public final class SwerveDrive implements Subsystem {
 
   // Kinematics
   private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(SwerveConstants.POSITIONS);
+  private ChassisSpeeds lastChassisSpeeds = new ChassisSpeeds();
 
   // NT Logging
   private final StructArrayPublisher<SwerveModuleState> statePublisher, reqStatePublisher;
@@ -175,6 +180,8 @@ public final class SwerveDrive implements Subsystem {
     SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveConstants.MAX_WHEEL_VELOCITY);
 
+    lastChassisSpeeds = speeds;
+
     for (int m = 0; m < 4; m++) {
       modules[m].setRequest(states[m], closedLoop);
     }
@@ -260,24 +267,24 @@ public final class SwerveDrive implements Subsystem {
 
   /** Gets routine for Auto Path SysId characterization. */
   public SysIdRoutine getPathRoutine() {
-    /*if (pathRoutine == null) {
+    if (pathRoutine == null) {
       // No cached routine, instantiate it
       pathRoutine = new SysIdRoutine(
-        new SysIdRoutine.Config(), 
+        new SysIdRoutine.Config(Volts.of(0.75).per(Second), Volts.of(1.25), null), 
         new SysIdRoutine.Mechanism(
           (Voltage v) -> {
-            drive(0.0, v.in(Volts), 0.0, true, false);
+            drive(v.in(Volts), 0.0, 0.0, true, false);
           },
           (SysIdRoutineLog log) -> {
             log.motor("base")
-              .voltage(0.0)
-              .linearPosition(0.0)
-              .linearVelocity(0.0);
+              .voltage(Volts.of(lastChassisSpeeds.vyMetersPerSecond))
+              .linearPosition(Meters.of(odometry.getFieldRelativePosition().getY()))
+              .linearVelocity(MetersPerSecond.of(odometry.getYVelocity()));
           },
           this
         )
       );
-    }*/
+    }
 
     return pathRoutine;
   }

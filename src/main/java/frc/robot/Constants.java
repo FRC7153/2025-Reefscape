@@ -1,11 +1,11 @@
 package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
-import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
 public final class Constants {
   public static final class BuildConstants {
     public static final boolean PUBLISH_EVERYTHING = true;

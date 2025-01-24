@@ -24,8 +24,10 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.Threads;
-import frc.robot.util.ConsoleLogger;
+import frc.robot.Constants.BuildConstants;
+import frc.robot.util.DerivativeCalculator;
 import frc.robot.util.Util;
+import frc.robot.util.logging.ConsoleLogger;
 
 /**
  * 4-module SwerveOdometry thread based off of CTRE's SwerveBase.
@@ -38,7 +40,8 @@ public final class SwerveOdometry {
   private volatile Pose2d mostRecentPose = Pose2d.kZero;
   private volatile int successfulDAQs = 0;
   private volatile int failedDAQs = 0;
-  private volatile double actualFreq = 0.0;
+  private volatile double actualFreq = 250.0;
+  private volatile double yVelo = 0.0;
 
   private final ADIS16470_IMU imu;
   private final Alert imuHardwareAlert = new Alert("ADIS16470 IMU is not connected", AlertType.kError);
@@ -46,6 +49,7 @@ public final class SwerveOdometry {
   private final SwerveModulePosition[] swervePositions;
   private final BaseStatusSignal[] allSignals;
   private final SwerveDrivePoseEstimator poseEstimator;
+  private final DerivativeCalculator yVeloCalculator;
   private boolean isRedAlliance = false; // Cached later
   private boolean hasSetInitialPosition = false; // Set later
 
@@ -90,6 +94,14 @@ public final class SwerveOdometry {
       SwerveConstants.STATE_STD_DEVS, // State std devs
       VecBuilder.fill(0.9, 0.9, 0.9) // Vision std devs will be changed in calls to addVisionMeasurement(...)
     );
+
+    // Init derivative calculator
+    if (BuildConstants.INCLUDE_TEST_AUTOS) {
+      // If INCLUDE_TEST_AUTOS is false, then the SysID autos won't even be built, and this is useless.
+      yVeloCalculator = new DerivativeCalculator(3);
+    } else {
+      yVeloCalculator = null;
+    }
   }
 
   /** Start the odometry thread. */
@@ -163,6 +175,11 @@ public final class SwerveOdometry {
       // Update frequency and count
       actualFreq = freqFilter.calculate((1000000000.0 / (System.nanoTime() - startTime)));
 
+      // Calculate y velocity
+      if (BuildConstants.INCLUDE_TEST_AUTOS) {
+        yVelo = yVeloCalculator.calculate(mostRecentPose.getY());
+      }
+
       // Use this to determine which axis is yaw:
       /*System.out.printf(
         "IMU: X: %f, Y: %f, Z: %f\n", 
@@ -205,6 +222,17 @@ public final class SwerveOdometry {
    */
   public double getFrequency() {
     return actualFreq;
+  }
+
+  /**
+   * @return The y velocity, in m/s
+   */
+  public double getYVelocity() {
+    if (!BuildConstants.INCLUDE_TEST_AUTOS) {
+      ConsoleLogger.reportError("Attempted to get y velocity, but is is not being calculated");
+    }
+
+    return yVelo;
   }
 
   public void cacheAllianceColor() {

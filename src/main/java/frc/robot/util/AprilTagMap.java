@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants.BuildConstants;
+import frc.robot.util.logging.ConsoleLogger;
 
 public class AprilTagMap {
   private static final AprilTagFieldLayout map;

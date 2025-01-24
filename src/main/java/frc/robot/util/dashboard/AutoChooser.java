@@ -1,4 +1,4 @@
-package frc.robot.auto;
+package frc.robot.util.dashboard;
 
 import java.util.function.Supplier;
 
@@ -9,7 +9,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.Constants.BuildConstants;
-import frc.robot.commands.SwerveCharacterizationCommand;
+import frc.robot.autos.BackAndForthTestAuto;
+import frc.robot.autos.SimpleDriveTestAuto;
+import frc.robot.commands.SysIdCharacterizationCommand;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.swerve.SwervePaths;
 
@@ -34,10 +36,10 @@ public final class AutoChooser {
     // Autos that are used for testing
     if (BuildConstants.INCLUDE_TEST_AUTOS) {
       // Add Drive SysId options
-      chooser.addOption("SYSID Swerve Q+", () -> new SwerveCharacterizationCommand(drive, true, true));
-      chooser.addOption("SYSID Swerve Q-", () -> new SwerveCharacterizationCommand(drive, true, false));
-      chooser.addOption("SYSID Swerve D+", () -> new SwerveCharacterizationCommand(drive, false, true));
-      chooser.addOption("SYSID Swerve D-", () -> new SwerveCharacterizationCommand(drive, false, false));
+      chooser.addOption("SYSID Swerve Q+", () -> new SysIdCharacterizationCommand(drive.getModuleRoutine(), true, true));
+      chooser.addOption("SYSID Swerve Q-", () -> new SysIdCharacterizationCommand(drive.getModuleRoutine(), true, false));
+      chooser.addOption("SYSID Swerve D+", () -> new SysIdCharacterizationCommand(drive.getModuleRoutine(), false, true));
+      chooser.addOption("SYSID Swerve D-", () -> new SysIdCharacterizationCommand(drive.getModuleRoutine(), false, false));
 
       // Drive characterization test auto
       chooser.addOption("Auto Drive Test", () -> new SimpleDriveTestAuto(drive));

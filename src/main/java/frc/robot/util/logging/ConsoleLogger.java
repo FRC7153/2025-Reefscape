@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.util.logging;
 
 import java.io.IOException;
 import java.io.OutputStream;

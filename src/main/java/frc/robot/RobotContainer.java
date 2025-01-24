@@ -11,12 +11,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.auto.AutoChooser;
 import frc.robot.commands.PregameCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.swerve.SwervePaths;
-import frc.robot.util.Dashboard;
+import frc.robot.util.dashboard.AutoChooser;
+import frc.robot.util.dashboard.Dashboard;
 
 public final class RobotContainer {
   // Subsystems
@@ -51,7 +51,7 @@ public final class RobotContainer {
     );
 
     // Test go to point command
-    controller.a().whileTrue(SwervePaths.getGoToPointCommand(base, new Pose2d(4, 3, Rotation2d.kZero)));
+    controller.a().whileTrue(SwervePaths.getGoToPointCommand(base, new Pose2d(0, 0, Rotation2d.kZero)));
 
     // Match timer start/stop
     isEnabledTrigger
