@@ -35,7 +35,7 @@ public final class AutoChooser {
 
     // Autos that are used for testing
     if (BuildConstants.INCLUDE_TEST_AUTOS) {
-      // Add Drive SysId options
+      // Add Drive SysId autos
       chooser.addOption("SYSID Swerve Q+", () -> new SysIdCharacterizationCommand(drive.getModuleRoutine(), true, true));
       chooser.addOption("SYSID Swerve Q-", () -> new SysIdCharacterizationCommand(drive.getModuleRoutine(), true, false));
       chooser.addOption("SYSID Swerve D+", () -> new SysIdCharacterizationCommand(drive.getModuleRoutine(), false, true));
@@ -48,6 +48,12 @@ public final class AutoChooser {
         () -> SwervePaths.getFollowPathCommand(drive, "Path 1 Test", true).withName("Path 1 Test"));
       chooser.addOption("Rotate 1 Test", 
         () -> SwervePaths.getFollowPathCommand(drive, "Rotate 1 Test", true).withName("Rotate 1 Test"));
+
+      // PathPlanner translational SysId autos
+      chooser.addOption("SYSID Translation Q+", () -> new SysIdCharacterizationCommand(drive.getPathRoutine(), true, true));
+      chooser.addOption("SYSID Translation Q-", () -> new SysIdCharacterizationCommand(drive.getPathRoutine(), true, false));
+      chooser.addOption("SYSID Translation D+", () -> new SysIdCharacterizationCommand(drive.getPathRoutine(), false, true));
+      chooser.addOption("SYSID Translation D-", () -> new SysIdCharacterizationCommand(drive.getPathRoutine(), false, false));
     }
 
     // Add to dashboard

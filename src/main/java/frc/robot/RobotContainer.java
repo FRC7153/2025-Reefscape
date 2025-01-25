@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.GoToPointCommand;
 import frc.robot.commands.PregameCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.subsystems.swerve.SwerveDrive;
@@ -52,6 +53,7 @@ public final class RobotContainer {
 
     // Test go to point command
     controller.a().whileTrue(SwervePaths.getGoToPointCommand(base, new Pose2d(0, 0, Rotation2d.kZero)));
+    controller.b().whileTrue(new GoToPointCommand(base, new Pose2d(0, 0, Rotation2d.kZero)));
 
     // Match timer start/stop
     isEnabledTrigger

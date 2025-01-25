@@ -101,7 +101,7 @@ public final class SwerveDrive implements Subsystem {
   private final SwerveModuleState[] currentRequests = new SwerveModuleState[4];
 
   // Pose estimation
-  protected final SwerveOdometry odometry = new SwerveOdometry(modules, kinematics);
+  public final SwerveOdometry odometry = new SwerveOdometry(modules, kinematics); // TODO this shouldn't be public
   private SysIdRoutine moduleRoutine, pathRoutine;
 
   private final Limelight limelightMain = new Limelight("limelight-main", odometry);
@@ -238,6 +238,7 @@ public final class SwerveDrive implements Subsystem {
     // Update limelights
     Limelight.setOrientation(
       odometry.getFieldRelativePosition().getRotation().getDegrees(), odometry.getYawRate());
+      
     limelightMain.sendOrientation();
   }
 

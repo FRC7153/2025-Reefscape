@@ -80,6 +80,7 @@
     "stddevs",
     "teleop",
     "Velo",
-    "wpiblue"
+    "wpiblue",
+    "wpilibj"
   ]
 }
