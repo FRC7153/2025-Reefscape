@@ -4,6 +4,7 @@ import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveDrive;
@@ -32,17 +33,19 @@ public class GoToPointCommand extends Command {
   @Override
   public void execute() {
     Pose2d currentPose = drive.odometry.getFieldRelativePosition();
+    ChassisSpeeds speeds = SwerveConstants.AUTO_CONTROLLER.calculateRobotRelativeSpeeds(currentPose, targetState);
 
-    drive.drive(
-      SwerveConstants.AUTO_CONTROLLER.calculateRobotRelativeSpeeds(currentPose, targetState), 
-      true
-    );
+    // 
+    //if (speeds.vxMetersPerSecond < 0.05 && speeds.vyMetersPerSecond < 0.05 && speeds.omegaRadiansPerSecond < )
+    System.out.printf("x:%f y:%f theta:%f \n", speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond);
+
+    drive.drive(speeds, true);
   }
 
   @Override
   public void end(boolean  interrupted) {
     if (!interrupted) {
-      drive.drive(0, 0, 0, false, false);
+      drive.stop();
     }
   }
 }

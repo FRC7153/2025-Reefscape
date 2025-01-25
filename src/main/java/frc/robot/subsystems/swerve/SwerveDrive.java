@@ -211,6 +211,13 @@ public final class SwerveDrive implements Subsystem {
     );
   }
 
+  /**
+   * Stops all the motors.
+   */
+  public void stop() {
+    drive(new ChassisSpeeds(), false);
+  }
+
   /** Gets robot-relative chassis speeds */
   protected ChassisSpeeds getCurrentChassisSpeeds() {
     // currentStates is updated in place periodically
