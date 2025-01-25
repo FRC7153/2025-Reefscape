@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Volts;
+
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -14,12 +17,16 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.datalog.DataLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog.State;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.HardwareConstants;
 
@@ -41,6 +48,7 @@ public class Elevator implements Subsystem {
   private final Alert elevatorAlert = new Alert("Elevator Alert", AlertType.kError);
   private final Alert manipulatorAlert = new Alert("Manipulator Alert", AlertType.kError);
 
+  private SysIdRoutine elevatorRoutine, manipulatorPivotRoutine;
   //DataLog
   private final DoubleLogEntry elevatorPositionLog = 
     new DoubleLogEntry(DataLogManager.getLog(), "Elevator/Position", "rotations");
@@ -77,6 +85,39 @@ public class Elevator implements Subsystem {
     manipulatorPivotController.setReference(rotations, ControlType.kPosition);
     manipulatorPivotSetPointLog.append(rotations);
   }
+
+
+  public SysIdRoutine getElevatorRoutine() {
+    System.out.println("Starting CTRE SignalLogger due to getRoutine call in SwerveDrive");
+    SignalLogger.start();
+
+    if(elevatorRoutine == null){
+      elevatorRoutine = new SysIdRoutine(
+        new SysIdRoutine.Config(null, null, null, (State state) -> {
+          //Logging State
+          SignalLogger.writeString("Elevator-SysID-State", state.toString());
+        }), new SysIdRoutine.Mechanism((Voltage v) -> {
+          elevatorMain.setVoltage(v.in(Volts));
+        }, null, this)
+      );
+    }
+
+    return elevatorRoutine;
+  }
+
+  public SysIdRoutine getManipulatorPivotRoutine() {
+    System.out.println("Starting CTRE Signal Logger due to getRoutine call in SwerveDrive");
+    SignalLogger.start();
+
+    if(manipulatorPivotRoutine == null){
+      manipulatorPivotRoutine = new SysIdRoutine(
+        new SysIdRoutine.Config(null, null, null, (State state) -> {
+          //Logging State
+          SignalLogger.writeString("manipulatorPivot-SysID-State", state.toString());
+        }), null)
+    }
+  }
+
 
   public void log() {
     elevatorPositionLog.append(elevatorPosition.getValueAsDouble());
