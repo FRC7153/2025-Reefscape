@@ -28,7 +28,7 @@ public class SimpleDriveTestAuto extends Command {
   @Override
   public void end(boolean interrupted) {
     System.out.printf("SimpleDriveAuto finished (interrupted: %b)", interrupted);
-    drive.drive(0.0, 0.0, 0.0, false, false);
+    drive.stop();
   }
 
   @Override
