@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.GoToPointCommand;
 import frc.robot.commands.PregameCommand;
 import frc.robot.commands.TeleopDriveCommand;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.swerve.SwervePaths;
 import frc.robot.util.dashboard.AutoChooser;
@@ -22,6 +24,8 @@ import frc.robot.util.dashboard.Dashboard;
 public final class RobotContainer {
   // Subsystems
   private final SwerveDrive base = new SwerveDrive();
+  private final Manipulator manipulator = new Manipulator();
+  private final Elevator elevator = new Elevator();
 
   // Controllers
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -64,12 +68,16 @@ public final class RobotContainer {
   /** Checks all hardware, called periodically */
   public void checkHardware() {
     base.checkHardware();
+    manipulator.checkHardware();
+    elevator.checkHardware();
   }
 
   /** Logs everything, called periodically */
   public void log() {
     base.log();
     dashboard.update();
+    manipulator.log();
+    elevator.log();
   }
 
   /** Returns a PregameCommand, which is scheduled if the command wasn't run before teleopInit() */
