@@ -12,13 +12,17 @@ import frc.robot.util.Util;
 
 public class GoToPointCommand extends Command {
   private final SwerveDrive drive;
-  private final PathPlannerTrajectoryState targetState;
+
+  private final PathPlannerTrajectoryState targetState = new PathPlannerTrajectoryState();
+  private final Pose2d target;
   
+  /**
+   * @param drive
+   * @param target Target point (alliance relative!)
+   */
   public GoToPointCommand(SwerveDrive drive, Pose2d target) {
     this.drive = drive;
-
-    targetState = new PathPlannerTrajectoryState();
-    targetState.pose = target;
+    this.target = target;
 
     addRequirements(drive);
   }
@@ -26,26 +30,32 @@ public class GoToPointCommand extends Command {
   @Override
   public void initialize() {
     if (Util.isRedAlliance()) {
-      targetState.pose = FlippingUtil.flipFieldPose(targetState.pose);
+      targetState.pose = FlippingUtil.flipFieldPose(target);
+    } else {
+      targetState.pose = target;
     }
   }
 
   @Override
   public void execute() {
-    Pose2d currentPose = drive.odometry.getFieldRelativePosition();
+    Pose2d currentPose = drive.getPosition(true);
     ChassisSpeeds speeds = SwerveConstants.AUTO_CONTROLLER.calculateRobotRelativeSpeeds(currentPose, targetState);
 
-    // 
-    //if (speeds.vxMetersPerSecond < 0.05 && speeds.vyMetersPerSecond < 0.05 && speeds.omegaRadiansPerSecond < )
-    System.out.printf("x:%f y:%f theta:%f \n", speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond);
+    // Apply deadbands
+    speeds.vxMetersPerSecond = Util.applyDeadband(speeds.vxMetersPerSecond, 0.1);
+    speeds.vyMetersPerSecond = Util.applyDeadband(speeds.vyMetersPerSecond, 0.1);
+    speeds.omegaRadiansPerSecond = Util.applyDeadband(speeds.omegaRadiansPerSecond, .02);
 
     drive.drive(speeds, true);
   }
 
   @Override
   public void end(boolean  interrupted) {
-    if (!interrupted) {
-      drive.stop();
-    }
+    drive.stop();
+  }
+
+  @Override
+  public String getName() {
+    return String.format("GoToPointCommand(%s)", target);
   }
 }

@@ -17,7 +17,6 @@ import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.swerve.SwerveDrive;
-import frc.robot.subsystems.swerve.SwervePaths;
 import frc.robot.util.dashboard.AutoChooser;
 import frc.robot.util.dashboard.Dashboard;
 
@@ -56,8 +55,7 @@ public final class RobotContainer {
     );
 
     // Test go to point command
-    controller.a().whileTrue(SwervePaths.getGoToPointCommand(base, new Pose2d(0, 0, Rotation2d.kZero)));
-    controller.b().whileTrue(new GoToPointCommand(base, new Pose2d(0, 0, Rotation2d.kZero)));
+    controller.a().whileTrue(new GoToPointCommand(base, new Pose2d(0, 0, Rotation2d.kZero)));
 
     // Match timer start/stop
     isEnabledTrigger

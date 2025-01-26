@@ -101,7 +101,7 @@ public final class SwerveDrive implements Subsystem {
   private final SwerveModuleState[] currentRequests = new SwerveModuleState[4];
 
   // Pose estimation
-  public final SwerveOdometry odometry = new SwerveOdometry(modules, kinematics); // TODO this shouldn't be public
+  protected final SwerveOdometry odometry = new SwerveOdometry(modules, kinematics);
   private SysIdRoutine moduleRoutine, pathRoutine;
 
   private final Limelight limelightMain = new Limelight("limelight-main", odometry);
@@ -295,6 +295,14 @@ public final class SwerveDrive implements Subsystem {
     }
 
     return pathRoutine;
+  }
+
+  /**
+   * @param fieldRelative Relative to blue alliance if true, else relative to the current alliance.
+   * @return Position of robot on field.
+   */
+  public Pose2d getPosition(boolean fieldRelative) {
+    return fieldRelative ? odometry.getFieldRelativePosition() : odometry.getAllianceRelativePosition();
   }
 
   /** Homes all swerve modules and caches alliance color for odometry. Run in pregame. */

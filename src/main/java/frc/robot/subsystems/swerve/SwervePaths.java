@@ -1,23 +1,14 @@
 package frc.robot.subsystems.swerve;
 
-import java.util.List;
-
 import com.pathplanner.lib.commands.FollowPathCommand;
-import com.pathplanner.lib.path.GoalEndState;
-import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.util.DriveFeedforwards;
-import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import frc.robot.commands.AsyncDeferredCommand;
 import frc.robot.util.Util;
 import frc.robot.util.logging.ConsoleLogger;
 import libs.Elastic;
@@ -28,8 +19,6 @@ import libs.Elastic.Notification.NotificationLevel;
  * Utility class for making Paths.
  */
 public class SwervePaths {
-  private static final PathConstraints UnlimitedConstraints = PathConstraints.unlimitedConstraints(12);
-
   /**
    * @param drive
    * @param pathName Name of path to follow.
@@ -83,65 +72,6 @@ public class SwervePaths {
       return new PrintCommand(String.format("Running failed path: '%s'", pathName)).withName(name);
     }
   }
-
-  /**
-   * Actually generates the command to use PathPlanner to go to a point. Run this async so that it
-   * doesn't hold up the main thread.
-   * @param drive
-   * @param target
-   * @return
-   */
-  private static Command generateFollowPathCommand(SwerveDrive drive, Pose2d target) {
-    // Get waypoints
-    Pose2d fieldRelativeTarget = Util.isRedAlliance() ? FlippingUtil.flipFieldPose(target) : target;
-    Pose2d start = drive.odometry.getFieldRelativePosition();
-
-    // Get direction of travel
-    Translation2d diff = fieldRelativeTarget.getTranslation().minus(start.getTranslation());
-    Rotation2d directionOfTravel = new Rotation2d(diff.getX(), diff.getY());
-
-    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
-      new Pose2d(start.getX(), start.getY(), directionOfTravel),
-      new Pose2d(fieldRelativeTarget.getX(), fieldRelativeTarget.getY(), directionOfTravel)
-    );
-
-    // Create path
-    PathPlannerPath path = new PathPlannerPath(
-      waypoints, 
-      UnlimitedConstraints, 
-      null, 
-      new GoalEndState(0.0, fieldRelativeTarget.getRotation())
-    );
-
-    // Return command
-    return new FollowPathCommand(
-      path, 
-      drive.odometry::getFieldRelativePosition, 
-      drive::getCurrentChassisSpeeds, 
-      (ChassisSpeeds speeds, DriveFeedforwards feedforwards) -> {
-        drive.drive(speeds, true);
-      }, 
-      SwerveConstants.AUTO_CONTROLLER, 
-      drive.autoConfig, 
-      () -> false, 
-      drive
-    ).withName(String.format("GoToPointCommand(from: %s, to: %s)", start, fieldRelativeTarget));
-  }
-
-  /**
-   * @param drive
-   * @param target Point to drive to (<b>alliance</b> relative)
-   * @return Command to follow path
-   */
-  public static Command getGoToPointCommand(SwerveDrive drive, Pose2d target) {
-    // Return as a deferred command so that it is constructed when it begins to run
-    return new AsyncDeferredCommand(
-      String.format("DeferredGoToPointCommand(to: %s)", target), 
-      () -> generateFollowPathCommand(drive, target), 
-      drive
-    );
-  }
-  
   /** Prevent instantiation */
   private SwervePaths() {}
 }
