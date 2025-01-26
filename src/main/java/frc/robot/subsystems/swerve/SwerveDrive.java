@@ -2,7 +2,6 @@ package frc.robot.subsystems.swerve;
 
 import java.util.List;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.util.PPLibTelemetry;
@@ -35,7 +34,6 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog.State;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.BuildConstants;
@@ -45,7 +43,7 @@ import frc.robot.util.logging.ConsoleLogger;
 
 public final class SwerveDrive implements Subsystem {
   // Swerve Modules
-  private final SwerveModule[] modules = {
+  protected final SwerveModule[] modules = {
     new SwerveModule(
         "FL", 
         HardwareConstants.FL_DRIVE_KRAKEN_CAN, HardwareConstants.FL_STEER_NEO_CAN, 
@@ -102,7 +100,7 @@ public final class SwerveDrive implements Subsystem {
 
   // Pose estimation
   protected final SwerveOdometry odometry = new SwerveOdometry(modules, kinematics);
-  private SysIdRoutine moduleRoutine, pathRoutine;
+  private SysIdRoutine pathRoutine;
 
   private final Limelight limelightMain = new Limelight("limelight-main", odometry);
 
@@ -247,30 +245,6 @@ public final class SwerveDrive implements Subsystem {
       odometry.getFieldRelativePosition().getRotation().getDegrees(), odometry.getYawRate());
       
     limelightMain.sendOrientation();
-  }
-
-  /** Gets routine for MODULE SysId characterization. This will start the CTRE SignalLogger */
-  public SysIdRoutine getModuleRoutine() {
-    System.out.println("Starting CTRE SignalLogger due to getRoutine call in SwerveDrive");
-    SignalLogger.start();
-
-    if (moduleRoutine == null) {
-      // No cached routine, instantiate it
-      moduleRoutine = new SysIdRoutine(
-        new SysIdRoutine.Config(null, null, null, (State state) -> {
-          // Log state
-          SignalLogger.writeString("drive-sysid-state", state.toString());
-        }), 
-        new SysIdRoutine.Mechanism((Voltage v) -> {
-          // Apply voltages
-          for (int m = 0; m < 4; m++) {
-            modules[m].setVoltageRequest(v.in(Volts));
-          }
-        }, null, this)
-      );
-    }
-
-    return moduleRoutine;
   }
 
   /** Gets routine for Auto Path SysId characterization. */

@@ -208,6 +208,15 @@ public final class SwerveModule {
   }
 
   /**
+   * Sets the steer motor to a certain voltage. Use this for SysId characterization.
+   * @param voltage
+   */
+  public void setSteerVoltage(double voltage) {
+    driveMotor.setControl(staticBrakeRequest);
+    steerMotor.setVoltage(voltage);
+  }
+
+  /**
    * This will UPDATE the CURRENT STATE {@code this.state} in place, and RETURN the REQUESTED STATE.
    */
   public SwerveModuleState getAndUpdateStates() {

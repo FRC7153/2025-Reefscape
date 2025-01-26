@@ -114,8 +114,10 @@ public class Elevator implements Subsystem {
         new SysIdRoutine.Config(null, null, null, (State state) -> {
           //Logging State
           SignalLogger.writeString("manipulatorPivot-SysID-State", state.toString());
-        }), null)
+        }), null);
     }
+
+    return manipulatorPivotRoutine;
   }
 
 

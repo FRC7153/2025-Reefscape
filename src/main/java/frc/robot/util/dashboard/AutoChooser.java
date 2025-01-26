@@ -14,6 +14,7 @@ import frc.robot.autos.SimpleDriveTestAuto;
 import frc.robot.commands.SysIdCharacterizationCommand;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.swerve.SwervePaths;
+import frc.robot.subsystems.swerve.SwerveSysId;
 
 public final class AutoChooser {
   private static final Command noOpCommand = new PrintCommand("No-op auto selected.");
@@ -35,11 +36,25 @@ public final class AutoChooser {
 
     // Autos that are used for testing
     if (BuildConstants.INCLUDE_TEST_AUTOS) {
-      // Add Drive SysId autos
-      chooser.addOption("SYSID Swerve Q+", () -> new SysIdCharacterizationCommand(drive.getModuleRoutine(), true, true));
-      chooser.addOption("SYSID Swerve Q-", () -> new SysIdCharacterizationCommand(drive.getModuleRoutine(), true, false));
-      chooser.addOption("SYSID Swerve D+", () -> new SysIdCharacterizationCommand(drive.getModuleRoutine(), false, true));
-      chooser.addOption("SYSID Swerve D-", () -> new SysIdCharacterizationCommand(drive.getModuleRoutine(), false, false));
+      // Add Swerve SysId drive autos
+      chooser.addOption("SYSID Swerve Drive Q+", 
+        () -> new SysIdCharacterizationCommand(SwerveSysId.getModuleDriveRoutine(drive), true, true));
+      chooser.addOption("SYSID Swerve Drive Q-", 
+        () -> new SysIdCharacterizationCommand(SwerveSysId.getModuleDriveRoutine(drive), true, false));
+      chooser.addOption("SYSID Swerve Drive D+", 
+        () -> new SysIdCharacterizationCommand(SwerveSysId.getModuleDriveRoutine(drive), false, true));
+      chooser.addOption("SYSID Swerve Drive D-", 
+        () -> new SysIdCharacterizationCommand(SwerveSysId.getModuleDriveRoutine(drive), false, false));
+
+      // Add Swerve SysId steer autos
+      chooser.addOption("SYSID Swerve Steer Q+", 
+        () -> new SysIdCharacterizationCommand(SwerveSysId.getModuleSteerRoutine(drive), true, true));
+      chooser.addOption("SYSID Swerve Steer Q-", 
+        () -> new SysIdCharacterizationCommand(SwerveSysId.getModuleSteerRoutine(drive), true, false));
+      chooser.addOption("SYSID Swerve Steer D+", 
+        () -> new SysIdCharacterizationCommand(SwerveSysId.getModuleSteerRoutine(drive), false, true));
+      chooser.addOption("SYSID Swerve Steer D-", 
+        () -> new SysIdCharacterizationCommand(SwerveSysId.getModuleSteerRoutine(drive), false, false));
 
       // Drive characterization test auto
       chooser.addOption("Auto Drive Test", () -> new SimpleDriveTestAuto(drive));

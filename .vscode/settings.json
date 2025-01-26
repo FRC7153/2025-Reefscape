@@ -80,6 +80,7 @@
     "Setpoint",
     "stddevs",
     "teleop",
+    "URCL",
     "Velo",
     "wpiblue",
     "wpilibj"
