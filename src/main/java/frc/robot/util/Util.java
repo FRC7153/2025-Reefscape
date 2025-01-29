@@ -55,7 +55,7 @@ public class Util {
    * @return 0 if value is less than min, else value
    */
   public static double applyDeadband(double value, double min) {
-    return (value < min) ? 0 : value;
+    return (Math.abs(value) < min) ? 0 : value;
   }
 
   /** Prevent instantiation */

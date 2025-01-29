@@ -5,12 +5,19 @@ import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.BuildConstants;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.util.Util;
 
 public class GoToPointCommand extends Command {
+  // Logging
+  private static StructPublisher<Pose2d> targetPub;
+
   private final SwerveDrive drive;
 
   private final PathPlannerTrajectoryState targetState = new PathPlannerTrajectoryState();
@@ -25,6 +32,13 @@ public class GoToPointCommand extends Command {
     this.target = target;
 
     addRequirements(drive);
+
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      if (targetPub == null) {
+        NetworkTable nt = NetworkTableInstance.getDefault().getTable("GoToPointSetpoint");
+        targetPub = nt.getStructTopic("Target", Pose2d.struct).publish();
+      }
+    }
   }
 
   @Override
@@ -33,6 +47,10 @@ public class GoToPointCommand extends Command {
       targetState.pose = FlippingUtil.flipFieldPose(target);
     } else {
       targetState.pose = target;
+    }
+
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      targetPub.set(targetState.pose);
     }
   }
 

@@ -168,6 +168,8 @@ public final class SwerveDrive implements Subsystem {
 
     // Warm up PathPlanner
     FollowPathCommand.warmupCommand().schedule();
+
+    SmartDashboard.putData("Auto Controller", SwerveConstants.AUTO_CONTROLLER);
   }
 
   /**
