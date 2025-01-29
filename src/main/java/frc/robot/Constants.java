@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
@@ -59,19 +60,20 @@ public final class Constants {
   }
 
   public static final class ElevatorConstants {
-    //TODO
     public static final double kELEVATOR_RATIO = 7.75;
-    public static final double kMANIPULATOR_PIVOT_RATIO = 4.0;
+    public static final double kMANIPULATOR_PIVOT_RATIO = 12.0;
 
     //TODO
     private static final Slot0Configs ELEVATOR_MOTOR_GAINS = new Slot0Configs()
       .withKP(0.0).withKI(0.0).withKD(0.0)
-      .withKS(0.0).withKV(0.0).withKA(0.0);
+      .withKS(0.0).withKV(0.0).withKA(0.0)
+      .withKG(0.0).withGravityType(GravityTypeValue.Elevator_Static);
     
     //TODO
     private static final Slot0Configs MANIPULATOR_PIVOT_GAINS = new Slot0Configs()
     .withKP(0.0).withKI(0.0).withKD(0.0)
-    .withKS(0.0).withKV(0.0).withKA(0.0);
+    .withKS(0.0).withKV(0.0).withKA(0.0)
+    .withKG(0.0).withGravityType(GravityTypeValue.Arm_Cosine);
 
     private static final CurrentLimitsConfigs ELEVATOR_MOTOR_CURRENT = new CurrentLimitsConfigs()
     .withSupplyCurrentLimit(50).withSupplyCurrentLimitEnable(true)

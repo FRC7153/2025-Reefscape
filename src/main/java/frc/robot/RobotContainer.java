@@ -30,7 +30,7 @@ public final class RobotContainer {
   private final CommandXboxController controller = new CommandXboxController(0);
 
   // Dashboard
-  private final AutoChooser auto = new AutoChooser(base);
+  private final AutoChooser auto = new AutoChooser(base, elevator);
   private final Dashboard dashboard = new Dashboard();
 
   public RobotContainer() {
