@@ -15,6 +15,7 @@ import frc.robot.commands.SysIdCharacterizationCommand;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.swerve.SwervePaths;
 import frc.robot.subsystems.swerve.SwerveSysId;
+import frc.robot.subsystems.Elevator;
 
 public final class AutoChooser {
   private static final Command noOpCommand = new PrintCommand("No-op auto selected.");
@@ -24,7 +25,7 @@ public final class AutoChooser {
 
   private final Alert noAutoLoadedAlert = new Alert("No auto loaded yet (run pregame)", AlertType.kInfo);
 
-  public AutoChooser(SwerveDrive drive) {
+  public AutoChooser(SwerveDrive drive, Elevator elevator) {
     // On change
     chooser.onChange((Supplier<Command> newAuto) -> {
       currentLoadedCommand = null;
@@ -69,7 +70,27 @@ public final class AutoChooser {
       chooser.addOption("SYSID Translation Q-", () -> new SysIdCharacterizationCommand(drive.getPathRoutine(), true, false));
       chooser.addOption("SYSID Translation D+", () -> new SysIdCharacterizationCommand(drive.getPathRoutine(), false, true));
       chooser.addOption("SYSID Translation D-", () -> new SysIdCharacterizationCommand(drive.getPathRoutine(), false, false));
-    }
+
+      // Add Elevator SysID auto
+      chooser.addOption("SYSID Elevator Q+",
+        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), true, true));
+      chooser.addOption("SYSID Elevator Q-", 
+        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), true, false));
+      chooser.addOption("SYSID Elevator D+", 
+        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), false, true));
+      chooser.addOption("SYSID Elevator D-", 
+        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), false, false));
+
+      // Add Manipulator Pivot SysID auto
+      chooser.addOption("SYSID Manipulator Pivot Q+",
+        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), true, true));
+      chooser.addOption("SYSID Manipulator Pivot Q-",
+        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), true, false));
+      chooser.addOption("SYSID Manipulator Pivot D+",
+        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), false, true));
+      chooser.addOption("SYSID Manipulator Pivot D-",
+        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), false, false));
+      }
 
     // Add to dashboard
     SmartDashboard.putData("Auto", chooser);

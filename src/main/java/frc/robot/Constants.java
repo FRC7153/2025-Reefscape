@@ -6,6 +6,8 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
@@ -58,32 +60,39 @@ public final class Constants {
   }
 
   public static final class ElevatorConstants {
-    //TODO
     public static final double kELEVATOR_RATIO = 7.75;
-    public static final double kMANIPULATOR_PIVOT_RATIO = 4.0;
-
-    public static final int kMANIPULATOR_PIVOT_CURRENT_LIMIT = 40;
-    public static final int kELEVATOR_CURRENT_LIMIT = 40;
-
-    //TODO 
-    public static final double kELEVATOR_P = 0.0;
-    public static final double kELEVATOR_I = 0.0;
-    public static final double kELEVATOR_D = 0.0;
+    public static final double kMANIPULATOR_PIVOT_RATIO = 12.0;
 
     //TODO
     private static final Slot0Configs ELEVATOR_MOTOR_GAINS = new Slot0Configs()
+      .withKP(0.0).withKI(0.0).withKD(0.0)
+      .withKS(0.0).withKV(0.0).withKA(0.0)
+      .withKG(0.0).withGravityType(GravityTypeValue.Elevator_Static);
+    
+    //TODO
+    private static final Slot0Configs MANIPULATOR_PIVOT_GAINS = new Slot0Configs()
     .withKP(0.0).withKI(0.0).withKD(0.0)
-    .withKS(0.0).withKV(0.0).withKA(0.0);
+    .withKS(0.0).withKV(0.0).withKA(0.0)
+    .withKG(0.0).withGravityType(GravityTypeValue.Arm_Cosine);
 
     private static final CurrentLimitsConfigs ELEVATOR_MOTOR_CURRENT = new CurrentLimitsConfigs()
     .withSupplyCurrentLimit(50).withSupplyCurrentLimitEnable(true)
     .withStatorCurrentLimit(80).withStatorCurrentLimitEnable(true);
 
+    private static final CurrentLimitsConfigs MANIPULATOR_PIVOT_CURRENT = new CurrentLimitsConfigs()
+      .withSupplyCurrentLimit(40).withSupplyCurrentLimitEnable(true)
+      .withStatorCurrentLimit(80).withStatorCurrentLimitEnable(true);
+
     private static final FeedbackConfigs ELEVATOR_ENCODER = new FeedbackConfigs()
-    .withSensorToMechanismRatio(kELEVATOR_RATIO);
+      .withSensorToMechanismRatio(kELEVATOR_RATIO)
+      .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor);
+
+    private static final FeedbackConfigs MANIPULATOR_PIVOT_ENCODER = new FeedbackConfigs()
+      .withSensorToMechanismRatio(kMANIPULATOR_PIVOT_RATIO)
+      .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor);
 
     private static final AudioConfigs ELEVATOR_MOTOR_AUDIO = new AudioConfigs()
-    .withBeepOnBoot(false).withBeepOnConfig(true);
+      .withBeepOnBoot(false).withBeepOnConfig(true);
 
     public static final TalonFXConfiguration ELEVATOR_CONFIG = new TalonFXConfiguration()
       .withSlot0(ELEVATOR_MOTOR_GAINS)
@@ -92,12 +101,11 @@ public final class Constants {
       .withAudio(ELEVATOR_MOTOR_AUDIO);
       
     //TODO find if inverted, config PIDF
-    public static final SparkBaseConfig MANIPULATOR_PIVOT_CONFIG = new SparkFlexConfig()
-      .idleMode(IdleMode.kBrake)
-      .inverted(false)
-      .smartCurrentLimit(40)
-      .apply(new ClosedLoopConfig()
-        .pidf(0.0, 0.0, 0.0, 0.0, ClosedLoopSlot.kSlot0));
+    public static final TalonFXConfiguration MANIPULATOR_PIVOT_CONFIG = new TalonFXConfiguration()
+      .withSlot0(MANIPULATOR_PIVOT_GAINS)
+      .withCurrentLimits(MANIPULATOR_PIVOT_CURRENT)
+      .withFeedback(MANIPULATOR_PIVOT_ENCODER)
+      .withAudio(ELEVATOR_MOTOR_AUDIO);
   }
   public static final class HardwareConstants {
     public static final int PDH_CAN = 1;
