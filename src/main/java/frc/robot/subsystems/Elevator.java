@@ -76,7 +76,7 @@ public class Elevator implements Subsystem {
     manipulatorPivotSetPointLog.append(rotations);
   }
 
-  public SysIdRoutine getElevatorRoutine() {
+  public SysIdRoutine getElevatorRoutine(Elevator elevator) {
     System.out.println("Starting CTRE SignalLogger due to getRoutine call in SwerveDrive");
     SignalLogger.start();
 
@@ -94,7 +94,7 @@ public class Elevator implements Subsystem {
     return elevatorRoutine;
   }
 
-  public SysIdRoutine getManipulatorPivotRoutine() {
+  public SysIdRoutine getManipulatorPivotRoutine(Elevator elevator) {
     System.out.println("Starting CTRE Signal Logger due to getRoutine call in SwerveDrive");
     SignalLogger.start();
 
