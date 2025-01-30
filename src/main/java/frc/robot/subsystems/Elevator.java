@@ -37,9 +37,10 @@ public class Elevator implements Subsystem {
   
   private final Alert elevatorMainAlert = new Alert("Elevator Main Motor Alert", AlertType.kError);
   private final Alert elevatorFollowerAlert = new Alert("Elevator Follower Motor Alert", AlertType.kError);
-  private final Alert manipulatorAlert = new Alert("Manipulator pivot motor alert", AlertType.kError);
+  private final Alert manipulatorAlert = new Alert("Manipulator Pivot Motor Alert", AlertType.kError);
 
   private SysIdRoutine elevatorRoutine, manipulatorPivotRoutine;
+  private Manipulator manipulator;
 
   //DataLog
   private final DoubleLogEntry elevatorPositionLog = 
@@ -112,9 +113,10 @@ public class Elevator implements Subsystem {
     return manipulatorPivotRoutine;
   }
   /**
-   * gets value from manipulator 
+   * gets value from manipulator Absolute Encoder
    */
   public void home(){
+    setManipulatorPivotPosition(manipulator.getManipulatorAbsolutePosition());
 
   }
 

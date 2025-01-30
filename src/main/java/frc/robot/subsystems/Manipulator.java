@@ -1,11 +1,8 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkFlexExternalEncoder;
-import com.revrobotics.spark.SparkRelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -46,7 +43,15 @@ public class Manipulator implements Subsystem{
     manipulator.set(velocity);
     manipulatorPercentageLog.append(velocity);
   }
-
+  
+  /**
+   * returns position of manipulator (in rots)
+   * @return 
+   */
+  public double getManipulatorAbsolutePosition(){
+    return manipulatorAbsoluteEncoder.getPosition();
+  }
+  
   public void log(){
     manipulatorVeloLog.append(manipulatorEncoder.getVelocity());
   }
