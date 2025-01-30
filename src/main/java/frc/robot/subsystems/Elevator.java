@@ -111,9 +111,17 @@ public class Elevator implements Subsystem {
 
     return manipulatorPivotRoutine;
   }
+  /**
+   * gets value from manipulator 
+   */
+  public void home(){
 
+  }
 
   public void log() {
+    elevatorPosition.refresh();
+    manipulatorPosition.refresh();
+
     elevatorPositionLog.append(elevatorPosition.getValueAsDouble());
     manipulatorPivotPositionLog.append(manipulatorPosition.getValueAsDouble());
   }
