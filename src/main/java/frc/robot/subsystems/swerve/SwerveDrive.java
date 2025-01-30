@@ -168,8 +168,6 @@ public final class SwerveDrive implements Subsystem {
 
     // Warm up PathPlanner
     FollowPathCommand.warmupCommand().schedule();
-
-    SmartDashboard.putData("Auto Controller", SwerveConstants.AUTO_CONTROLLER);
   }
 
   /**
@@ -316,6 +314,11 @@ public final class SwerveDrive implements Subsystem {
 
     // Log limelights
     limelightMain.log();
+
+    // Log swerve modules
+    for (SwerveModule m : modules) {
+      m.log();
+    }
   }
 
   public void checkHardware() {

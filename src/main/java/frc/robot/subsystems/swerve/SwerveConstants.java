@@ -25,7 +25,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import frc.robot.Constants.BuildConstants;
-import frc.robot.util.dashboard.SendableDriveController;
 
 /**
  * Constants specific to the SwerveDrive base
@@ -117,16 +116,11 @@ public final class SwerveConstants {
   };
 
   // Auto config
-  /*public static final PPHolonomicDriveController AUTO_CONTROLLER = 
+  public static final PPHolonomicDriveController AUTO_CONTROLLER = 
     new PPHolonomicDriveController(
       //new PIDConstants(19.303, 0.0, 1.3841), // Translational
       new PIDConstants(5.0, 0.0, 0.0), // Translational
       new PIDConstants(7.0, 0.0, 0.0) // Rotational
-    );*/
-  public static final SendableDriveController AUTO_CONTROLLER = 
-    new SendableDriveController(
-      new PIDConstants(5.0, 0.0, 1.3841), 
-      new PIDConstants(7.0, 0.0, 0.0)
     );
 
   // Default positions, if none is set by the auto program by PREGAME

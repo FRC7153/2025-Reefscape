@@ -22,10 +22,17 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DataLogManager;
+import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.HardwareConstants;
 
 public final class SwerveModule {
@@ -38,6 +45,7 @@ public final class SwerveModule {
   private final TalonFX driveMotor;
   private final StatusSignal<Angle> drivePosition;
   private final StatusSignal<AngularVelocity> driveVelocity;
+  private final StatusSignal<Current> driveCurrent;
 
   private final VelocityVoltage driveVelocityRequest = new VelocityVoltage(0.0)
     .withOverrideBrakeDurNeutral(true)
@@ -60,6 +68,10 @@ public final class SwerveModule {
   /** State (for logging) */
   public final SwerveModuleState state = new SwerveModuleState();
   private SwerveModuleState lastStateRequest = new SwerveModuleState();
+
+  // Logging
+  private final DoublePublisher currentPub;
+  private final DoubleLogEntry currentLog;
 
   /**
    * Initializes a new Swerve Module. 
@@ -91,6 +103,7 @@ public final class SwerveModule {
     driveMotor.getConfigurator().apply(SwerveConstants.DRIVE_CONFIG);
     drivePosition = driveMotor.getPosition();
     driveVelocity = driveMotor.getVelocity();
+    driveCurrent = driveMotor.getSupplyCurrent();
 
     // Initialize STEER ENCODER
     steerCANCoder = new CANcoder(steerEncoderCAN, HardwareConstants.CANIVORE);
@@ -113,6 +126,16 @@ public final class SwerveModule {
     // Default state
     setBrakeMode(true);
     setRequest(new SwerveModuleState(), true); // zero velocity, zero angle
+
+    // Init logging
+    currentLog = new DoubleLogEntry(DataLogManager.getLog(), "Swerve/Currents/" + name);
+
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      NetworkTable nt = NetworkTableInstance.getDefault().getTable("Swerve/Currents");
+      currentPub = nt.getDoubleTopic(name).publish();
+    } else {
+      currentPub = null;
+    }
   }
 
   public StatusSignal<Angle> getDrivePosition() {
@@ -231,6 +254,15 @@ public final class SwerveModule {
 
     // Return last request
     return lastStateRequest;
+  }
+
+  public void log() {
+    driveCurrent.refresh();
+    currentLog.append(driveCurrent.getValueAsDouble());
+
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      currentPub.set(driveCurrent.getValueAsDouble());
+    }
   }
 
   /**
