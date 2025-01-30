@@ -1,19 +1,20 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Volts;
-
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+
+import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog.State;
-import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ElevatorConstants;
@@ -38,9 +39,11 @@ public class Elevator implements Subsystem {
   private final Alert elevatorMainAlert = new Alert("Elevator Main Motor Alert", AlertType.kError);
   private final Alert elevatorFollowerAlert = new Alert("Elevator Follower Motor Alert", AlertType.kError);
   private final Alert manipulatorAlert = new Alert("Manipulator Pivot Motor Alert", AlertType.kError);
+  private final Alert manipulatorNotHomedAlert = new Alert("Manipulator pivot failed to home", AlertType.kError);
 
   private SysIdRoutine elevatorRoutine, manipulatorPivotRoutine;
-  private Manipulator manipulator;
+  private final Manipulator manipulator;
+  private boolean hasManipulatorHomed = false;
 
   //DataLog
   private final DoubleLogEntry elevatorPositionLog = 
@@ -52,7 +55,12 @@ public class Elevator implements Subsystem {
   private final DoubleLogEntry manipulatorPivotSetPointLog =
     new DoubleLogEntry(DataLogManager.getLog(), "Manipulator/Setpoint", "rotations");
 
-  public Elevator() {
+  /**
+   * @param manipulator A reference to the manipulator subsystem, for homing.
+   */
+  public Elevator(Manipulator manipulator) {
+    this.manipulator = manipulator;
+    
     elevatorMain.getConfigurator().apply(ElevatorConstants.ELEVATOR_CONFIG);
     elevatorFollower.getConfigurator().apply(ElevatorConstants.ELEVATOR_CONFIG);
 
@@ -73,6 +81,9 @@ public class Elevator implements Subsystem {
    * @param rotations sets Manipulator to position (in rotations). 0.0 is horizontal.
    */
   public void setManipulatorPivotPosition(double rotations) {
+    // Do not run if the Falcon's encoder has not homed
+    if (!hasManipulatorHomed) return;
+
     manipulatorPivot.setControl(manipulatorPivotPositionRequest.withPosition(rotations));
     manipulatorPivotSetPointLog.append(rotations);
   }
@@ -116,8 +127,15 @@ public class Elevator implements Subsystem {
    * gets value from manipulator Absolute Encoder
    */
   public void home(){
-    setManipulatorPivotPosition(manipulator.getManipulatorAbsolutePosition());
+    manipulatorPosition.refresh();
+    double currentPos = manipulatorPosition.getValueAsDouble();
+    double newPos = manipulator.getManipulatorAbsolutePosition();
 
+    StatusCode resp = manipulatorPivot.setPosition(newPos);
+    System.out.printf("Homed manipulator pivot from %f -> %f\n", currentPos, newPos);
+
+    manipulatorNotHomedAlert.set(!resp.equals(StatusCode.OK));
+    hasManipulatorHomed = resp.equals(StatusCode.OK);
   }
 
   public void log() {

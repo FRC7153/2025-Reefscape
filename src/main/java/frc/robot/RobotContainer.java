@@ -24,7 +24,7 @@ public final class RobotContainer {
   // Subsystems
   private final SwerveDrive base = new SwerveDrive();
   private final Manipulator manipulator = new Manipulator();
-  private final Elevator elevator = new Elevator();
+  private final Elevator elevator = new Elevator(manipulator);
 
   // Controllers
   private final CommandXboxController controller = new CommandXboxController(0);
