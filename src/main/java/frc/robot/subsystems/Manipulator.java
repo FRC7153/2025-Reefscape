@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -16,7 +17,9 @@ import frc.robot.Constants.ManipulatorConstants;
 
 public class Manipulator implements Subsystem{
   private final SparkFlex manipulator = new SparkFlex(HardwareConstants.MANIPULATOR_CAN, MotorType.kBrushless);
+
   private final RelativeEncoder manipulatorEncoder = manipulator.getEncoder();
+  private final SparkAbsoluteEncoder manipulatorAbsoluteEncoder = manipulator.getAbsoluteEncoder();
 
   //Alert System
   private final Alert manipulatorAlert = new Alert("Manipulator Motor Error", AlertType.kError);
@@ -40,7 +43,15 @@ public class Manipulator implements Subsystem{
     manipulator.set(velocity);
     manipulatorPercentageLog.append(velocity);
   }
-
+  
+  /**
+   * returns position of manipulator (in rots)
+   * @return 
+   */
+  public double getManipulatorAbsolutePosition(){
+    return manipulatorAbsoluteEncoder.getPosition();
+  }
+  
   public void log(){
     manipulatorVeloLog.append(manipulatorEncoder.getVelocity());
   }

@@ -9,6 +9,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -49,19 +50,31 @@ public final class Constants {
   public static final class ManipulatorConstants {
     //TODO
     public static final double kManipulator_RATIO = 1.0;
+    
+    //TODO find Offset, find conversion ratio, 
+    public static final AbsoluteEncoderConfig MANIPULATOR_ABSOLUTE_ENCODER_CONFIG = new AbsoluteEncoderConfig()
+      .zeroOffset(0.0)//TODO
+      .inverted(false)//TODO
+      .zeroCentered(true);//TODO
 
     //TODO find if inverted, config PID
     public static final SparkBaseConfig MANIPULATOR_CONFIG = new SparkFlexConfig()
       .idleMode(IdleMode.kBrake)
       .inverted(false)
       .smartCurrentLimit(30)
+      .apply(MANIPULATOR_ABSOLUTE_ENCODER_CONFIG)
       .apply(new ClosedLoopConfig()
         .pidf(0.0, 0.0, 0.0, 0.0, ClosedLoopSlot.kSlot0)); 
+    
+    
   }
 
   public static final class ElevatorConstants {
     public static final double kELEVATOR_RATIO = 7.75;
     public static final double kMANIPULATOR_PIVOT_RATIO = 12.0;
+
+    //TODO
+    public static final double kMANIPULATOR_PIVOT_OFFSET = 0.0;
 
     //TODO
     private static final Slot0Configs ELEVATOR_MOTOR_GAINS = new Slot0Configs()
