@@ -14,6 +14,7 @@ import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
+
 public final class Constants {
   public static final class BuildConstants {
     public static final boolean PUBLISH_EVERYTHING = true;
@@ -33,26 +34,22 @@ public final class Constants {
   }
 
   public static final class ClimberConstants {
-    //TODO
-    public static final double kCLIMBER_RATIO = 20.0;
-
-    public static final int kCLIMBER_CURRENT_LIMIT = 40;
+    public static final double CLIMBER_RATIO = 20.0;
 
     //TODO find if inverted, config PIDF
     public static final SparkBaseConfig CLIMBER_CONFIG = new SparkFlexConfig()
-    .idleMode(IdleMode.kBrake)
-    .inverted(false)
-    .smartCurrentLimit(40)
-    .apply(new ClosedLoopConfig()
-      .pidf(0.0, 0.0, 0.0, 0.0,  ClosedLoopSlot.kSlot0));
+      .idleMode(IdleMode.kBrake)
+      .inverted(false)
+      .smartCurrentLimit(40)
+      .apply(new ClosedLoopConfig()
+        .pidf(0.0, 0.0, 0.0, 0.0,  ClosedLoopSlot.kSlot0));
   }
 
   public static final class ManipulatorConstants {
-    //TODO
-    public static final double kManipulator_RATIO = 1.0;
+    public static final double MANIPULATOR_RATIO = 1.0;
     
     //TODO find Offset, find conversion ratio, 
-    public static final AbsoluteEncoderConfig MANIPULATOR_ABSOLUTE_ENCODER_CONFIG = new AbsoluteEncoderConfig()
+    private static final AbsoluteEncoderConfig MANIPULATOR_ABSOLUTE_ENCODER_CONFIG = new AbsoluteEncoderConfig()
       .zeroOffset(0.0)//TODO
       .inverted(false)//TODO
       .zeroCentered(true);//TODO
@@ -64,17 +61,12 @@ public final class Constants {
       .smartCurrentLimit(30)
       .apply(MANIPULATOR_ABSOLUTE_ENCODER_CONFIG)
       .apply(new ClosedLoopConfig()
-        .pidf(0.0, 0.0, 0.0, 0.0, ClosedLoopSlot.kSlot0)); 
-    
-    
+        .pidf(0.0, 0.0, 0.0, 0.0, ClosedLoopSlot.kSlot0));  
   }
 
   public static final class ElevatorConstants {
-    public static final double kELEVATOR_RATIO = 7.75;
-    public static final double kMANIPULATOR_PIVOT_RATIO = 12.0;
-
-    //TODO
-    public static final double kMANIPULATOR_PIVOT_OFFSET = 0.0;
+    public static final double ELEVATOR_RATIO = 7.75;
+    public static final double MANIPULATOR_PIVOT_RATIO = 12.0;
 
     //TODO
     private static final Slot0Configs ELEVATOR_MOTOR_GAINS = new Slot0Configs()
@@ -97,11 +89,11 @@ public final class Constants {
       .withStatorCurrentLimit(80).withStatorCurrentLimitEnable(true);
 
     private static final FeedbackConfigs ELEVATOR_ENCODER = new FeedbackConfigs()
-      .withSensorToMechanismRatio(kELEVATOR_RATIO)
+      .withSensorToMechanismRatio(ELEVATOR_RATIO)
       .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor);
 
     private static final FeedbackConfigs MANIPULATOR_PIVOT_ENCODER = new FeedbackConfigs()
-      .withSensorToMechanismRatio(kMANIPULATOR_PIVOT_RATIO)
+      .withSensorToMechanismRatio(MANIPULATOR_PIVOT_RATIO)
       .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor);
 
     private static final AudioConfigs ELEVATOR_MOTOR_AUDIO = new AudioConfigs()
