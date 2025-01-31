@@ -1,6 +1,5 @@
 package frc.robot.subsystems.swerve;
 
-import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -25,6 +24,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import frc.robot.Constants.BuildConstants;
+import frc.robot.Constants.HardwareConstants;
 
 /**
  * Constants specific to the SwerveDrive base
@@ -66,14 +66,11 @@ public final class SwerveConstants {
     .withSensorToMechanismRatio(DRIVE_RATIO);
     //.withSensorToMechanismRatio(1.0);
 
-  private static final AudioConfigs DRIVE_MOTOR_AUDIO = new AudioConfigs()
-    .withBeepOnBoot(false).withBeepOnConfig(true);
-
   public static final TalonFXConfiguration DRIVE_CONFIG = new TalonFXConfiguration()
     .withSlot0(DRIVE_MOTOR_GAINS)
     .withCurrentLimits(DRIVE_MOTOR_CURRENT)
     .withFeedback(DRIVE_ENCODER)
-    .withAudio(DRIVE_MOTOR_AUDIO);
+    .withAudio(HardwareConstants.TALON_AUDIO_CONFIG);
 
   // Steer NEO
   public static final double STEER_RATIO = 150.0 / 7.0;

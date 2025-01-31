@@ -96,21 +96,18 @@ public final class Constants {
       .withSensorToMechanismRatio(MANIPULATOR_PIVOT_RATIO)
       .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor);
 
-    private static final AudioConfigs ELEVATOR_MOTOR_AUDIO = new AudioConfigs()
-      .withBeepOnBoot(false).withBeepOnConfig(true);
-
     public static final TalonFXConfiguration ELEVATOR_CONFIG = new TalonFXConfiguration()
       .withSlot0(ELEVATOR_MOTOR_GAINS)
       .withCurrentLimits(ELEVATOR_MOTOR_CURRENT)
       .withFeedback(ELEVATOR_ENCODER)
-      .withAudio(ELEVATOR_MOTOR_AUDIO);
+      .withAudio(HardwareConstants.TALON_AUDIO_CONFIG);
       
     //TODO find if inverted, config PIDF
     public static final TalonFXConfiguration MANIPULATOR_PIVOT_CONFIG = new TalonFXConfiguration()
       .withSlot0(MANIPULATOR_PIVOT_GAINS)
       .withCurrentLimits(MANIPULATOR_PIVOT_CURRENT)
       .withFeedback(MANIPULATOR_PIVOT_ENCODER)
-      .withAudio(ELEVATOR_MOTOR_AUDIO);
+      .withAudio(HardwareConstants.TALON_AUDIO_CONFIG);
   }
   public static final class HardwareConstants {
     public static final int PDH_CAN = 1;
@@ -141,7 +138,12 @@ public final class Constants {
     // Manipulator Hardware 
     public static final int MANIPULATOR_CAN = 19;
 
+    // CAN Busses
     public static final CANBus RIO_CAN = new CANBus("rio");
     public static final CANBus CANIVORE = new CANBus("CANivore");
+
+    // CTRE Specific
+    public static final AudioConfigs TALON_AUDIO_CONFIG = new AudioConfigs()
+      .withBeepOnBoot(false).withBeepOnConfig(true);
   }
 }
