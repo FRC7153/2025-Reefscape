@@ -4,16 +4,14 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.GoToPointCommand;
 import frc.robot.commands.PregameCommand;
 import frc.robot.commands.TeleopDriveCommand;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.swerve.SwerveDrive;
@@ -21,21 +19,24 @@ import frc.robot.util.dashboard.AutoChooser;
 import frc.robot.util.dashboard.Dashboard;
 
 public final class RobotContainer {
+  // Controllers
+  private final CommandXboxController baseController = new CommandXboxController(0);
+  private final CommandXboxController armsController = new CommandXboxController(1);
+
   // Subsystems
-  private final SwerveDrive base = new SwerveDrive();
+  private final SwerveDrive base = new SwerveDrive(baseController::setRumble);
   private final Manipulator manipulator = new Manipulator();
   private final Elevator elevator = new Elevator(manipulator);
-
-  // Controllers
-  private final CommandXboxController controller = new CommandXboxController(0);
+  private final Climber climber = new Climber();
 
   // Dashboard
   private final AutoChooser auto = new AutoChooser(base, elevator);
   private final Dashboard dashboard = new Dashboard();
+  private final Command pregameCommand = new PregameCommand(base, dashboard, auto);
 
   public RobotContainer() {
     // Add Pregame command to the dashboard
-    SmartDashboard.putData("Pregame", getPregameCommand());
+    SmartDashboard.putData("Pregame", pregameCommand);
 
     configureBindings();
   }
@@ -48,14 +49,11 @@ public final class RobotContainer {
     base.setDefaultCommand(
       new TeleopDriveCommand(
         base, 
-        () -> -controller.getLeftX(), 
-        () -> -controller.getLeftY(), 
-        () -> -controller.getRightX(), 
-        controller.leftTrigger())
+        () -> -baseController.getLeftX(), 
+        () -> -baseController.getLeftY(), 
+        () -> -baseController.getRightX(), 
+        baseController.leftTrigger())
     );
-
-    // Test go to point command
-    controller.a().whileTrue(new GoToPointCommand(base, new Pose2d(0, 0, Rotation2d.kZero)));
 
     // Match timer start/stop
     isEnabledTrigger
@@ -78,9 +76,9 @@ public final class RobotContainer {
     elevator.log();
   }
 
-  /** Returns a PregameCommand, which is scheduled if the command wasn't run before teleopInit() */
+  /** Returns the PregameCommand, which is scheduled if the command wasn't run before teleopInit() */
   public Command getPregameCommand() {
-    return new PregameCommand(base, dashboard, auto);
+    return pregameCommand;
   }
 
   /** Returns a Command to run in autonomous */

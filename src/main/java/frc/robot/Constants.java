@@ -17,6 +17,8 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 
 public final class Constants {
   public static final class BuildConstants {
+    public static final double EPSILON = 1E-6;
+
     public static final boolean PUBLISH_EVERYTHING = true;
     public static final boolean INCLUDE_TEST_AUTOS = true;
 

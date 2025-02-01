@@ -42,6 +42,7 @@ public final class SwerveOdometry {
   private volatile int failedDAQs = 0;
   private volatile double actualFreq = 250.0;
   private volatile double yVelo = 0.0;
+  private volatile double jerk = 0.0;
 
   private final ADIS16470_IMU imu;
   private final Alert imuHardwareAlert = new Alert("ADIS16470 IMU is not connected", AlertType.kError);
@@ -50,6 +51,8 @@ public final class SwerveOdometry {
   private final BaseStatusSignal[] allSignals;
   private final SwerveDrivePoseEstimator poseEstimator;
   private final DerivativeCalculator yVeloCalculator;
+  private final DerivativeCalculator xJerkCalculator = new DerivativeCalculator(3);
+  private final DerivativeCalculator yJerkCalculator = new DerivativeCalculator(3);
   private boolean isRedAlliance = false; // Cached later
   private boolean hasSetInitialPosition = false; // Set later
 
@@ -180,6 +183,12 @@ public final class SwerveOdometry {
         yVelo = yVeloCalculator.calculate(mostRecentPose.getY());
       }
 
+      // Calculate jerk
+      jerk = Math.hypot(
+        xJerkCalculator.calculate(imu.getAccelX()),
+        yJerkCalculator.calculate(imu.getAccelY())
+      );
+
       // Use this to determine which axis is yaw:
       /*System.out.printf(
         "IMU: X: %f, Y: %f, Z: %f\n", 
@@ -233,6 +242,13 @@ public final class SwerveOdometry {
     }
 
     return yVelo;
+  }
+
+  /**
+   * @return Magnitude of jerk (the derivative of acceleration), m/s^3
+   */
+  public double getJerk() {
+    return jerk;
   }
 
   public void cacheAllianceColor() {

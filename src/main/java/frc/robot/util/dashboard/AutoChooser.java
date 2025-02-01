@@ -66,10 +66,10 @@ public final class AutoChooser {
         () -> SwervePaths.getFollowPathCommand(drive, "Rotate 1 Test", true).withName("Rotate 1 Test"));
 
       // PathPlanner translational SysId autos
-      chooser.addOption("SYSID Translation Q+", () -> new SysIdCharacterizationCommand(drive.getPathRoutine(), true, true));
-      chooser.addOption("SYSID Translation Q-", () -> new SysIdCharacterizationCommand(drive.getPathRoutine(), true, false));
-      chooser.addOption("SYSID Translation D+", () -> new SysIdCharacterizationCommand(drive.getPathRoutine(), false, true));
-      chooser.addOption("SYSID Translation D-", () -> new SysIdCharacterizationCommand(drive.getPathRoutine(), false, false));
+      //chooser.addOption("SYSID Translation Q+", () -> new SysIdCharacterizationCommand(drive.getPathRoutine(), true, true));
+      //chooser.addOption("SYSID Translation Q-", () -> new SysIdCharacterizationCommand(drive.getPathRoutine(), true, false));
+      //chooser.addOption("SYSID Translation D+", () -> new SysIdCharacterizationCommand(drive.getPathRoutine(), false, true));
+      //chooser.addOption("SYSID Translation D-", () -> new SysIdCharacterizationCommand(drive.getPathRoutine(), false, false));
 
       // Add Elevator SysID auto
       chooser.addOption("SYSID Elevator Q+",

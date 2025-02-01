@@ -116,8 +116,8 @@ public final class SwerveConstants {
   public static final PPHolonomicDriveController AUTO_CONTROLLER = 
     new PPHolonomicDriveController(
       //new PIDConstants(19.303, 0.0, 1.3841), // Translational
-      new PIDConstants(5.0, 0.0, 0.0), // Translational
-      new PIDConstants(7.0, 0.0, 0.0) // Rotational
+      new PIDConstants(3.5, 0.0, 0.0), // Translational
+      new PIDConstants(9.0, 0.0, 0.0) // Rotational
     );
 
   // Default positions, if none is set by the auto program by PREGAME

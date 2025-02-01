@@ -1,6 +1,7 @@
 package frc.robot.subsystems.swerve;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.config.RobotConfig;
@@ -18,11 +19,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Volts;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.IntegerLogEntry;
@@ -31,11 +27,10 @@ import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.commands.ResetOdometryToDefaultCommand;
@@ -65,13 +60,12 @@ public final class SwerveDrive implements Subsystem {
 
   // Kinematics
   private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(SwerveConstants.POSITIONS);
-  private ChassisSpeeds lastChassisSpeeds = new ChassisSpeeds();
 
   // NT Logging
   private final StructArrayPublisher<SwerveModuleState> statePublisher, reqStatePublisher;
   private final StructPublisher<Pose2d> posePublisher;
   private final IntegerPublisher successfulDAQPublisher, failedDAQPublisher;
-  private final DoublePublisher odometryFreqPublisher;
+  private final DoublePublisher odometryFreqPublisher, jerkPublisher;
   private final BooleanPublisher isClosedLoopPublisher;
   private final Field2d fieldPublisher = new Field2d();
 
@@ -100,16 +94,22 @@ public final class SwerveDrive implements Subsystem {
 
   // Pose estimation
   protected final SwerveOdometry odometry = new SwerveOdometry(modules, kinematics);
-  private SysIdRoutine pathRoutine;
+  private final BiConsumer<RumbleType, Double> hapticFeedbackAcceptor;
 
-  private final Limelight limelightMain = new Limelight("limelight-main", odometry);
+  private final Limelight limelightFront = new Limelight("limelight-front", odometry);
 
   // Autonomous
   protected final RobotConfig autoConfig;
   private final Alert failedToLoadConfigAlert = new Alert("Failed to load PathPlanner's config", AlertType.kError);
 
+  /**
+   * @param hapticFeedbackAcceptor Function to accept haptic feedback (controller vibration) on
+   * a scale of 0.0 to 1.0 for collision detection.
+   */
   @SuppressWarnings("UseSpecificCatch")
-  public SwerveDrive() {
+  public SwerveDrive(BiConsumer<RumbleType, Double> hapticFeedbackAcceptor) {
+    this.hapticFeedbackAcceptor = hapticFeedbackAcceptor;
+
     if (BuildConstants.PUBLISH_EVERYTHING) {
       // Init NT publishers
       NetworkTable ntTable = NetworkTableInstance.getDefault().getTable("Swerve");
@@ -121,6 +121,7 @@ public final class SwerveDrive implements Subsystem {
       failedDAQPublisher = ntTable.getIntegerTopic("Failed_DAQs").publish();
       odometryFreqPublisher = ntTable.getDoubleTopic("Odometry_Freq").publish();
       isClosedLoopPublisher = ntTable.getBooleanTopic("IsClosedLoop").publish();
+      jerkPublisher = ntTable.getDoubleTopic("Jerk").publish();
     } else {
       // Do not init NT publishers
       statePublisher = null;
@@ -130,6 +131,7 @@ public final class SwerveDrive implements Subsystem {
       failedDAQPublisher = null;
       odometryFreqPublisher = null;
       isClosedLoopPublisher = null;
+      jerkPublisher = null;
     }
 
     // Start odometry thread
@@ -163,7 +165,17 @@ public final class SwerveDrive implements Subsystem {
 
     PathPlannerLogging.setLogActivePathCallback((List<Pose2d> path) -> {
       trajectoryLogger.append(path);
-      fieldPublisher.getObject("trajectory").setPoses(path);
+
+      if (path.size() <= 85) {
+        fieldPublisher.getObject("trajectory").setPoses(path);
+      } else {
+        // Limited to 85 poses, truncate
+        System.out.printf(
+          "Limited trajectory publishing because number of poses (%d) is greater than 85\n",
+          path.size()
+        );
+        fieldPublisher.getObject("trajectory").setPoses(path.subList(0, 85));
+      }
     });
 
     // Warm up PathPlanner
@@ -177,8 +189,6 @@ public final class SwerveDrive implements Subsystem {
   public void drive(ChassisSpeeds speeds, boolean closedLoop) {
     SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveConstants.MAX_WHEEL_VELOCITY);
-
-    lastChassisSpeeds = speeds;
 
     for (int m = 0; m < 4; m++) {
       modules[m].setRequest(states[m], closedLoop);
@@ -243,32 +253,19 @@ public final class SwerveDrive implements Subsystem {
     // Update limelights
     Limelight.setOrientation(
       odometry.getFieldRelativePosition().getRotation().getDegrees(), odometry.getYawRate());
-      
-    limelightMain.sendOrientation();
-  }
 
-  /** Gets routine for Auto Path SysId characterization. */
-  public SysIdRoutine getPathRoutine() {
-    if (pathRoutine == null) {
-      // No cached routine, instantiate it
-      pathRoutine = new SysIdRoutine(
-        new SysIdRoutine.Config(Volts.of(0.75).per(Second), Volts.of(1.25), null), 
-        new SysIdRoutine.Mechanism(
-          (Voltage v) -> {
-            drive(v.in(Volts), 0.0, 0.0, true, false);
-          },
-          (SysIdRoutineLog log) -> {
-            log.motor("base")
-              .voltage(Volts.of(lastChassisSpeeds.vyMetersPerSecond))
-              .linearPosition(Meters.of(odometry.getFieldRelativePosition().getY()))
-              .linearVelocity(MetersPerSecond.of(odometry.getYVelocity()));
-          },
-          this
-        )
-      );
+    limelightFront.sendOrientation();
+
+    // Calculate haptic feedback (on a 500 m/s^3 to 1750 m/s^3)
+    double jerk = odometry.getJerk();
+
+    if (jerk > -500) {
+      // No collision
+      hapticFeedbackAcceptor.accept(RumbleType.kLeftRumble, 0.0);
+    } else {
+      // Possible collision
+      hapticFeedbackAcceptor.accept(RumbleType.kLeftRumble, Math.min((jerk + 500.0) / -1750.0, 1.0));
     }
-
-    return pathRoutine;
   }
 
   /**
@@ -310,10 +307,11 @@ public final class SwerveDrive implements Subsystem {
       successfulDAQPublisher.set(odometry.getSuccessfulDAQs());
       failedDAQPublisher.set(odometry.getFailedDAQs());
       odometryFreqPublisher.set(odometry.getFrequency());
+      jerkPublisher.set(odometry.getJerk());
     }
 
     // Log limelights
-    limelightMain.log();
+    limelightFront.log();
 
     // Log swerve modules
     for (SwerveModule m : modules) {
@@ -327,6 +325,6 @@ public final class SwerveDrive implements Subsystem {
     }
 
     odometry.checkHardware();
-    limelightMain.checkHardware();
+    limelightFront.checkHardware();
   }
 }
