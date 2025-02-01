@@ -66,6 +66,7 @@ public final class RobotContainer {
     base.checkHardware();
     manipulator.checkHardware();
     elevator.checkHardware();
+    climber.checkHardware();
   }
 
   /** Logs everything, called periodically */
@@ -74,6 +75,7 @@ public final class RobotContainer {
     dashboard.update();
     manipulator.log();
     elevator.log();
+    climber.log();
   }
 
   /** Returns the PregameCommand, which is scheduled if the command wasn't run before teleopInit() */
