@@ -32,7 +32,7 @@ public final class RobotContainer {
   // Dashboard
   private final AutoChooser auto = new AutoChooser(base, elevator);
   private final Dashboard dashboard = new Dashboard(baseController, armsController);
-  private final Command pregameCommand = new PregameCommand(base, dashboard, auto);
+  private final Command pregameCommand = new PregameCommand(base, elevator, dashboard, auto);
 
   public RobotContainer() {
     // Add Pregame command to the dashboard
