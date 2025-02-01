@@ -3,6 +3,8 @@ package frc.robot.util.dashboard;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
@@ -10,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.DashboardConstants;
 
@@ -22,7 +25,20 @@ public class Dashboard {
     NetworkTableInstance.getDefault().getDoubleTopic("Elastic/matchTime").publish();
   private final Timer matchTimer = new Timer();
 
-  public Dashboard() {
+  private final CommandGenericHID[] controllers;
+  private final Alert[] controllerAlerts;
+
+  /**
+   * @param controllers Controllers to check
+   */
+  public Dashboard(CommandGenericHID... controllers) {
+    this.controllers = controllers;
+    controllerAlerts = new Alert[controllers.length];
+
+    for (int c = 0; c < controllers.length; c++) {
+      controllerAlerts[c] = new Alert(String.format("Controller %d not connected", c), AlertType.kError);
+    }
+
     // Host Elastic configuration file
     WebServer.start(DashboardConstants.ELASTIC_SERVER_PORT, Filesystem.getDeployDirectory().toPath().resolve("Elastic").toString());
 
@@ -70,5 +86,11 @@ public class Dashboard {
       // Use real match time
       matchTimePub.set(mt);
     }    
+  }
+
+  public void checkHardware() {
+    for (int c = 0; c < controllers.length; c++) {
+      controllerAlerts[c].set(!controllers[c].isConnected());
+    }
   }
 }

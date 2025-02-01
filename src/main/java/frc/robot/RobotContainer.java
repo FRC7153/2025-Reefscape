@@ -31,7 +31,7 @@ public final class RobotContainer {
 
   // Dashboard
   private final AutoChooser auto = new AutoChooser(base, elevator);
-  private final Dashboard dashboard = new Dashboard();
+  private final Dashboard dashboard = new Dashboard(baseController, armsController);
   private final Command pregameCommand = new PregameCommand(base, dashboard, auto);
 
   public RobotContainer() {
@@ -67,6 +67,7 @@ public final class RobotContainer {
     manipulator.checkHardware();
     elevator.checkHardware();
     climber.checkHardware();
+    dashboard.checkHardware();
   }
 
   /** Logs everything, called periodically */
