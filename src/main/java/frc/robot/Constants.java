@@ -68,7 +68,7 @@ public final class Constants {
 
   public static final class ElevatorConstants {
     public static final double ELEVATOR_RATIO = 7.75;
-    public static final double MANIPULATOR_PIVOT_RATIO = 12.0;
+    public static final double MANIPULATOR_PIVOT_RATIO = 5.0;
 
     //TODO
     private static final Slot0Configs ELEVATOR_MOTOR_GAINS = new Slot0Configs()
