@@ -7,6 +7,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
@@ -94,7 +95,7 @@ public class Elevator implements Subsystem {
 
     if(elevatorRoutine == null){
       elevatorRoutine = new SysIdRoutine(
-        new SysIdRoutine.Config(null, null, null, (State state) -> {
+        new SysIdRoutine.Config(Volts.of(0.25).per(Second), Volts.of(1.5), null, (State state) -> {
           //Logging State
           SignalLogger.writeString("Elevator-SysID-State", state.toString());
         }), new SysIdRoutine.Mechanism((Voltage v) -> {

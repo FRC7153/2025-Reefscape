@@ -4,10 +4,13 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig;
@@ -52,7 +55,7 @@ public final class Constants {
     
     //TODO find Offset, find conversion ratio, 
     private static final AbsoluteEncoderConfig MANIPULATOR_ABSOLUTE_ENCODER_CONFIG = new AbsoluteEncoderConfig()
-      .zeroOffset(0.0)//TODO
+      .zeroOffset(0.462)
       .inverted(false)//TODO
       .zeroCentered(true);//TODO
 
@@ -94,6 +97,14 @@ public final class Constants {
       .withSensorToMechanismRatio(ELEVATOR_RATIO)
       .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor);
 
+    private static final MotorOutputConfigs ELEVATOR_OUTPUT = new MotorOutputConfigs()
+      .withInverted(InvertedValue.CounterClockwise_Positive)
+      .withNeutralMode(NeutralModeValue.Brake);
+
+    private static final MotorOutputConfigs MANIPULATOR_PIVOT_OUTPUT = new MotorOutputConfigs()
+      .withInverted(InvertedValue.Clockwise_Positive)//TODO
+      .withNeutralMode(NeutralModeValue.Brake);
+
     private static final FeedbackConfigs MANIPULATOR_PIVOT_ENCODER = new FeedbackConfigs()
       .withSensorToMechanismRatio(MANIPULATOR_PIVOT_RATIO)
       .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor);
@@ -102,14 +113,16 @@ public final class Constants {
       .withSlot0(ELEVATOR_MOTOR_GAINS)
       .withCurrentLimits(ELEVATOR_MOTOR_CURRENT)
       .withFeedback(ELEVATOR_ENCODER)
-      .withAudio(HardwareConstants.TALON_AUDIO_CONFIG);
+      .withAudio(HardwareConstants.TALON_AUDIO_CONFIG)
+      .withMotorOutput(ELEVATOR_OUTPUT);
       
     //TODO find if inverted, config PIDF
     public static final TalonFXConfiguration MANIPULATOR_PIVOT_CONFIG = new TalonFXConfiguration()
       .withSlot0(MANIPULATOR_PIVOT_GAINS)
       .withCurrentLimits(MANIPULATOR_PIVOT_CURRENT)
       .withFeedback(MANIPULATOR_PIVOT_ENCODER)
-      .withAudio(HardwareConstants.TALON_AUDIO_CONFIG);
+      .withAudio(HardwareConstants.TALON_AUDIO_CONFIG)
+      .withMotorOutput(MANIPULATOR_PIVOT_OUTPUT);
   }
   public static final class HardwareConstants {
     public static final int PDH_CAN = 1;
