@@ -5,53 +5,56 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.HardwareConstants;
 
 public class Climber implements Subsystem {
-  private final SparkFlex climberLeft = new SparkFlex(HardwareConstants.CLIMBER_LEFT_CAN, MotorType.kBrushless);
-  private final SparkFlex climberRight = new SparkFlex(HardwareConstants.CLIMBER_RIGHT_CAN, MotorType.kBrushless);
+  private final SparkFlex climberLeader = new SparkFlex(HardwareConstants.CLIMBER_LEADER_CAN, MotorType.kBrushless);
+  private final SparkFlex climberFollower = new SparkFlex(HardwareConstants.CLIMBER_FOLLOWER_CAN, MotorType.kBrushless);
 
-  private final RelativeEncoder climberLeftEncoder = climberLeft.getEncoder();
+  private final RelativeEncoder climberEncoder = climberLeader.getEncoder();
 
   //Alert Output
-  private final Alert climberLeftAlert = new Alert("Climber Left Motor Alert", AlertType.kError);
-  private final Alert climberRightAlert = new Alert("Climber Right Motor Alert", AlertType.kError);
+  private final Alert climberLeaderAlert = new Alert("Climber Leader Motor Alert", AlertType.kError);
+  private final Alert climberFollowerAlert = new Alert("Climber Follower Motor Alert", AlertType.kError);
 
   // DataLog Output
   private final DoubleLogEntry climberPositionLog =
-    new DoubleLogEntry(DataLogManager.getLog(), "ClimberLeft/Position", "rots");
+    new DoubleLogEntry(DataLogManager.getLog(), "Climber/Position", "rots");
+  private final DoubleLogEntry climberCurrentLog = 
+    new DoubleLogEntry(DataLogManager.getLog(), "Climber/Current", "amps");
   private final DoubleLogEntry climberPercentageLog = 
-    new DoubleLogEntry(DataLogManager.getLog(), "ClimberLeft/Percentage", "%");
+    new DoubleLogEntry(DataLogManager.getLog(), "Climber/Percentage", "%");
 
   /**
    * Init
    */
   public Climber() {
-    climberLeft.configure(
-      ClimberConstants.CLIMBER_CONFIG,
+    climberLeader.configure(
+      ClimberConstants.CLIMBER_LEADER_CONFIG,
       ResetMode.kResetSafeParameters,
       PersistMode.kPersistParameters);
 
-    climberRight.configure(
-      new SparkFlexConfig()
-        .follow(climberLeft, false),
+    climberFollower.configure(
+      ClimberConstants.CLIMBER_FOLLOWER_CONFIG,
       ResetMode.kResetSafeParameters,
       PersistMode.kPersistParameters);
+
+    // Reset encoder
+    climberEncoder.setPosition(0.0);
   }
 
   /**
    * @param percentage Runs climber in percentage
    */
   public void runClimber(double percentage) {
-    climberLeft.set(percentage);
+    climberLeader.set(percentage);
     climberPercentageLog.append(percentage);
   }
 
@@ -59,7 +62,7 @@ public class Climber implements Subsystem {
    * @return Position (in rots)
    */
   public double getPosition() {
-    return climberLeftEncoder.getPosition() / ClimberConstants.CLIMBER_RATIO;
+    return climberEncoder.getPosition() / ClimberConstants.CLIMBER_RATIO;
   }
 
   /**
@@ -67,10 +70,11 @@ public class Climber implements Subsystem {
    */
   public void log(){
     climberPositionLog.append(getPosition());
+    climberCurrentLog.append(climberLeader.getOutputCurrent());
   }
 
   public void checkHardware(){
-    climberLeftAlert.set(climberLeft.hasActiveFault() || climberLeft.hasActiveWarning());
-    climberRightAlert.set(climberRight.hasActiveFault() || climberRight.hasActiveWarning());
+    climberLeaderAlert.set(climberLeader.hasActiveFault() || climberLeader.hasActiveWarning());
+    climberFollowerAlert.set(climberFollower.hasActiveFault() || climberFollower.hasActiveWarning());
   }
 }

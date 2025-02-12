@@ -22,12 +22,12 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.HardwareConstants;
 
 public class Elevator implements Subsystem {
-  private final TalonFX elevatorMain = new TalonFX(HardwareConstants.ELEVATOR_MAIN_CAN, HardwareConstants.CANIVORE);
+  private final TalonFX elevatorMain = new TalonFX(HardwareConstants.ELEVATOR_LEADER_CAN, HardwareConstants.CANIVORE);
   private final TalonFX elevatorFollower = new TalonFX(HardwareConstants.ELEVATOR_FOLLOWER_CAN, HardwareConstants.CANIVORE);
   private final TalonFX manipulatorPivot = new TalonFX(HardwareConstants.MANIPULATOR_PIVOT_CAN, HardwareConstants.RIO_CAN);
 
   private final PositionVoltage elevatorPositionRequest = new PositionVoltage(.0)
-    .withOverrideBrakeDurNeutral(false)
+    .withOverrideBrakeDurNeutral(true)
     .withSlot(0);
   
   private final PositionVoltage manipulatorPivotPositionRequest = new PositionVoltage(0)
@@ -65,7 +65,7 @@ public class Elevator implements Subsystem {
     elevatorMain.getConfigurator().apply(ElevatorConstants.ELEVATOR_CONFIG);
     elevatorFollower.getConfigurator().apply(ElevatorConstants.ELEVATOR_CONFIG);
 
-    elevatorFollower.setControl(new Follower(HardwareConstants.ELEVATOR_MAIN_CAN, false));
+    elevatorFollower.setControl(new Follower(HardwareConstants.ELEVATOR_LEADER_CAN, false));
 
     manipulatorPivot.getConfigurator().apply(ElevatorConstants.MANIPULATOR_PIVOT_CONFIG);
   }
@@ -95,7 +95,7 @@ public class Elevator implements Subsystem {
 
     if(elevatorRoutine == null){
       elevatorRoutine = new SysIdRoutine(
-        new SysIdRoutine.Config(Volts.of(0.25).per(Second), Volts.of(1.5), null, (State state) -> {
+        new SysIdRoutine.Config(Volts.of(0.25).per(Second), Volts.of(0.75), null, (State state) -> {
           //Logging State
           SignalLogger.writeString("Elevator-SysID-State", state.toString());
         }), new SysIdRoutine.Mechanism((Voltage v) -> {
@@ -113,7 +113,7 @@ public class Elevator implements Subsystem {
 
     if(manipulatorPivotRoutine == null){
       manipulatorPivotRoutine = new SysIdRoutine(
-        new SysIdRoutine.Config(null, null, null, (State state) -> {
+        new SysIdRoutine.Config(Volts.of(0.15).per(Second), Volts.of(0.5), null, (State state) -> {
           //Logging State
           SignalLogger.writeString("ManipulatorPivot-SysID-State", state.toString());
         }), new SysIdRoutine.Mechanism((Voltage v) -> {

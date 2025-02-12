@@ -41,13 +41,14 @@ public final class Constants {
   public static final class ClimberConstants {
     public static final double CLIMBER_RATIO = 20.0;
 
-    //TODO find if inverted, config PIDF
-    public static final SparkBaseConfig CLIMBER_CONFIG = new SparkFlexConfig()
-      .idleMode(IdleMode.kBrake)
-      .inverted(false)
-      .smartCurrentLimit(40)
-      .apply(new ClosedLoopConfig()
-        .pidf(0.0, 0.0, 0.0, 0.0,  ClosedLoopSlot.kSlot0));
+    public static final SparkBaseConfig CLIMBER_LEADER_CONFIG = new SparkFlexConfig()
+      .idleMode(IdleMode.kCoast)
+      .inverted(true) 
+      .smartCurrentLimit(80);
+
+    public static final SparkBaseConfig CLIMBER_FOLLOWER_CONFIG = new SparkFlexConfig()
+      .apply(CLIMBER_LEADER_CONFIG)
+      .follow(HardwareConstants.CLIMBER_LEADER_CAN, false);
   }
 
   public static final class ManipulatorConstants {
@@ -90,8 +91,8 @@ public final class Constants {
     .withStatorCurrentLimit(80).withStatorCurrentLimitEnable(true);
 
     private static final CurrentLimitsConfigs MANIPULATOR_PIVOT_CURRENT = new CurrentLimitsConfigs()
-      .withSupplyCurrentLimit(40).withSupplyCurrentLimitEnable(true)
-      .withStatorCurrentLimit(80).withStatorCurrentLimitEnable(true);
+      .withSupplyCurrentLimit(20).withSupplyCurrentLimitEnable(true)
+      .withStatorCurrentLimit(40).withStatorCurrentLimitEnable(true);
 
     private static final FeedbackConfigs ELEVATOR_ENCODER = new FeedbackConfigs()
       .withSensorToMechanismRatio(ELEVATOR_RATIO)
@@ -142,13 +143,13 @@ public final class Constants {
     public static final int FL_STEER_CANCODER_CAN = 13;
 
     // Elevator Hardware
-    public static final int ELEVATOR_MAIN_CAN = 14;
+    public static final int ELEVATOR_LEADER_CAN = 14;
     public static final int ELEVATOR_FOLLOWER_CAN = 15;
     public static final int MANIPULATOR_PIVOT_CAN = 16;
 
     // Climber Hardware
-    public static final int CLIMBER_RIGHT_CAN = 17;
-    public static final int CLIMBER_LEFT_CAN = 18;
+    public static final int CLIMBER_LEADER_CAN = 17;
+    public static final int CLIMBER_FOLLOWER_CAN = 18;
 
     // Manipulator Hardware 
     public static final int MANIPULATOR_CAN = 19;
