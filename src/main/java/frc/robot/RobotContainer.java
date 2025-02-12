@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.ClimbCommand;
 import frc.robot.commands.PregameCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.subsystems.Climber;
@@ -54,6 +55,11 @@ public final class RobotContainer {
         () -> -baseController.getLeftY(), 
         () -> -baseController.getRightX(), 
         baseController.leftTrigger())
+    );
+
+    // Climber default command
+    climber.setDefaultCommand(
+      new ClimbCommand(climber, baseController.b(), armsController.b())
     );
 
     // Temp climber code
