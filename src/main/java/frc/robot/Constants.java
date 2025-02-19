@@ -14,6 +14,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig;
+import com.revrobotics.spark.config.LimitSwitchConfig;
+import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
@@ -62,6 +64,11 @@ public final class Constants {
       .zeroOffset(0.462)
       .inverted(false)//TODO
       .zeroCentered(true);//TODO
+    
+    private static final LimitSwitchConfig MANIPULATOR_LIMIT_SWITCH_CONFIG = new LimitSwitchConfig()
+      .forwardLimitSwitchEnabled(false)
+      .reverseLimitSwitchEnabled(false)
+      .forwardLimitSwitchType(Type.kNormallyOpen);
 
     //TODO find if inverted, config PID
     public static final SparkBaseConfig MANIPULATOR_CONFIG = new SparkFlexConfig()
@@ -69,6 +76,7 @@ public final class Constants {
       .inverted(false)
       .smartCurrentLimit(30)
       .apply(MANIPULATOR_ABSOLUTE_ENCODER_CONFIG)
+      .apply(MANIPULATOR_LIMIT_SWITCH_CONFIG)
       .apply(new ClosedLoopConfig()
         .pidf(0.0, 0.0, 0.0, 0.0, ClosedLoopSlot.kSlot0));  
   }
