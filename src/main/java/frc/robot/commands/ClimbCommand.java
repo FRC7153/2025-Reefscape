@@ -49,6 +49,11 @@ public class ClimbCommand extends Command {
   }
 
   @Override
+  public void end(boolean interrupted) {
+    climber.runClimber(0.0);
+  }
+
+  @Override
   public boolean isFinished() {
     // Never finish
     return false;

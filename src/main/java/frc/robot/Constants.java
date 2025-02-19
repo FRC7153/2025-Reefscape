@@ -18,6 +18,8 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
+import edu.wpi.first.apriltag.AprilTagFields;
+
 public final class Constants {
   public static final class BuildConstants {
     public static final double EPSILON = 1E-6;
@@ -31,6 +33,7 @@ public final class Constants {
      * Also effects default positions
      */
     public static final boolean ON_OFFICIAL_FIELD = false;
+    public static final AprilTagFields DEFAULT_FIELD = AprilTagFields.k2025ReefscapeAndyMark; // See TU-12
   }
 
   public static final class DashboardConstants {

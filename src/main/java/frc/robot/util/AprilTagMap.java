@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Optional;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -20,7 +19,7 @@ public class AprilTagMap {
     // Load AprilTagLayout
     if (BuildConstants.ON_OFFICIAL_FIELD) {
       // Use official map
-      mapLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+      mapLayout = AprilTagFieldLayout.loadField(BuildConstants.DEFAULT_FIELD);
       System.out.println("Loaded official 2025 AprilTag layout");
     } else {
       try {
@@ -30,7 +29,7 @@ public class AprilTagMap {
       } catch (IOException e) {
         // Failed to load fmap file, use official one
         ConsoleLogger.reportError(String.format("Failed to load fmap file: %s", e.getMessage()));
-        mapLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+        mapLayout = AprilTagFieldLayout.loadField(BuildConstants.DEFAULT_FIELD);
         System.out.println("Loaded official 2025 AprilTag layout");
       }
     }
