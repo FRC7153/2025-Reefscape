@@ -46,14 +46,10 @@ public final class Constants {
   public static final class ClimberConstants {
     public static final double CLIMBER_RATIO = 20.0;
 
-    public static final SparkBaseConfig CLIMBER_LEADER_CONFIG = new SparkFlexConfig()
+    public static final SparkBaseConfig CLIMBER_CONFIG = new SparkFlexConfig()
       .idleMode(IdleMode.kCoast)
       .inverted(true) 
       .smartCurrentLimit(80);
-
-    public static final SparkBaseConfig CLIMBER_FOLLOWER_CONFIG = new SparkFlexConfig()
-      .apply(CLIMBER_LEADER_CONFIG)
-      .follow(HardwareConstants.CLIMBER_LEADER_CAN, false);
   }
 
   public static final class ManipulatorConstants {
@@ -159,8 +155,7 @@ public final class Constants {
     public static final int MANIPULATOR_PIVOT_CAN = 16;
 
     // Climber Hardware
-    public static final int CLIMBER_LEADER_CAN = 17;
-    public static final int CLIMBER_FOLLOWER_CAN = 18;
+    public static final int CLIMBER_CAN = 18;
 
     // Manipulator Hardware 
     public static final int MANIPULATOR_CAN = 19;

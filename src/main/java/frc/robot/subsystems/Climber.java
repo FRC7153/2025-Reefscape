@@ -15,14 +15,12 @@ import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.HardwareConstants;
 
 public class Climber implements Subsystem {
-  private final SparkFlex climberLeader = new SparkFlex(HardwareConstants.CLIMBER_LEADER_CAN, MotorType.kBrushless);
-  private final SparkFlex climberFollower = new SparkFlex(HardwareConstants.CLIMBER_FOLLOWER_CAN, MotorType.kBrushless);
+  private final SparkFlex climber = new SparkFlex(HardwareConstants.CLIMBER_CAN, MotorType.kBrushless);
 
-  private final RelativeEncoder climberEncoder = climberLeader.getEncoder();
+  private final RelativeEncoder climberEncoder = climber.getEncoder();
 
   //Alert Output
-  private final Alert climberLeaderAlert = new Alert("Climber Leader Motor Alert", AlertType.kError);
-  private final Alert climberFollowerAlert = new Alert("Climber Follower Motor Alert", AlertType.kError);
+  private final Alert climberAlert = new Alert("Climber Leader Motor Alert", AlertType.kError);
 
   // DataLog Output
   private final DoubleLogEntry climberPositionLog =
@@ -36,13 +34,8 @@ public class Climber implements Subsystem {
    * Init
    */
   public Climber() {
-    climberLeader.configure(
-      ClimberConstants.CLIMBER_LEADER_CONFIG,
-      ResetMode.kResetSafeParameters,
-      PersistMode.kPersistParameters);
-
-    climberFollower.configure(
-      ClimberConstants.CLIMBER_FOLLOWER_CONFIG,
+    climber.configure(
+      ClimberConstants.CLIMBER_CONFIG,
       ResetMode.kResetSafeParameters,
       PersistMode.kPersistParameters);
 
@@ -54,7 +47,7 @@ public class Climber implements Subsystem {
    * @param percentage Runs climber in percentage
    */
   public void runClimber(double percentage) {
-    climberLeader.set(percentage);
+    climber.set(percentage);
     climberPercentageLog.append(percentage);
   }
 
@@ -70,11 +63,10 @@ public class Climber implements Subsystem {
    */
   public void log(){
     climberPositionLog.append(getPosition());
-    climberCurrentLog.append(climberLeader.getOutputCurrent());
+    climberCurrentLog.append(climber.getOutputCurrent());
   }
 
   public void checkHardware(){
-    climberLeaderAlert.set(climberLeader.hasActiveFault() || climberLeader.hasActiveWarning());
-    climberFollowerAlert.set(climberFollower.hasActiveFault() || climberFollower.hasActiveWarning());
+    climberAlert.set(climber.hasActiveFault() || climber.hasActiveWarning());
   }
 }
