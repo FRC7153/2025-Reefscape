@@ -67,6 +67,10 @@ public final class RobotContainer {
       .onTrue(new InstantCommand(() -> climber.runClimber(0.2), climber))
       .onFalse(new InstantCommand(() -> climber.runClimber(0.0), climber));
 
+    baseController.b()
+      .whileTrue(new InstantCommand(() -> elevator.setElevatorPosition(1.25), elevator).repeatedly())
+      .whileFalse(new InstantCommand(() -> elevator.setElevatorPosition(0.1), elevator).repeatedly());
+
     // Match timer start/stop
     isEnabledTrigger
       .onTrue(dashboard.getRestartTimerCommand())

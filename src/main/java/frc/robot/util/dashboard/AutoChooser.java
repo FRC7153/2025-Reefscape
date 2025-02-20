@@ -12,10 +12,10 @@ import frc.robot.Constants.BuildConstants;
 import frc.robot.autos.BackAndForthTestAuto;
 import frc.robot.autos.SimpleDriveTestAuto;
 import frc.robot.commands.SysIdCharacterizationCommand;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.swerve.SwervePaths;
 import frc.robot.subsystems.swerve.SwerveSysId;
-import frc.robot.subsystems.Elevator;
 
 public final class AutoChooser {
   private static final Command noOpCommand = new PrintCommand("No-op auto selected.");
@@ -79,7 +79,7 @@ public final class AutoChooser {
       chooser.addOption("SYSID Elevator D+", 
         () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), false, true));
       chooser.addOption("SYSID Elevator D-", 
-        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), false, false));
+        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), false, false));
 
       // Add Manipulator Pivot SysID auto
       chooser.addOption("SYSID Manipulator Pivot Q+",

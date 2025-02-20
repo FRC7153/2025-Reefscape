@@ -7,7 +7,11 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
@@ -18,6 +22,7 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog.State;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.HardwareConstants;
 
@@ -46,6 +51,9 @@ public class Elevator implements Subsystem {
   private final Manipulator manipulator;
   private boolean hasManipulatorHomed = false;
 
+  // NT Logging
+  private final DoublePublisher elevatorPositionPub, elevatorSetpointPub;
+
   //DataLog
   private final DoubleLogEntry elevatorPositionLog = 
     new DoubleLogEntry(DataLogManager.getLog(), "Elevator/Position", "rotations");
@@ -68,6 +76,16 @@ public class Elevator implements Subsystem {
     elevatorFollower.setControl(new Follower(HardwareConstants.ELEVATOR_LEADER_CAN, false));
 
     manipulatorPivot.getConfigurator().apply(ElevatorConstants.MANIPULATOR_PIVOT_CONFIG);
+
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      NetworkTable nt = NetworkTableInstance.getDefault().getTable("Elevator");
+
+      elevatorPositionPub = nt.getDoubleTopic("position").publish();
+      elevatorSetpointPub = nt.getDoubleTopic("setpoint").publish();
+    } else {
+      elevatorPositionPub = null;
+      elevatorSetpointPub = null;
+    }
   }
 
   /**
@@ -76,6 +94,10 @@ public class Elevator implements Subsystem {
   public void setElevatorPosition(double rotations){
     elevatorMain.setControl(elevatorPositionRequest.withPosition(rotations));
     elevatorSetpointLog.append(rotations);
+
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      elevatorSetpointPub.set(rotations);
+    }
   }  
   
   /**
@@ -95,7 +117,7 @@ public class Elevator implements Subsystem {
 
     if(elevatorRoutine == null){
       elevatorRoutine = new SysIdRoutine(
-        new SysIdRoutine.Config(Volts.of(0.25).per(Second), Volts.of(0.75), null, (State state) -> {
+        new SysIdRoutine.Config(Volts.of(0.3).per(Second), Volts.of(0.75), Seconds.of(20), (State state) -> {
           //Logging State
           SignalLogger.writeString("Elevator-SysID-State", state.toString());
         }), new SysIdRoutine.Mechanism((Voltage v) -> {
@@ -145,6 +167,10 @@ public class Elevator implements Subsystem {
 
     elevatorPositionLog.append(elevatorPosition.getValueAsDouble());
     manipulatorPivotPositionLog.append(manipulatorPosition.getValueAsDouble());
+
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      elevatorPositionPub.set(elevatorPosition.getValueAsDouble());
+    }
   }
 
   public void checkHardware(){
