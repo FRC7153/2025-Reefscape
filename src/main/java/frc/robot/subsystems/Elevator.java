@@ -202,7 +202,7 @@ public class Elevator implements Subsystem {
 
     if(elevatorRoutine == null){
       elevatorRoutine = new SysIdRoutine(
-        new SysIdRoutine.Config(Volts.of(0.2).per(Second), Volts.of(0.2), Seconds.of(25), (State state) -> {
+        new SysIdRoutine.Config(Volts.of(0.1).per(Second), Volts.of(0.35), Seconds.of(25), (State state) -> {
           //Logging State
           SignalLogger.writeString("Elevator-SysID-State", state.toString());
         }), new SysIdRoutine.Mechanism((Voltage v) -> {
@@ -220,7 +220,7 @@ public class Elevator implements Subsystem {
 
     if(manipulatorPivotRoutine == null){
       manipulatorPivotRoutine = new SysIdRoutine(
-        new SysIdRoutine.Config(Volts.of(2.5).per(Second), Volts.of(5.5), null, (State state) -> {
+        new SysIdRoutine.Config(Volts.of(0.6).per(Second), Volts.of(0.5), null, (State state) -> {
           //Logging State
           SignalLogger.writeString("ManipulatorPivot-SysID-State", state.toString());
         }), new SysIdRoutine.Mechanism((Voltage v) -> {
