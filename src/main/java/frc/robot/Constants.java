@@ -74,7 +74,7 @@ public final class Constants {
 
   public static final class ElevatorConstants {
     public static final double ELEVATOR_RATIO = 7.75;
-    public static final double MANIPULATOR_PIVOT_RATIO = 5.0;
+    public static final double MANIPULATOR_PIVOT_RATIO = 25.0; // used to be 5.0
     public static final double MANIPULATOR_PIVOT_OFFSET = 0.776622;
 
     /*private static final Slot0Configs ELEVATOR_MOTOR_GAINS = new Slot0Configs()
@@ -106,7 +106,7 @@ public final class Constants {
       .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor);
 
     private static final MotorOutputConfigs ELEVATOR_OUTPUT = new MotorOutputConfigs()
-      .withInverted(InvertedValue.CounterClockwise_Positive)
+      .withInverted(InvertedValue.Clockwise_Positive)
       .withNeutralMode(NeutralModeValue.Brake);
 
     private static final MotorOutputConfigs MANIPULATOR_PIVOT_OUTPUT = new MotorOutputConfigs()
