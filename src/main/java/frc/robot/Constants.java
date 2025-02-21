@@ -54,12 +54,11 @@ public final class Constants {
 
   public static final class ManipulatorConstants {
     public static final double MANIPULATOR_RATIO = 1.0;
-    
-    //TODO find Offset, find conversion ratio, 
+     
     private static final AbsoluteEncoderConfig MANIPULATOR_ABSOLUTE_ENCODER_CONFIG = new AbsoluteEncoderConfig()
-      .zeroOffset(0.462)
-      .inverted(false)//TODO
-      .zeroCentered(true);//TODO
+      .zeroOffset(ElevatorConstants.MANIPULATOR_PIVOT_OFFSET)
+      .inverted(true)
+      .zeroCentered(true);
     
     private static final LimitSwitchConfig MANIPULATOR_LIMIT_SWITCH_CONFIG = new LimitSwitchConfig()
       .forwardLimitSwitchEnabled(false)
@@ -80,6 +79,7 @@ public final class Constants {
   public static final class ElevatorConstants {
     public static final double ELEVATOR_RATIO = 7.75;
     public static final double MANIPULATOR_PIVOT_RATIO = 5.0;
+    public static final double MANIPULATOR_PIVOT_OFFSET = 0.776622;
 
     private static final Slot0Configs ELEVATOR_MOTOR_GAINS = new Slot0Configs()
       .withKP(6.9615).withKI(0.0).withKD(1.0762)
