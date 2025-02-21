@@ -135,7 +135,7 @@ public class Elevator implements Subsystem {
 
     if(manipulatorPivotRoutine == null){
       manipulatorPivotRoutine = new SysIdRoutine(
-        new SysIdRoutine.Config(Volts.of(0.2).per(Second), Volts.of(0.2), null, (State state) -> {
+        new SysIdRoutine.Config(Volts.of(2.5).per(Second), Volts.of(5.5), null, (State state) -> {
           //Logging State
           SignalLogger.writeString("ManipulatorPivot-SysID-State", state.toString());
         }), new SysIdRoutine.Mechanism((Voltage v) -> {

@@ -102,8 +102,8 @@ public final class Constants {
     .withStatorCurrentLimit(80).withStatorCurrentLimitEnable(true);
 
     private static final CurrentLimitsConfigs MANIPULATOR_PIVOT_CURRENT = new CurrentLimitsConfigs()
-      .withSupplyCurrentLimit(20).withSupplyCurrentLimitEnable(true)
-      .withStatorCurrentLimit(40).withStatorCurrentLimitEnable(true);
+      .withSupplyCurrentLimit(60).withSupplyCurrentLimitEnable(true)
+      .withStatorCurrentLimit(80).withStatorCurrentLimitEnable(true);
 
     private static final FeedbackConfigs ELEVATOR_ENCODER = new FeedbackConfigs()
       .withSensorToMechanismRatio(ELEVATOR_RATIO)

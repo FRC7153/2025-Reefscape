@@ -82,14 +82,14 @@ public final class AutoChooser {
         () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), elevator::resetElevatorEncoder, false, false));
 
       // Add Manipulator Pivot SysID auto
-      /*chooser.addOption("SYSID Manipulator Pivot Q+",
-        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), true, true));
+      chooser.addOption("SYSID Manipulator Pivot Q+",
+        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), elevator::home, true, true));
       chooser.addOption("SYSID Manipulator Pivot Q-",
-        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), true, false));
+        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), elevator::home, true, false));
       chooser.addOption("SYSID Manipulator Pivot D+",
-        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), false, true));
+        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), elevator::home, false, true));
       chooser.addOption("SYSID Manipulator Pivot D-",
-        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), false, false));*/
+        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), elevator::home, false, false));
       }
 
     // Add to dashboard
