@@ -81,10 +81,15 @@ public final class Constants {
     public static final double ELEVATOR_RATIO = 7.75;
     public static final double MANIPULATOR_PIVOT_RATIO = 5.0;
 
-    private static final Slot0Configs ELEVATOR_MOTOR_GAINS = new Slot0Configs()
+    /*private static final Slot0Configs ELEVATOR_MOTOR_GAINS = new Slot0Configs()
       .withKP(6.9615).withKI(0.0).withKD(1.0762)
       .withKS(0.0).withKV(1.414).withKA(0.97985)
-      .withKG(0.71188).withGravityType(GravityTypeValue.Elevator_Static);
+      .withKG(0.71188).withGravityType(GravityTypeValue.Elevator_Static);*/
+
+    private static final Slot0Configs ELEVATOR_MOTOR_GAINS = new Slot0Configs()
+      .withKP(3.596).withKI(0.0).withKD(0.0)
+      .withKS(0.1233).withKV(1.3441).withKA(0.0)
+      .withKG(0.70347).withGravityType(GravityTypeValue.Elevator_Static);
     
     //TODO
     private static final Slot0Configs MANIPULATOR_PIVOT_GAINS = new Slot0Configs()
