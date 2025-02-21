@@ -5,8 +5,10 @@ import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -27,6 +29,8 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.HardwareConstants;
 
 public class Elevator implements Subsystem {
+  public static record ElevatorState(double height, double angle) {}
+
   private final TalonFX elevatorMain = new TalonFX(HardwareConstants.ELEVATOR_LEADER_CAN, HardwareConstants.CANIVORE);
   private final TalonFX elevatorFollower = new TalonFX(HardwareConstants.ELEVATOR_FOLLOWER_CAN, HardwareConstants.CANIVORE);
   private final TalonFX manipulatorPivot = new TalonFX(HardwareConstants.MANIPULATOR_PIVOT_CAN, HardwareConstants.RIO_CAN);
@@ -38,6 +42,8 @@ public class Elevator implements Subsystem {
   private final PositionVoltage manipulatorPivotPositionRequest = new PositionVoltage(0)
     .withOverrideBrakeDurNeutral(true)
     .withSlot(0);
+
+  private final StaticBrake staticBrakeRequest = new StaticBrake();
 
   private final StatusSignal<Angle> elevatorPosition = elevatorMain.getPosition();
   private final StatusSignal<Angle> manipulatorPosition = manipulatorPivot.getPosition();
@@ -52,7 +58,8 @@ public class Elevator implements Subsystem {
   private boolean hasManipulatorHomed = false;
 
   // NT Logging
-  private final DoublePublisher elevatorPositionPub, elevatorSetpointPub;
+  private final DoublePublisher elevatorPositionPub, elevatorSetpointPub, manipulatorPositionPub, 
+    manipulatorSetpointPub;
 
   //DataLog
   private final DoubleLogEntry elevatorPositionLog = 
@@ -80,11 +87,15 @@ public class Elevator implements Subsystem {
     if (BuildConstants.PUBLISH_EVERYTHING) {
       NetworkTable nt = NetworkTableInstance.getDefault().getTable("Elevator");
 
-      elevatorPositionPub = nt.getDoubleTopic("position").publish();
-      elevatorSetpointPub = nt.getDoubleTopic("setpoint").publish();
+      elevatorPositionPub = nt.getDoubleTopic("elevatorPosition").publish();
+      elevatorSetpointPub = nt.getDoubleTopic("elevatorSetpoint").publish();
+      manipulatorPositionPub = nt.getDoubleTopic("manipulatorPosition").publish();
+      manipulatorSetpointPub = nt.getDoubleTopic("elevatorSetpoint").publish();
     } else {
       elevatorPositionPub = null;
       elevatorSetpointPub = null;
+      manipulatorPositionPub = null;
+      manipulatorSetpointPub = null;
     }
   }
 
@@ -92,23 +103,97 @@ public class Elevator implements Subsystem {
    * @param rotations sets elevator to set rotations (in rots). 0.0 is bottom.
    */
   public void setElevatorPosition(double rotations){
+    // Sanity check rotations
+    rotations = MathUtil.clamp(rotations, 0.0, 5.0); // TODO max height here
+
     elevatorMain.setControl(elevatorPositionRequest.withPosition(rotations));
     elevatorSetpointLog.append(rotations);
 
     if (BuildConstants.PUBLISH_EVERYTHING) {
       elevatorSetpointPub.set(rotations);
     }
-  }  
+  }
+
+  /**
+   * Stops the elevator.
+   */
+  public void stopElevator() {
+    elevatorMain.setControl(staticBrakeRequest);
+    elevatorSetpointLog.append(0.0);
+
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      elevatorSetpointPub.set(0.0);
+    }
+  }
   
   /**
-   * @param rotations sets Manipulator to position (in rotations). 0.0 is horizontal.
+   * @param rotations sets Manipulator to position (in rotations).
    */
   public void setManipulatorPivotPosition(double rotations) {
     // Do not run if the Falcon's encoder has not homed
     if (!hasManipulatorHomed) return;
 
+    // Sanity check rotations
+    rotations = MathUtil.clamp(rotations, -5, 5); // TODO max rotations here
+
     manipulatorPivot.setControl(manipulatorPivotPositionRequest.withPosition(rotations));
     manipulatorPivotSetPointLog.append(rotations);
+
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      manipulatorSetpointPub.set(rotations);
+    }
+  }
+
+  /**
+   * Stops the manipulator.
+   */
+  public void stopManipulatorPivot() {
+    manipulatorPivot.setControl(staticBrakeRequest);
+    manipulatorPivotSetPointLog.append(-1.0);
+
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      manipulatorSetpointPub.set(-1.0);
+    }
+  }
+
+  /**
+   * @param state State to set both the elevator height and arm angle.
+   */
+  public void setState(ElevatorState state) {
+    setManipulatorPivotPosition(state.angle);
+    setElevatorPosition(state.height);
+  }
+
+  /**
+   * @return Elevator height, in rotations.
+   */
+  public double getElevatorHeight() {
+    elevatorPosition.refresh();
+    return elevatorPosition.getValueAsDouble();
+  }
+
+  /**
+   * @return The manipulator angle, in rotations.
+   */
+  public double getManipulatorAngle() {
+    manipulatorPosition.refresh();
+    return manipulatorPosition.getValueAsDouble();
+    
+  }
+
+  /**
+   * gets value from manipulator Absolute Encoder
+   */
+  public void home(){
+    manipulatorPosition.refresh();
+    double currentPos = manipulatorPosition.getValueAsDouble();
+    double newPos = manipulator.getManipulatorAbsolutePosition();
+
+    StatusCode resp = manipulatorPivot.setPosition(newPos);
+    System.out.printf("Homed manipulator pivot from %f -> %f\n", currentPos, newPos);
+
+    manipulatorNotHomedAlert.set(!resp.equals(StatusCode.OK));
+    hasManipulatorHomed = resp.equals(StatusCode.OK);
   }
 
   public SysIdRoutine getElevatorRoutine(Elevator elevator) {
@@ -146,24 +231,6 @@ public class Elevator implements Subsystem {
 
     return manipulatorPivotRoutine;
   }
-  /**
-   * gets value from manipulator Absolute Encoder
-   */
-  public void home(){
-    manipulatorPosition.refresh();
-    double currentPos = manipulatorPosition.getValueAsDouble();
-    double newPos = manipulator.getManipulatorAbsolutePosition();
-
-    StatusCode resp = manipulatorPivot.setPosition(newPos);
-    System.out.printf("Homed manipulator pivot from %f -> %f\n", currentPos, newPos);
-
-    manipulatorNotHomedAlert.set(!resp.equals(StatusCode.OK));
-    hasManipulatorHomed = resp.equals(StatusCode.OK);
-  }
-
-  public void resetElevatorEncoder() {
-    elevatorMain.setPosition(0.0);
-  }
 
   public void log() {
     elevatorPosition.refresh();
@@ -174,6 +241,7 @@ public class Elevator implements Subsystem {
 
     if (BuildConstants.PUBLISH_EVERYTHING) {
       elevatorPositionPub.set(elevatorPosition.getValueAsDouble());
+      manipulatorPositionPub.set(manipulatorPosition.getValueAsDouble());
     }
   }
 

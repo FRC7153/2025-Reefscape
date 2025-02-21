@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ClimbCommand;
+import frc.robot.commands.ElevatorDefaultCommand;
 import frc.robot.commands.PregameCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.subsystems.Climber;
@@ -57,7 +58,10 @@ public final class RobotContainer {
         baseController.leftTrigger())
     );
 
-    // Climber default command
+    // Elevator default command (test mode functionality)
+    elevator.setDefaultCommand(new ElevatorDefaultCommand(elevator));
+
+    // Climber default command (climb if both buttons pressed)
     climber.setDefaultCommand(
       new ClimbCommand(climber, baseController.b(), armsController.b())
     );

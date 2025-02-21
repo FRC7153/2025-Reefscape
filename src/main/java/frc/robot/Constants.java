@@ -11,9 +11,7 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
-import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig;
@@ -21,6 +19,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.apriltag.AprilTagFields;
+import frc.robot.subsystems.Elevator.ElevatorState;
 
 public final class Constants {
   public static final class BuildConstants {
@@ -65,15 +64,12 @@ public final class Constants {
       .reverseLimitSwitchEnabled(false)
       .forwardLimitSwitchType(Type.kNormallyOpen);
 
-    //TODO find if inverted, config PID
     public static final SparkBaseConfig MANIPULATOR_CONFIG = new SparkFlexConfig()
       .idleMode(IdleMode.kBrake)
       .inverted(false)
       .smartCurrentLimit(30)
       .apply(MANIPULATOR_ABSOLUTE_ENCODER_CONFIG)
-      .apply(MANIPULATOR_LIMIT_SWITCH_CONFIG)
-      .apply(new ClosedLoopConfig()
-        .pidf(0.0, 0.0, 0.0, 0.0, ClosedLoopSlot.kSlot0));  
+      .apply(MANIPULATOR_LIMIT_SWITCH_CONFIG);  
   }
 
   public static final class ElevatorConstants {
@@ -136,6 +132,21 @@ public final class Constants {
       .withAudio(HardwareConstants.TALON_AUDIO_CONFIG)
       .withMotorOutput(MANIPULATOR_PIVOT_OUTPUT);
   }
+
+  public static final class ElevatorPositions {
+    public static final ElevatorState STOW = new ElevatorState(0.0, 0.0);
+    public static final ElevatorState INTAKE = new ElevatorState(0.0, 0.0);
+    public static final ElevatorState PROCESSOR = new ElevatorState(0.0, 0.0);
+
+    public static final ElevatorState L1 = new ElevatorState(0.0, 0.0);
+    public static final ElevatorState L2 = new ElevatorState(0.0, 0.0);
+    public static final ElevatorState L3 = new ElevatorState(0.0, 0.0);
+    public static final ElevatorState L4 = new ElevatorState(0.0, 0.0);
+
+    public static final ElevatorState ALGAE_LOW = new ElevatorState(0.0, 0.0);
+    public static final ElevatorState ALGAE_HIGH = new ElevatorState(0.0, 0.0);
+  }
+
   public static final class HardwareConstants {
     public static final int PDH_CAN = 1;
 
