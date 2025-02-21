@@ -109,7 +109,7 @@ public final class Constants {
       .withNeutralMode(NeutralModeValue.Brake);
 
     private static final MotorOutputConfigs MANIPULATOR_PIVOT_OUTPUT = new MotorOutputConfigs()
-      .withInverted(InvertedValue.Clockwise_Positive)//TODO
+      .withInverted(InvertedValue.Clockwise_Positive)
       .withNeutralMode(NeutralModeValue.Brake);
 
     private static final FeedbackConfigs MANIPULATOR_PIVOT_ENCODER = new FeedbackConfigs()
