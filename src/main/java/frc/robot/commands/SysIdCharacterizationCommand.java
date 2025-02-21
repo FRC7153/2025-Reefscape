@@ -3,7 +3,6 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
@@ -16,17 +15,14 @@ public class SysIdCharacterizationCommand extends ConditionalCommand {
    * @param quasistatic true for quasistatic, false for dynamic
    * @param direction true for forward, false for backward
    */
-  public SysIdCharacterizationCommand(SysIdRoutine routine, Runnable resetEncoderFunction, boolean quasistatic, boolean direction) {
+  public SysIdCharacterizationCommand(SysIdRoutine routine, boolean quasistatic, boolean direction) {
     super(
       // FMS is connected, do not characterize:
       new PrintCommand("Will not characterize while FMS is connected!"),
       // FMS is not connected, run characterization (quasistatic or dynamic):
-      new SequentialCommandGroup(
-        //new InstantCommand(resetEncoderFunction),
-        quasistatic ?
-          routine.quasistatic(direction ? Direction.kForward : Direction.kReverse)
-          : routine.dynamic(direction ? Direction.kForward : Direction.kReverse)
-      ),
+      quasistatic ?
+        routine.quasistatic(direction ? Direction.kForward : Direction.kReverse)
+        : routine.dynamic(direction ? Direction.kForward : Direction.kReverse),
       // Check if FMS is connected
       DriverStation::isFMSAttached
     );

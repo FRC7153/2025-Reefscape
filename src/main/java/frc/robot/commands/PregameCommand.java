@@ -32,9 +32,6 @@ public class PregameCommand extends InstantCommand {
 
       dashboard.stopWebServerIfFMS();
 
-      // Temp, remove
-      elevator.resetElevatorEncoder();
-
       // Only run auto pregame actions if we are not already in teleop
       if (!DriverStation.isTeleopEnabled()) {
         //FollowPathCommand.warmupCommand().schedule();

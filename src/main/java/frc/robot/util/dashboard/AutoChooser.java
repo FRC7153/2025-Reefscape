@@ -38,7 +38,7 @@ public final class AutoChooser {
     // Autos that are used for testing
     if (BuildConstants.INCLUDE_TEST_AUTOS) {
       // Add Swerve SysId drive autos
-      /*chooser.addOption("SYSID Swerve Drive Q+", 
+      chooser.addOption("SYSID Swerve Drive Q+", 
         () -> new SysIdCharacterizationCommand(SwerveSysId.getModuleDriveRoutine(drive), true, true));
       chooser.addOption("SYSID Swerve Drive Q-", 
         () -> new SysIdCharacterizationCommand(SwerveSysId.getModuleDriveRoutine(drive), true, false));
@@ -55,7 +55,7 @@ public final class AutoChooser {
       chooser.addOption("SYSID Swerve Steer D+", 
         () -> new SysIdCharacterizationCommand(SwerveSysId.getModuleSteerRoutine(drive), false, true));
       chooser.addOption("SYSID Swerve Steer D-", 
-        () -> new SysIdCharacterizationCommand(SwerveSysId.getModuleSteerRoutine(drive), false, false));*/
+        () -> new SysIdCharacterizationCommand(SwerveSysId.getModuleSteerRoutine(drive), false, false));
 
       // Drive characterization test auto
       chooser.addOption("Auto Drive Test", () -> new SimpleDriveTestAuto(drive));
@@ -73,23 +73,23 @@ public final class AutoChooser {
 
       // Add Elevator SysID auto
       chooser.addOption("SYSID Elevator Q+",
-        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), elevator::resetElevatorEncoder, true, true));
+        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), true, true));
       chooser.addOption("SYSID Elevator Q-", 
-        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), elevator::resetElevatorEncoder, true, false));
+        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), true, false));
       chooser.addOption("SYSID Elevator D+", 
-        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), elevator::resetElevatorEncoder, false, true));
+        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), false, true));
       chooser.addOption("SYSID Elevator D-", 
-        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), elevator::resetElevatorEncoder, false, false));
+        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), false, false));
 
       // Add Manipulator Pivot SysID auto
       chooser.addOption("SYSID Manipulator Pivot Q+",
-        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), elevator::home, true, true));
+        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), true, true));
       chooser.addOption("SYSID Manipulator Pivot Q-",
-        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), elevator::home, true, false));
+        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), true, false));
       chooser.addOption("SYSID Manipulator Pivot D+",
-        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), elevator::home, false, true));
+        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), false, true));
       chooser.addOption("SYSID Manipulator Pivot D-",
-        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), elevator::home, false, false));
+        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), false, false));
       }
 
     // Add to dashboard
