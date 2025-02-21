@@ -31,6 +31,10 @@ public class ElevatorDefaultCommand extends Command {
 
       heightInput = nt.getDoubleTopic("height").getEntry(0.0);
       angleInput = nt.getDoubleTopic("angle").getEntry(0.0);
+
+      heightInput.set(0.0);
+      angleInput.set(0.0);
+      System.out.println("Elevator test mode NT inputs instantiated.");
     }
 
     // If in test mode and enabled, set position
