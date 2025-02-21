@@ -83,9 +83,9 @@ public final class Constants {
       .withKG(0.71188).withGravityType(GravityTypeValue.Elevator_Static);*/
 
     private static final Slot0Configs ELEVATOR_MOTOR_GAINS = new Slot0Configs()
-      .withKP(3.596).withKI(0.0).withKD(0.0)
-      .withKS(0.1233).withKV(1.3441).withKA(0.0)
-      .withKG(0.70347).withGravityType(GravityTypeValue.Elevator_Static);
+      .withKP(72.929/10.0).withKI(0.0).withKD(28.72/10.0)
+      .withKS(2.3878).withKV(2.4042).withKA(6.4856)
+      .withKG(0.505).withGravityType(GravityTypeValue.Elevator_Static);
     
     //TODO
     private static final Slot0Configs MANIPULATOR_PIVOT_GAINS = new Slot0Configs()
