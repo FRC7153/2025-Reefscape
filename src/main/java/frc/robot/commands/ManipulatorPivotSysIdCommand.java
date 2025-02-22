@@ -13,16 +13,16 @@ public class ManipulatorPivotSysIdCommand extends SequentialCommandGroup{
   private static double bottomManipulatorSetpoint;//TODO
       
   public ManipulatorPivotSysIdCommand(Elevator elevator){
-          super(
-            new PrintCommand("Manipulator Pivot Q+"),
-            new ParallelRaceGroup(
-              elevator.getManipulatorPivotRoutine(elevator).quasistatic(Direction.kForward),
-              new WaitUntilCommand(() -> elevator.getManipulatorAngle() >= topManipulatorSetpoint)
-          ), 
-          new PrintCommand("Manipulator Pivot Q-"),
-          new ParallelRaceGroup(
-            elevator.getManipulatorPivotRoutine(elevator).quasistatic(Direction.kReverse),
-            new WaitUntilCommand(() -> elevator.getManipulatorAngle() <= bottomManipulatorSetpoint)
+    super(
+      new PrintCommand("Manipulator Pivot Q+"),
+      new ParallelRaceGroup(
+        elevator.getManipulatorPivotRoutine(elevator).quasistatic(Direction.kForward),
+        new WaitUntilCommand(() -> elevator.getManipulatorAngle() >= topManipulatorSetpoint)
+      ), 
+      new PrintCommand("Manipulator Pivot Q-"),
+      new ParallelRaceGroup(
+        elevator.getManipulatorPivotRoutine(elevator).quasistatic(Direction.kReverse),
+        new WaitUntilCommand(() -> elevator.getManipulatorAngle() <= bottomManipulatorSetpoint)
       ),
       new PrintCommand("Manipulator Pivot D+"),
       new ParallelRaceGroup(
