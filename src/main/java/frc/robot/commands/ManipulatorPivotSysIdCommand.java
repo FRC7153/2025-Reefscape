@@ -36,7 +36,7 @@ public class ManipulatorPivotSysIdCommand extends SequentialCommandGroup{
       ),
       new PrintCommand("Manipulator Pivot Done"),
       new InstantCommand(() -> elevator.stopManipulatorPivot())
-        );
+      );
 
         addRequirements(elevator);
     }

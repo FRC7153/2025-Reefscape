@@ -12,6 +12,7 @@ import frc.robot.Constants.BuildConstants;
 import frc.robot.autos.BackAndForthTestAuto;
 import frc.robot.autos.SimpleDriveTestAuto;
 import frc.robot.commands.ElevatorSysIdCommand;
+import frc.robot.commands.ManipulatorPivotSysIdCommand;
 import frc.robot.commands.SysIdCharacterizationCommand;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.swerve.SwerveDrive;
@@ -84,7 +85,9 @@ public final class AutoChooser {
 
       chooser.addOption("SYSID Elevator Full", () -> new ElevatorSysIdCommand(elevator));
 
-      // Add Manipulator Pivot SysID auto
+      chooser.addOption("SYSID Manipulator Pivot Full", () -> new ManipulatorPivotSysIdCommand(elevator));
+      
+     // Add Manipulator Pivot SysID auto
       chooser.addOption("SYSID Manipulator Pivot Q+",
         () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), true, true));
       chooser.addOption("SYSID Manipulator Pivot Q-",
