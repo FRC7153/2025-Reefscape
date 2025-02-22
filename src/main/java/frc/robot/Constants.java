@@ -4,6 +4,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -81,12 +82,19 @@ public final class Constants {
       .withKP(3.596).withKI(0.0).withKD(0.0)
       .withKS(0.1103).withKV(0.92196).withKA(0.0019)
       .withKG(0.5609).withGravityType(GravityTypeValue.Elevator_Static);
+
+    private static final MotionMagicConfigs ELEVATOR_MM_CONFIGS = new MotionMagicConfigs()
+      .withMotionMagicCruiseVelocity(0.0)
+      .withMotionMagicCruiseVelocity(0.0);
     
-    //TODO
     private static final Slot0Configs MANIPULATOR_PIVOT_GAINS = new Slot0Configs()
-    .withKP(0.0).withKI(0.0).withKD(0.0)
-    .withKS(0.08694153815509567).withKV(2.7851851359575526).withKA(0.00200812536775418)
-    .withKG(0.2838493462859395).withGravityType(GravityTypeValue.Arm_Cosine);
+      .withKP(0.0).withKI(0.0).withKD(0.0)
+      .withKS(0.08694153815509567).withKV(2.7851851359575526).withKA(0.00200812536775418)
+      .withKG(0.2838493462859395).withGravityType(GravityTypeValue.Arm_Cosine);
+
+    private static final MotionMagicConfigs MANIPULATOR_MM_CONFIGS = new MotionMagicConfigs()
+      .withMotionMagicCruiseVelocity(0.0)
+      .withMotionMagicCruiseVelocity(0.0);
 
     private static final CurrentLimitsConfigs ELEVATOR_MOTOR_CURRENT = new CurrentLimitsConfigs()
     .withSupplyCurrentLimit(50).withSupplyCurrentLimitEnable(true)
@@ -114,6 +122,7 @@ public final class Constants {
 
     public static final TalonFXConfiguration ELEVATOR_CONFIG = new TalonFXConfiguration()
       .withSlot0(ELEVATOR_MOTOR_GAINS)
+      .withMotionMagic(ELEVATOR_MM_CONFIGS)
       .withCurrentLimits(ELEVATOR_MOTOR_CURRENT)
       .withFeedback(ELEVATOR_ENCODER)
       .withAudio(HardwareConstants.TALON_AUDIO_CONFIG)
@@ -121,6 +130,7 @@ public final class Constants {
       
     public static final TalonFXConfiguration MANIPULATOR_PIVOT_CONFIG = new TalonFXConfiguration()
       .withSlot0(MANIPULATOR_PIVOT_GAINS)
+      .withMotionMagic(MANIPULATOR_MM_CONFIGS)
       .withCurrentLimits(MANIPULATOR_PIVOT_CURRENT)
       .withFeedback(MANIPULATOR_PIVOT_ENCODER)
       .withAudio(HardwareConstants.TALON_AUDIO_CONFIG)

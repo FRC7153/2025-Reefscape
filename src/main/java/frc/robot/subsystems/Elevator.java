@@ -4,7 +4,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -35,11 +35,11 @@ public class Elevator implements Subsystem {
   private final TalonFX elevatorFollower = new TalonFX(HardwareConstants.ELEVATOR_FOLLOWER_CAN, HardwareConstants.CANIVORE);
   private final TalonFX manipulatorPivot = new TalonFX(HardwareConstants.MANIPULATOR_PIVOT_CAN, HardwareConstants.RIO_CAN);
 
-  private final PositionVoltage elevatorPositionRequest = new PositionVoltage(.0)
+  private final MotionMagicVoltage elevatorPositionRequest = new MotionMagicVoltage(0.0)
     .withOverrideBrakeDurNeutral(true)
     .withSlot(0);
   
-  private final PositionVoltage manipulatorPivotPositionRequest = new PositionVoltage(0)
+  private final MotionMagicVoltage manipulatorPivotPositionRequest = new MotionMagicVoltage(0)
     .withOverrideBrakeDurNeutral(true)
     .withSlot(0);
 
