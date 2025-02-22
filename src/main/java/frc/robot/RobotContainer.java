@@ -66,7 +66,7 @@ public final class RobotContainer {
       new ClimbCommand(climber, baseController.b(), armsController.b())
     );
 
-    // Temp climber code
+    // Temp testing code
     baseController.a()
       .onTrue(new InstantCommand(() -> climber.runClimber(0.2), climber))
       .onFalse(new InstantCommand(() -> climber.runClimber(0.0), climber));
@@ -74,6 +74,10 @@ public final class RobotContainer {
     baseController.b()
       .whileTrue(new InstantCommand(() -> elevator.setElevatorPosition(1.25), elevator).repeatedly())
       .whileFalse(new InstantCommand(() -> elevator.setElevatorPosition(0.1), elevator).repeatedly());
+
+    baseController.x()
+      .whileTrue(new InstantCommand(() -> elevator.setManipulatorPivotPosition(-0.25), elevator).repeatedly())
+      .whileFalse(new InstantCommand(() -> elevator.setManipulatorPivotPosition(0.0), elevator).repeatedly());
 
     // Match timer start/stop
     isEnabledTrigger

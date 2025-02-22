@@ -46,6 +46,7 @@ public class Elevator implements Subsystem {
   private final StaticBrake staticBrakeRequest = new StaticBrake();
 
   private final StatusSignal<Angle> elevatorPosition = elevatorMain.getPosition();
+  private final StatusSignal<Angle> elevatorFollowerPosition = elevatorFollower.getPosition();
   private final StatusSignal<Angle> manipulatorPosition = manipulatorPivot.getPosition();
   
   private final Alert elevatorMainAlert = new Alert("Elevator Main Motor Alert", AlertType.kError);
@@ -58,8 +59,8 @@ public class Elevator implements Subsystem {
   private boolean hasManipulatorHomed = false;
 
   // NT Logging
-  private final DoublePublisher elevatorPositionPub, elevatorSetpointPub, manipulatorPositionPub, 
-    manipulatorSetpointPub;
+  private final DoublePublisher elevatorPositionPub, elevatorFollowerPositionPub, 
+    elevatorSetpointPub, manipulatorPositionPub, manipulatorSetpointPub;
 
   //DataLog
   private final DoubleLogEntry elevatorPositionLog = 
@@ -88,15 +89,21 @@ public class Elevator implements Subsystem {
       NetworkTable nt = NetworkTableInstance.getDefault().getTable("Elevator");
 
       elevatorPositionPub = nt.getDoubleTopic("elevatorPosition").publish();
+      elevatorFollowerPositionPub = nt.getDoubleTopic("elevatorFollowerPosition").publish();
       elevatorSetpointPub = nt.getDoubleTopic("elevatorSetpoint").publish();
       manipulatorPositionPub = nt.getDoubleTopic("manipulatorPosition").publish();
       manipulatorSetpointPub = nt.getDoubleTopic("elevatorSetpoint").publish();
     } else {
       elevatorPositionPub = null;
+      elevatorFollowerPositionPub = null;
       elevatorSetpointPub = null;
       manipulatorPositionPub = null;
       manipulatorSetpointPub = null;
     }
+
+    // Reset the elevator's encoders
+    elevatorMain.setPosition(0.0);
+    elevatorFollower.setPosition(0.0);
   }
 
   /**
@@ -104,7 +111,7 @@ public class Elevator implements Subsystem {
    */
   public void setElevatorPosition(double rotations){
     // Sanity check rotations
-    rotations = MathUtil.clamp(rotations, 0.0, 5.0); // TODO max height here
+    rotations = MathUtil.clamp(rotations, 0.0, 4.0); // TODO max height here
 
     elevatorMain.setControl(elevatorPositionRequest.withPosition(rotations));
     elevatorSetpointLog.append(rotations);
@@ -202,7 +209,9 @@ public class Elevator implements Subsystem {
 
     if(elevatorRoutine == null){
       elevatorRoutine = new SysIdRoutine(
-        new SysIdRoutine.Config(Volts.of(0.1).per(Second), Volts.of(0.35), Seconds.of(25), (State state) -> {
+        // Use 0.1  as ramp and 0.35 as step if the test is run horizontally
+        // Use 0.3 as ramp and 1.25 as step if the test is run vertically
+        new SysIdRoutine.Config(Volts.of(0.3).per(Second), Volts.of(1.25), Seconds.of(25), (State state) -> {
           //Logging State
           SignalLogger.writeString("Elevator-SysID-State", state.toString());
         }), new SysIdRoutine.Mechanism((Voltage v) -> {
@@ -240,8 +249,11 @@ public class Elevator implements Subsystem {
     manipulatorPivotPositionLog.append(manipulatorPosition.getValueAsDouble());
 
     if (BuildConstants.PUBLISH_EVERYTHING) {
+      elevatorFollowerPosition.refresh();
+      
       elevatorPositionPub.set(elevatorPosition.getValueAsDouble());
       manipulatorPositionPub.set(manipulatorPosition.getValueAsDouble());
+      elevatorFollowerPositionPub.set(elevatorFollowerPosition.getValueAsDouble());
     }
   }
 

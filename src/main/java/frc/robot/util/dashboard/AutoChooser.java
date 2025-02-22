@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.autos.BackAndForthTestAuto;
 import frc.robot.autos.SimpleDriveTestAuto;
+import frc.robot.commands.ElevatorSysIdCommand;
 import frc.robot.commands.SysIdCharacterizationCommand;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.swerve.SwerveDrive;
@@ -81,6 +82,8 @@ public final class AutoChooser {
       chooser.addOption("SYSID Elevator D-", 
         () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), false, false));
 
+      chooser.addOption("SYSID Elevator Full", () -> new ElevatorSysIdCommand(elevator));
+
       // Add Manipulator Pivot SysID auto
       chooser.addOption("SYSID Manipulator Pivot Q+",
         () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), true, true));
@@ -90,7 +93,7 @@ public final class AutoChooser {
         () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), false, true));
       chooser.addOption("SYSID Manipulator Pivot D-",
         () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), false, false));
-      }
+    }
 
     // Add to dashboard
     SmartDashboard.putData("Auto", chooser);

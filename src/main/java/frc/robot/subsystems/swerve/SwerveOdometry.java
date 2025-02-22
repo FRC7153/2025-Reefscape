@@ -186,13 +186,18 @@ public final class SwerveOdometry {
       // Calculate jerk
       jerk = Math.hypot(
         xJerkCalculator.calculate(imu.getAccelX()),
-        yJerkCalculator.calculate(imu.getAccelY())
+        yJerkCalculator.calculate(imu.getAccelZ())
       );
 
       // Use this to determine which axis is yaw:
       /*System.out.printf(
         "IMU: X: %f, Y: %f, Z: %f\n", 
         imu.getAngle(IMUAxis.kX), imu.getAngle(IMUAxis.kY), imu.getAngle(IMUAxis.kZ));*/
+
+      // Use this to determine which axis is down:
+      /*System.out.printf(
+        "Accel: X: %f, Y: %f, Z: %f\n", 
+        imu.getAccelX(), imu.getAccelY(), imu.getAccelZ());*/
     }
   }
 

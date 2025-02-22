@@ -75,23 +75,18 @@ public final class Constants {
   public static final class ElevatorConstants {
     public static final double ELEVATOR_RATIO = 7.75;
     public static final double MANIPULATOR_PIVOT_RATIO = 25.0; // used to be 5.0
-    public static final double MANIPULATOR_PIVOT_OFFSET = 0.776622;
-
-    /*private static final Slot0Configs ELEVATOR_MOTOR_GAINS = new Slot0Configs()
-      .withKP(6.9615).withKI(0.0).withKD(1.0762)
-      .withKS(0.0).withKV(1.414).withKA(0.97985)
-      .withKG(0.71188).withGravityType(GravityTypeValue.Elevator_Static);*/
+    public static final double MANIPULATOR_PIVOT_OFFSET = (0.776622 + .25) % 1.0;
 
     private static final Slot0Configs ELEVATOR_MOTOR_GAINS = new Slot0Configs()
-      .withKP(72.929/10.0).withKI(0.0).withKD(28.72/10.0)
-      .withKS(2.3878).withKV(2.4042).withKA(6.4856)
-      .withKG(0.505).withGravityType(GravityTypeValue.Elevator_Static);
+      .withKP(3.596).withKI(0.0).withKD(0.0)
+      .withKS(0.1103).withKV(0.92196).withKA(0.0019)
+      .withKG(0.5609).withGravityType(GravityTypeValue.Elevator_Static);
     
     //TODO
     private static final Slot0Configs MANIPULATOR_PIVOT_GAINS = new Slot0Configs()
     .withKP(0.0).withKI(0.0).withKD(0.0)
-    .withKS(0.0).withKV(0.0).withKA(0.0)
-    .withKG(0.0).withGravityType(GravityTypeValue.Arm_Cosine);
+    .withKS(0.08694153815509567).withKV(2.7851851359575526).withKA(0.00200812536775418)
+    .withKG(0.2838493462859395).withGravityType(GravityTypeValue.Arm_Cosine);
 
     private static final CurrentLimitsConfigs ELEVATOR_MOTOR_CURRENT = new CurrentLimitsConfigs()
     .withSupplyCurrentLimit(50).withSupplyCurrentLimitEnable(true)
@@ -106,11 +101,11 @@ public final class Constants {
       .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor);
 
     private static final MotorOutputConfigs ELEVATOR_OUTPUT = new MotorOutputConfigs()
-      .withInverted(InvertedValue.Clockwise_Positive)
+      .withInverted(InvertedValue.CounterClockwise_Positive)
       .withNeutralMode(NeutralModeValue.Brake);
 
     private static final MotorOutputConfigs MANIPULATOR_PIVOT_OUTPUT = new MotorOutputConfigs()
-      .withInverted(InvertedValue.CounterClockwise_Positive)
+      .withInverted(InvertedValue.Clockwise_Positive)
       .withNeutralMode(NeutralModeValue.Brake);
 
     private static final FeedbackConfigs MANIPULATOR_PIVOT_ENCODER = new FeedbackConfigs()
@@ -124,7 +119,6 @@ public final class Constants {
       .withAudio(HardwareConstants.TALON_AUDIO_CONFIG)
       .withMotorOutput(ELEVATOR_OUTPUT);
       
-    //TODO find if inverted, config PIDF
     public static final TalonFXConfiguration MANIPULATOR_PIVOT_CONFIG = new TalonFXConfiguration()
       .withSlot0(MANIPULATOR_PIVOT_GAINS)
       .withCurrentLimits(MANIPULATOR_PIVOT_CURRENT)

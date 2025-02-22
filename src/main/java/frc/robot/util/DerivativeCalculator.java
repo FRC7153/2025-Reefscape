@@ -41,4 +41,11 @@ public class DerivativeCalculator {
 
     return filter.lastValue(); // 0.0 if first run
   }
+
+  /**
+   * @return The last derivative calculated.
+   */
+  public double lastValue() {
+    return filter.lastValue();
+  }
 }
