@@ -4,8 +4,8 @@ import sys
 from sklearn.metrics import r2_score
 
 # Characterize an elevator mechanism from SysId tests. Load .csv file containing state, time,
-# voltage, position, and velocity.
-def characterize(filename, stateColumn, timeColumn, voltageColumn, positionColumn, velocityColumn):
+# voltage, position, velocity, and optionally acceleration.
+def characterize(filename, stateColumn, timeColumn, voltageColumn, positionColumn, velocityColumn, accelerationColumn=None):
   # Open file
   data = pd.read_csv(filename)
   print(f"Read {filename}")
@@ -23,8 +23,12 @@ def characterize(filename, stateColumn, timeColumn, voltageColumn, positionColum
   position = data[positionColumn] # rotations
   velocity = data[velocityColumn] # rotations/second
 
-  # Compute acceleration
-  accel = np.gradient(velocity, time) # rotations/second^2
+  if accelerationColumn in data.columns:
+    accel = data[accelerationColumn] # rotations/second^2
+  else:
+    # Acceleration column missing, compute it:
+    accel = np.gradient(velocity, time) # rotations/second^2
+    print("Manually computed acceleration. Consider including it in the .csv file.")
   
   # Fit to V = Kg + Ks * sgn(velocity) + Kv * velocity + Ka * acceleration
   # See https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/introduction-to-feedforward.html#elevator-feedforward 
@@ -55,5 +59,7 @@ if __name__ == "__main__":
     "Timestamp", # Timestamp (seconds) column name
     "Phoenix6/TalonFX-14/MotorVoltage", # Motor voltage (volts) column name
     "Phoenix6/TalonFX-14/Position", # Motor position (rotations) column name
-    "Phoenix6/TalonFX-14/Velocity" # Motor velocity (rotations/second) column name
+    "Phoenix6/TalonFX-14/Velocity", # Motor velocity (rotations/second) column name
+    "Phoenix6/TalonFX-14/Acceleration" # Motor acceleration (rotations/second^2) column name, 
+    # or None if it was not recorded.
   )
