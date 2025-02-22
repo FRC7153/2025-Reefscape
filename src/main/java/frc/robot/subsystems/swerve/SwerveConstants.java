@@ -41,10 +41,10 @@ public final class SwerveConstants {
   public static final double SLOW_ROTATIONAL_SPEED = FAST_TRANSLATIONAL_SPEED * 0.5;
 
   // CANCoder magnet offsets (in rotations, CCW+, -0.5 to 0.5 range)
-  public static final double FL_CANCODER_OFFSET = 0.3884 * -1.0;
-  public static final double FR_CANCODER_OFFSET = 0.21167 * -1.0;
-  public static final double RL_CANCODER_OFFSET = -0.0049 * -1.0;
-  public static final double RR_CANCODER_OFFSET = -0.1782 * -1.0;
+  public static final double FL_CANCODER_OFFSET = 0.12769 * -1.0;
+  public static final double FR_CANCODER_OFFSET = -0.36523 * -1.0;
+  public static final double RL_CANCODER_OFFSET = (-0.0049 + 0.5) * -1.0;
+  public static final double RR_CANCODER_OFFSET = -0.140625 * -1.0;
 
   public static final double CANCODER_RANGE = 0.5;
   public static final SensorDirectionValue CANCODER_DIRECTION = 
