@@ -84,17 +84,17 @@ public final class Constants {
       .withKG(0.5609).withGravityType(GravityTypeValue.Elevator_Static);
 
     private static final MotionMagicConfigs ELEVATOR_MM_CONFIGS = new MotionMagicConfigs()
-      .withMotionMagicCruiseVelocity(0.0)
-      .withMotionMagicCruiseVelocity(0.0);
-    
+      .withMotionMagicCruiseVelocity(4.5)
+      .withMotionMagicAcceleration(12.5);
+
     private static final Slot0Configs MANIPULATOR_PIVOT_GAINS = new Slot0Configs()
-      .withKP(0.0).withKI(0.0).withKD(0.0)
-      .withKS(0.08694153815509567).withKV(2.7851851359575526).withKA(0.00200812536775418)
-      .withKG(0.2838493462859395).withGravityType(GravityTypeValue.Arm_Cosine);
+      .withKP(57.811).withKI(0.0).withKD(6.2107)
+      .withKS(0.1085).withKV(2.854).withKA(0.0022)
+      .withKG(0.2945).withGravityType(GravityTypeValue.Arm_Cosine);
 
     private static final MotionMagicConfigs MANIPULATOR_MM_CONFIGS = new MotionMagicConfigs()
-      .withMotionMagicCruiseVelocity(0.0)
-      .withMotionMagicCruiseVelocity(0.0);
+      .withMotionMagicCruiseVelocity(5.5)
+      .withMotionMagicAcceleration(2.0);
 
     private static final CurrentLimitsConfigs ELEVATOR_MOTOR_CURRENT = new CurrentLimitsConfigs()
     .withSupplyCurrentLimit(50).withSupplyCurrentLimitEnable(true)

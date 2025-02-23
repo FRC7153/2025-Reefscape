@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.sysid;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -9,35 +9,32 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.subsystems.Elevator;
 
 public class ManipulatorPivotSysIdCommand extends SequentialCommandGroup{
-  private static double topManipulatorSetpoint;//TODO
-  private static double bottomManipulatorSetpoint;//TODO
-      
   public ManipulatorPivotSysIdCommand(Elevator elevator){
     super(
       new PrintCommand("Manipulator Pivot Q+"),
       new ParallelRaceGroup(
-        elevator.getManipulatorPivotRoutine(elevator).quasistatic(Direction.kForward),
-        new WaitUntilCommand(() -> elevator.getManipulatorAngle() >= topManipulatorSetpoint)
+        elevator.getManipulatorPivotRoutine().quasistatic(Direction.kForward),
+        new WaitUntilCommand(() -> elevator.getManipulatorAngle() >= 0.36)
       ), 
       new PrintCommand("Manipulator Pivot Q-"),
       new ParallelRaceGroup(
-        elevator.getManipulatorPivotRoutine(elevator).quasistatic(Direction.kReverse),
-        new WaitUntilCommand(() -> elevator.getManipulatorAngle() <= bottomManipulatorSetpoint)
+        elevator.getManipulatorPivotRoutine().quasistatic(Direction.kReverse),
+        new WaitUntilCommand(() -> elevator.getManipulatorAngle() <= -0.24)
       ),
       new PrintCommand("Manipulator Pivot D+"),
       new ParallelRaceGroup(
-        elevator.getManipulatorPivotRoutine(elevator).dynamic(Direction.kForward),
-        new WaitUntilCommand(() -> elevator.getManipulatorAngle() >= topManipulatorSetpoint)
+        elevator.getManipulatorPivotRoutine().dynamic(Direction.kForward),
+        new WaitUntilCommand(() -> elevator.getManipulatorAngle() >= 0.36)
       ),
       new PrintCommand("Manipulator Pivot D-"),
       new ParallelRaceGroup(
-        elevator.getManipulatorPivotRoutine(elevator).dynamic(Direction.kReverse),
-        new WaitUntilCommand(() -> elevator.getManipulatorAngle() <= bottomManipulatorSetpoint)
+        elevator.getManipulatorPivotRoutine().dynamic(Direction.kReverse),
+        new WaitUntilCommand(() -> elevator.getManipulatorAngle() <= -0.24)
       ),
       new PrintCommand("Manipulator Pivot Done"),
       new InstantCommand(() -> elevator.stopManipulatorPivot())
       );
 
-        addRequirements(elevator);
+        addRequirements();
     }
 }

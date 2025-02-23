@@ -11,9 +11,9 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.autos.BackAndForthTestAuto;
 import frc.robot.autos.SimpleDriveTestAuto;
-import frc.robot.commands.ElevatorSysIdCommand;
-import frc.robot.commands.ManipulatorPivotSysIdCommand;
-import frc.robot.commands.SysIdCharacterizationCommand;
+import frc.robot.commands.sysid.ElevatorSysIdCommand;
+import frc.robot.commands.sysid.ManipulatorPivotSysIdCommand;
+import frc.robot.commands.sysid.SysIdCharacterizationCommand;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.swerve.SwervePaths;
@@ -75,13 +75,13 @@ public final class AutoChooser {
 
       // Add Elevator SysID auto
       chooser.addOption("SYSID Elevator Q+",
-        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), true, true));
+        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(), true, true));
       chooser.addOption("SYSID Elevator Q-", 
-        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), true, false));
+        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(), true, false));
       chooser.addOption("SYSID Elevator D+", 
-        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), false, true));
+        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(), false, true));
       chooser.addOption("SYSID Elevator D-", 
-        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(elevator), false, false));
+        () -> new SysIdCharacterizationCommand(elevator.getElevatorRoutine(), false, false));
 
       chooser.addOption("SYSID Elevator Full", () -> new ElevatorSysIdCommand(elevator));
 
@@ -89,13 +89,13 @@ public final class AutoChooser {
       
      // Add Manipulator Pivot SysID auto
       chooser.addOption("SYSID Manipulator Pivot Q+",
-        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), true, true));
+        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(), true, true));
       chooser.addOption("SYSID Manipulator Pivot Q-",
-        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), true, false));
+        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(), true, false));
       chooser.addOption("SYSID Manipulator Pivot D+",
-        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), false, true));
+        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(), false, true));
       chooser.addOption("SYSID Manipulator Pivot D-",
-        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(elevator), false, false));
+        () -> new SysIdCharacterizationCommand(elevator.getManipulatorPivotRoutine(), false, false));
     }
 
     // Add to dashboard

@@ -11,9 +11,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ClimbCommand;
-import frc.robot.commands.ElevatorDefaultCommand;
 import frc.robot.commands.PregameCommand;
 import frc.robot.commands.TeleopDriveCommand;
+import frc.robot.commands.TestCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Manipulator;
@@ -47,6 +47,7 @@ public final class RobotContainer {
   private void configureBindings() {
     // Game mode triggers
     Trigger isEnabledTrigger = new Trigger(DriverStation::isEnabled);
+    Trigger isTestTrigger = new Trigger(DriverStation::isTest);
 
     // SwerveDrive default command (teleop driving)
     base.setDefaultCommand(
@@ -57,10 +58,7 @@ public final class RobotContainer {
         () -> -baseController.getRightX(), 
         baseController.leftTrigger())
     );
-
-    // Elevator default command (test mode functionality)
-    elevator.setDefaultCommand(new ElevatorDefaultCommand(elevator));
-
+    
     // Climber default command (climb if both buttons pressed)
     climber.setDefaultCommand(
       new ClimbCommand(climber, baseController.b(), armsController.b())
@@ -72,17 +70,21 @@ public final class RobotContainer {
       .onFalse(new InstantCommand(() -> climber.runClimber(0.0), climber));
 
     baseController.b()
-      .whileTrue(new InstantCommand(() -> elevator.setElevatorPosition(1.25), elevator).repeatedly())
+      .whileTrue(new InstantCommand(() -> elevator.setElevatorPosition(4.2), elevator).repeatedly())
       .whileFalse(new InstantCommand(() -> elevator.setElevatorPosition(0.1), elevator).repeatedly());
 
     baseController.x()
-      .whileTrue(new InstantCommand(() -> elevator.setManipulatorPivotPosition(-0.25), elevator).repeatedly())
-      .whileFalse(new InstantCommand(() -> elevator.setManipulatorPivotPosition(0.0), elevator).repeatedly());
+      .whileTrue(new InstantCommand(() -> elevator.setManipulatorPivotPosition(0.3), elevator).repeatedly())
+      .whileFalse(new InstantCommand(() -> elevator.setManipulatorPivotPosition(-0.15), elevator).repeatedly());
 
     // Match timer start/stop
     isEnabledTrigger
       .onTrue(dashboard.getRestartTimerCommand())
       .onFalse(dashboard.getStopTimerCommand());
+
+    // Test mode
+    isTestTrigger
+      .whileTrue(new TestCommand(elevator, manipulator));
   }
 
   /** Checks all hardware, called periodically */

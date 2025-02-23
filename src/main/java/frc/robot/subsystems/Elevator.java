@@ -16,6 +16,7 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.Alert;
@@ -47,6 +48,7 @@ public class Elevator implements Subsystem {
 
   private final StatusSignal<Angle> elevatorPosition = elevatorMain.getPosition();
   private final StatusSignal<Angle> elevatorFollowerPosition = elevatorFollower.getPosition();
+  private final StatusSignal<AngularAcceleration> elevatorAcceleration = elevatorMain.getAcceleration();
   private final StatusSignal<Angle> manipulatorPosition = manipulatorPivot.getPosition();
   
   private final Alert elevatorMainAlert = new Alert("Elevator Main Motor Alert", AlertType.kError);
@@ -59,7 +61,7 @@ public class Elevator implements Subsystem {
   private boolean hasManipulatorHomed = false;
 
   // NT Logging
-  private final DoublePublisher elevatorPositionPub, elevatorFollowerPositionPub, 
+  private final DoublePublisher elevatorPositionPub, elevatorFollowerPositionPub, elevatorAccelerationPub, 
     elevatorSetpointPub, manipulatorPositionPub, manipulatorSetpointPub;
 
   //DataLog
@@ -90,12 +92,14 @@ public class Elevator implements Subsystem {
 
       elevatorPositionPub = nt.getDoubleTopic("elevatorPosition").publish();
       elevatorFollowerPositionPub = nt.getDoubleTopic("elevatorFollowerPosition").publish();
+      elevatorAccelerationPub = nt.getDoubleTopic("elevatorAcceleration").publish();
       elevatorSetpointPub = nt.getDoubleTopic("elevatorSetpoint").publish();
       manipulatorPositionPub = nt.getDoubleTopic("manipulatorPosition").publish();
-      manipulatorSetpointPub = nt.getDoubleTopic("elevatorSetpoint").publish();
+      manipulatorSetpointPub = nt.getDoubleTopic("manipulatorSetpoint").publish();
     } else {
       elevatorPositionPub = null;
       elevatorFollowerPositionPub = null;
+      elevatorAccelerationPub = null;
       elevatorSetpointPub = null;
       manipulatorPositionPub = null;
       manipulatorSetpointPub = null;
@@ -107,11 +111,11 @@ public class Elevator implements Subsystem {
   }
 
   /**
-   * @param rotations sets elevator to set rotations (in rots). 0.0 is bottom.
+   * @param rotations sets elevator to set rotations (in rots). 0.0 is bottom, 4.45 is top.
    */
   public void setElevatorPosition(double rotations){
     // Sanity check rotations
-    rotations = MathUtil.clamp(rotations, 0.0, 4.0); // TODO max height here
+    rotations = MathUtil.clamp(rotations, 0.0, 4.45);
 
     elevatorMain.setControl(elevatorPositionRequest.withPosition(rotations));
     elevatorSetpointLog.append(rotations);
@@ -134,14 +138,14 @@ public class Elevator implements Subsystem {
   }
   
   /**
-   * @param rotations sets Manipulator to position (in rotations).
+   * @param rotations sets Manipulator to position (in rotations). -0.25 to 0.4.
    */
   public void setManipulatorPivotPosition(double rotations) {
     // Do not run if the Falcon's encoder has not homed
     if (!hasManipulatorHomed) return;
 
     // Sanity check rotations
-    rotations = MathUtil.clamp(rotations, -5, 5); // TODO max rotations here
+    rotations = MathUtil.clamp(rotations, -0.25, 0.4);
 
     manipulatorPivot.setControl(manipulatorPivotPositionRequest.withPosition(rotations));
     manipulatorPivotSetPointLog.append(rotations);
@@ -203,7 +207,7 @@ public class Elevator implements Subsystem {
     hasManipulatorHomed = resp.equals(StatusCode.OK);
   }
 
-  public SysIdRoutine getElevatorRoutine(Elevator elevator) {
+  public SysIdRoutine getElevatorRoutine() {
     System.out.println("Starting CTRE SignalLogger due to getRoutine call in SwerveDrive");
     SignalLogger.start();
 
@@ -223,7 +227,7 @@ public class Elevator implements Subsystem {
     return elevatorRoutine;
   }
 
-  public SysIdRoutine getManipulatorPivotRoutine(Elevator elevator) {
+  public SysIdRoutine getManipulatorPivotRoutine() {
     System.out.println("Starting CTRE Signal Logger due to getRoutine call in SwerveDrive");
     SignalLogger.start();
 
@@ -250,8 +254,10 @@ public class Elevator implements Subsystem {
 
     if (BuildConstants.PUBLISH_EVERYTHING) {
       elevatorFollowerPosition.refresh();
+      elevatorAcceleration.refresh();
       
       elevatorPositionPub.set(elevatorPosition.getValueAsDouble());
+      elevatorAccelerationPub.set(elevatorAcceleration.getValueAsDouble());
       manipulatorPositionPub.set(manipulatorPosition.getValueAsDouble());
       elevatorFollowerPositionPub.set(elevatorFollowerPosition.getValueAsDouble());
     }

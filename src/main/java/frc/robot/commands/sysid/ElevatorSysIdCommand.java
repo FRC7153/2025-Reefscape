@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.sysid;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -17,22 +17,22 @@ public class ElevatorSysIdCommand extends SequentialCommandGroup {
     super(
       new PrintCommand("Elevator Q+"),
       new ParallelRaceGroup(
-        elevator.getElevatorRoutine(elevator).quasistatic(Direction.kForward),
+        elevator.getElevatorRoutine().quasistatic(Direction.kForward),
         new WaitUntilCommand(() -> elevator.getElevatorHeight() >= 3.9) 
       ),
       new PrintCommand("Elevator Q-"),
       new ParallelRaceGroup(
-        elevator.getElevatorRoutine(elevator).quasistatic(Direction.kReverse),
+        elevator.getElevatorRoutine().quasistatic(Direction.kReverse),
         new WaitUntilCommand(() -> elevator.getElevatorHeight() < 0.1) 
       ),
       new PrintCommand("Elevator D+"),
       new ParallelRaceGroup(
-        elevator.getElevatorRoutine(elevator).dynamic(Direction.kForward),
+        elevator.getElevatorRoutine().dynamic(Direction.kForward),
         new WaitUntilCommand(() -> elevator.getElevatorHeight() >= 3.9) 
       ),
       new PrintCommand("Elevator D-"),
       new ParallelRaceGroup(
-        elevator.getElevatorRoutine(elevator).dynamic(Direction.kReverse),
+        elevator.getElevatorRoutine().dynamic(Direction.kReverse),
         new WaitUntilCommand(() -> elevator.getElevatorHeight() <= 0.1) 
       ),
       new PrintCommand("Done"),

@@ -190,9 +190,11 @@ public final class SwerveOdometry {
       );
 
       // Use this to determine which axis is yaw:
-      /*System.out.printf(
+
+      // TODO Fix
+      System.out.printf(
         "IMU: X: %f, Y: %f, Z: %f\n", 
-        imu.getAngle(IMUAxis.kX), imu.getAngle(IMUAxis.kY), imu.getAngle(IMUAxis.kZ));*/
+        imu.getAngle(IMUAxis.kX), imu.getAngle(IMUAxis.kY), imu.getAngle(IMUAxis.kZ));
 
       // Use this to determine which axis is down:
       /*System.out.printf(
