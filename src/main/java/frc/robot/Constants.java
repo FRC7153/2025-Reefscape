@@ -50,6 +50,10 @@ public final class Constants {
       .idleMode(IdleMode.kCoast)
       .inverted(true) 
       .smartCurrentLimit(80);
+
+    public static final SparkBaseConfig CLIMBER_FOLLOW = new SparkFlexConfig()
+      .apply(CLIMBER_CONFIG)
+      .follow(HardwareConstants.CLIMBER_CAN, true);
   }
 
   public static final class ManipulatorConstants {
