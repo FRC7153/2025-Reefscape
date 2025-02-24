@@ -291,7 +291,7 @@ public final class SwerveDrive implements Subsystem {
 
     // Log
     stateLogger.append(currentStates);
-    //reqStateLogger.append(currentRequests); // TODO
+    if (currentRequests[0] != null) reqStateLogger.append(currentRequests);
     poseLogger.append(pose);
     successfulDAQLogger.append(odometry.getSuccessfulDAQs());
     failedDAQLogger.append(odometry.getFailedDAQs());

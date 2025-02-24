@@ -51,7 +51,7 @@ public final class Constants {
       .inverted(true) 
       .smartCurrentLimit(80);
 
-    public static final SparkBaseConfig CLIMBER_FOLLOW = new SparkFlexConfig()
+    public static final SparkBaseConfig CLIMBER_FOLLOW_CONFIG = new SparkFlexConfig()
       .apply(CLIMBER_CONFIG)
       .follow(HardwareConstants.CLIMBER_CAN, true);
   }
@@ -178,6 +178,7 @@ public final class Constants {
     public static final int MANIPULATOR_PIVOT_CAN = 16;
 
     // Climber Hardware
+    public static final int CLIMBER_FOLLOWER_CAN = 17;
     public static final int CLIMBER_CAN = 18;
 
     // Manipulator Hardware 
