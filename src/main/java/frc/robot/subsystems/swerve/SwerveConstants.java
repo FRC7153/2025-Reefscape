@@ -86,9 +86,9 @@ public final class SwerveConstants {
     );
 
   // ADIS16470 Gyro
-  public static final IMUAxis GYRO_YAW = IMUAxis.kZ;
-  public static final IMUAxis GYRO_PITCH = IMUAxis.kX;
-  public static final IMUAxis GYRO_ROLL = IMUAxis.kY;
+  public static final IMUAxis GYRO_YAW = IMUAxis.kY;
+  public static final IMUAxis GYRO_PITCH = IMUAxis.kZ;
+  public static final IMUAxis GYRO_ROLL = IMUAxis.kX;
 
   // Odometry
   public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(0.3, 0.3, 0.1);
