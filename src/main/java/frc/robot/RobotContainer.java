@@ -82,9 +82,13 @@ public final class RobotContainer {
       .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.INTAKE).repeatedly())
       .whileTrue(new ManipulatorCommand(manipulator, -0.1));
 
+    // Reverse Intake (arms right bumper)  
+    armsController.rightBumper()
+      .whileTrue(new ManipulatorCommand(manipulator, -0.1));
+
     // Coral Outtake (arms right trigger)
     armsController.rightTrigger()
-      .whileTrue(new ManipulatorCommand(manipulator, 0.25, 0.1, armsController.a()));
+      .whileTrue(new ManipulatorCommand(manipulator, 0.35, 0.1, armsController.a()));
 
     // L1 (arms A)
     armsController.a()
