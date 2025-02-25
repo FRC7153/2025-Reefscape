@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.ElevatorPositions;
@@ -18,15 +19,19 @@ public class StowCommand extends SequentialCommandGroup {
       new ParallelCommandGroup(
         new SequentialCommandGroup(
           // Once the elevator reaches the bottom, we can just disable it to not draw power:
-          new WaitUntilCommand(() -> elevator.getElevatorHeight() <= 0.15),
-          new InstantCommand(elevator::stopElevator)
+          new WaitUntilCommand(() -> elevator.getElevatorHeight() <= 0.2),
+          new InstantCommand(elevator::stopElevator),
+          new PrintCommand("Has disabled (stowed) elevator")
         ),
         new SequentialCommandGroup(
           // Once the manipulator reaches the top, we can just disable it to not draw power:
-          new WaitUntilCommand(() -> elevator.getManipulatorAngle() >= 5.0),
-          new InstantCommand(elevator::stopManipulatorPivot)
+          new WaitUntilCommand(() -> elevator.getManipulatorAngle() >= 3.8),
+          new InstantCommand(elevator::stopManipulatorPivot),
+          new PrintCommand("Has disabled (stowed) manipulator pivot")
         )
-      )
+      ),
+      // Never let this command finish:
+      new WaitUntilCommand(() -> false)
     );
 
     addRequirements(elevator);

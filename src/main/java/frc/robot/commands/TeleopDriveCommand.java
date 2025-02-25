@@ -38,8 +38,8 @@ public class TeleopDriveCommand extends Command {
 
   @Override
   public void execute() {
-    // Do not do anything if not in teleop
-    if (!DriverStation.isTeleopEnabled()) {
+    // Do not do anything if not in teleop or test
+    if (!DriverStation.isTeleopEnabled() && !DriverStation.isTestEnabled()) {
       drive.stop();
       return;
     }

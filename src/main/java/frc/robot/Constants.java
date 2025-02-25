@@ -72,9 +72,9 @@ public final class Constants {
     public static final SparkBaseConfig MANIPULATOR_CONFIG = new SparkFlexConfig()
       .idleMode(IdleMode.kBrake)
       .inverted(false)
-      .smartCurrentLimit(30)
+      .smartCurrentLimit(60)
       .apply(MANIPULATOR_ABSOLUTE_ENCODER_CONFIG)
-      .apply(MANIPULATOR_LIMIT_SWITCH_CONFIG);  
+      .apply(MANIPULATOR_LIMIT_SWITCH_CONFIG);
   }
 
   public static final class ElevatorConstants {
@@ -89,7 +89,7 @@ public final class Constants {
 
     private static final MotionMagicConfigs ELEVATOR_MM_CONFIGS = new MotionMagicConfigs()
       .withMotionMagicCruiseVelocity(4.5)
-      .withMotionMagicAcceleration(12.5);
+      .withMotionMagicAcceleration(9.5);
 
     private static final Slot0Configs MANIPULATOR_PIVOT_GAINS = new Slot0Configs()
       .withKP(57.811).withKI(0.0).withKD(6.2107)
@@ -102,7 +102,7 @@ public final class Constants {
 
     private static final CurrentLimitsConfigs ELEVATOR_MOTOR_CURRENT = new CurrentLimitsConfigs()
     .withSupplyCurrentLimit(50).withSupplyCurrentLimitEnable(true)
-    .withStatorCurrentLimit(80).withStatorCurrentLimitEnable(true);
+    .withStatorCurrentLimit(70).withStatorCurrentLimitEnable(true);
 
     private static final CurrentLimitsConfigs MANIPULATOR_PIVOT_CURRENT = new CurrentLimitsConfigs()
       .withSupplyCurrentLimit(60).withSupplyCurrentLimitEnable(true)
@@ -142,14 +142,14 @@ public final class Constants {
   }
 
   public static final class ElevatorPositions {
-    public static final ElevatorState STOW = new ElevatorState(0.0, 0.0);
-    public static final ElevatorState INTAKE = new ElevatorState(0.0, 0.0);
+    public static final ElevatorState STOW = new ElevatorState(0.15, 0.4);
+    public static final ElevatorState INTAKE = new ElevatorState(1.195, 0.3);
     public static final ElevatorState PROCESSOR = new ElevatorState(0.0, 0.0);
 
-    public static final ElevatorState L1 = new ElevatorState(0.0, 0.0);
-    public static final ElevatorState L2 = new ElevatorState(0.0, 0.0);
-    public static final ElevatorState L3 = new ElevatorState(0.0, 0.0);
-    public static final ElevatorState L4 = new ElevatorState(0.0, 0.0);
+    public static final ElevatorState L1 = new ElevatorState(0.4, 0.22);
+    public static final ElevatorState L2 = new ElevatorState(1.55, 0.11);
+    public static final ElevatorState L3 = new ElevatorState(2.42, 0.11);
+    public static final ElevatorState L4 = new ElevatorState(4.45, -0.02);
 
     public static final ElevatorState ALGAE_LOW = new ElevatorState(0.0, 0.0);
     public static final ElevatorState ALGAE_HIGH = new ElevatorState(0.0, 0.0);

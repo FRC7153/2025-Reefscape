@@ -7,11 +7,14 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.ElevatorPositions;
 import frc.robot.commands.ClimbCommand;
+import frc.robot.commands.ElevatorToStateCommand;
+import frc.robot.commands.ManipulatorCommand;
 import frc.robot.commands.PregameCommand;
+import frc.robot.commands.StowCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.commands.TestCommand;
 import frc.robot.subsystems.Climber;
@@ -47,7 +50,7 @@ public final class RobotContainer {
   private void configureBindings() {
     // Game mode triggers
     Trigger isEnabledTrigger = new Trigger(DriverStation::isEnabled);
-    Trigger isTestTrigger = new Trigger(DriverStation::isTest);
+    Trigger isTestTrigger = new Trigger(DriverStation::isTestEnabled);
 
     // SwerveDrive default command (teleop driving)
     base.setDefaultCommand(
@@ -64,18 +67,45 @@ public final class RobotContainer {
       new ClimbCommand(climber, baseController.b(), armsController.b())
     );
 
+    // Manipulator default command (not spinning, unless angled down)
+    manipulator.setDefaultCommand(
+      new ManipulatorCommand(manipulator, -0.1, 0.0, () -> elevator.getManipulatorAngle() < 0.1)
+    );
+
+    // Elevator default command (stowed)
+    elevator.setDefaultCommand(
+      new StowCommand(elevator)
+    );
+
+    // Intake (driver right trigger)
+    baseController.rightTrigger()
+      .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.INTAKE).repeatedly())
+      .whileTrue(new ManipulatorCommand(manipulator, -0.1));
+
+    // Coral Outtake (arms right trigger)
+    armsController.rightTrigger()
+      .whileTrue(new ManipulatorCommand(manipulator, 0.25, 0.1, armsController.a()));
+
+    // L1 (arms A)
+    armsController.a()
+      .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.L1).repeatedly());
+
+    // L2 (arms X)
+    armsController.x()
+      .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.L2, true));
+
+    // L3 (arms Y)
+    armsController.y()
+      .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.L3, true));
+
+    // L4 (arms B)
+    armsController.b()
+      .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.L4, true));
+
     // Temp testing code
     //baseController.a()
     //  .whileTrue(new InstantCommand(() -> climber.runClimber(baseController.getLeftY()), climber).repeatedly())
     //  .whileFalse(new InstantCommand(() -> climber.runClimber(0.0), climber).repeatedly());
-
-    baseController.b()
-      .whileTrue(new InstantCommand(() -> elevator.setElevatorPosition(4.2), elevator).repeatedly())
-      .whileFalse(new InstantCommand(() -> elevator.setElevatorPosition(0.1), elevator).repeatedly());
-
-    baseController.x()
-      .whileTrue(new InstantCommand(() -> elevator.setManipulatorPivotPosition(0.3), elevator).repeatedly())
-      .whileFalse(new InstantCommand(() -> elevator.setManipulatorPivotPosition(-0.15), elevator).repeatedly());
 
     // Match timer start/stop
     isEnabledTrigger

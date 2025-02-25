@@ -30,6 +30,8 @@ public class PregameCommand extends InstantCommand {
       drive.pregame();
       elevator.home();
 
+      elevator.resetElevatorEncoder();
+
       dashboard.stopWebServerIfFMS();
 
       // Only run auto pregame actions if we are not already in teleop

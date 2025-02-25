@@ -3,7 +3,6 @@ package frc.robot.commands;
 import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Manipulator;
@@ -45,12 +44,15 @@ public class TestCommand extends Command {
 
   @Override
   public void execute() {
-    // If in test mode and enabled, set position
-    if (DriverStation.isTestEnabled()) {
-      elevator.setElevatorPosition(heightInput.get());
-      elevator.setManipulatorPivotPosition(angleInput.get());
-      manipulator.setManipulatorVelocity(speedInput.get());
-    }
+    // Set position
+    elevator.setElevatorPosition(heightInput.get());
+    elevator.setManipulatorPivotPosition(angleInput.get());
+    manipulator.setManipulatorVelocity(speedInput.get());
+  }
+
+  @Override
+  public boolean isFinished() {
+    return false;
   }
   
   @Override

@@ -29,7 +29,7 @@ import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.HardwareConstants;
 
-public class Elevator implements Subsystem {
+public final class Elevator implements Subsystem {
   public static record ElevatorState(double height, double angle) {}
 
   private final TalonFX elevatorMain = new TalonFX(HardwareConstants.ELEVATOR_LEADER_CAN, HardwareConstants.CANIVORE);
@@ -106,8 +106,7 @@ public class Elevator implements Subsystem {
     }
 
     // Reset the elevator's encoders
-    elevatorMain.setPosition(0.0);
-    elevatorFollower.setPosition(0.0);
+    resetElevatorEncoder();
   }
 
   /**
@@ -135,6 +134,11 @@ public class Elevator implements Subsystem {
     if (BuildConstants.PUBLISH_EVERYTHING) {
       elevatorSetpointPub.set(0.0);
     }
+  }
+
+  public void resetElevatorEncoder() {
+    elevatorMain.setPosition(0.0);
+    elevatorFollower.setPosition(0.0);
   }
   
   /**
