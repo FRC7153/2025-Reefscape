@@ -103,7 +103,7 @@
             }
           },
           {
-            "title": "Match Time",
+            "title": "matchTime",
             "x": 384.0,
             "y": 0.0,
             "width": 768.0,
@@ -116,6 +116,56 @@
               "time_display_mode": "Minutes and Seconds",
               "red_start_time": 15,
               "yellow_start_time": 30
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Elevator Test",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "angle",
+            "x": 128.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/ElevatorTestMode/angle",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "height",
+            "x": 128.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/ElevatorTestMode/height",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "speed",
+            "x": 128.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/ElevatorTestMode/speed",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
             }
           }
         ]
