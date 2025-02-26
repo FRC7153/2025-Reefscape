@@ -33,6 +33,18 @@ import libs.LimelightHelpers;
  * @see https://docs.limelightvision.io/docs/docs-limelight/apis/complete-networktables-api
  */
 public class Limelight {
+  public static enum Version {
+    LIMELIGHT_2PLUS(false),
+    LIMELIGHT_3G(false),
+    LIMELIGHT_4(true);
+
+    /** Whether this version of limelight has an integrated IMU */
+    public final boolean integratedIMU;
+    private Version(boolean integratedIMU) {
+      this.integratedIMU = integratedIMU;
+    }
+  }
+
   // Shared orientation array for MegaTag2
   private static final double[] orientation = new double[6];
 
@@ -51,6 +63,7 @@ public class Limelight {
   private static final Translation2d[] EMPTY_TRANSLATION_ARRAY = new Translation2d[0];
 
   private final String cameraName;
+  private final Version version;
   private final SwerveOdometry odometry;
 
   // Network tables
@@ -81,8 +94,9 @@ public class Limelight {
   /**
    * @param name Host Camera ID
    */
-  public Limelight(String name, SwerveOdometry odometry) {
+  public Limelight(String name, Version version, SwerveOdometry odometry) {
     cameraName = name;
+    this.version = version;
     this.odometry = odometry;
     notConnectedAlert = new Alert(String.format("Limelight %s is not alive", name), AlertType.kWarning);
 
@@ -99,7 +113,7 @@ public class Limelight {
     heartbeatSub = cameraTable.getDoubleTopic("hb").subscribe(-1.0);
 
     // Enforce Pipeline
-    cameraTable.getDoubleTopic("pipeline").publish().set(BuildConstants.ON_OFFICIAL_FIELD ? 1 : 0);
+    cameraTable.getDoubleTopic("pipeline").publish().set(BuildConstants.ON_OFFICIAL_FIELD ? 0 : 1);
 
     // Init logging
     String logName = String.format("Limelight/%s/", name);
@@ -163,7 +177,7 @@ public class Limelight {
     }
 
     if (data[7] == 0) {
-      // No new tags here
+      // No tags here
       seenTags = EMPTY_TRANSLATION_ARRAY;
       return;
     }
@@ -269,5 +283,12 @@ public class Limelight {
    */
   public boolean isAlive() {
     return alive;
+  }
+
+  /**
+   * @return The version of this limelight.
+   */
+  public Version getVersion() {
+    return version;
   }
 }

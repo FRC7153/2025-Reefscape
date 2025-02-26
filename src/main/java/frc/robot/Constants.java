@@ -30,8 +30,8 @@ public final class Constants {
     public static final boolean INCLUDE_TEST_AUTOS = true;
 
     /**
-     * If true, the real field layout is used and limelight pipeline 1 is used.
-     * If false, the ITC layout is used and limelight pipeline 0 is used.
+     * If true, the real field layout is used and limelight pipeline 0 is used.
+     * If false, the ITC layout is used and limelight pipeline 1 is used.
      * Also effects default positions
      */
     public static final boolean ON_OFFICIAL_FIELD = false;

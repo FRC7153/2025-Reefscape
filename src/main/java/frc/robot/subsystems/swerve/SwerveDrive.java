@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.commands.ResetOdometryToDefaultCommand;
+import frc.robot.subsystems.swerve.Limelight.Version;
 import frc.robot.util.logging.ConsoleLogger;
 
 public final class SwerveDrive implements Subsystem {
@@ -96,7 +97,9 @@ public final class SwerveDrive implements Subsystem {
   protected final SwerveOdometry odometry = new SwerveOdometry(modules, kinematics);
   private final BiConsumer<RumbleType, Double> hapticFeedbackAcceptor;
 
-  private final Limelight limelightFront = new Limelight("limelight-front", odometry);
+  private final Limelight[] limelights = {
+    new Limelight("limelight-front", Version.LIMELIGHT_4, odometry)
+  };
 
   // Autonomous
   protected final RobotConfig autoConfig;
@@ -232,11 +235,27 @@ public final class SwerveDrive implements Subsystem {
     return kinematics.toChassisSpeeds(currentStates);
   }
 
+  /**
+   * Refreshes the limelight's orientation on the field.
+   * @param skipWithIMU Whether Limelights with integrated IMUs (4) should be skipped.
+   */
+  private void refreshLimelightOrientations(boolean skipWithIMU) {
+    Limelight.setOrientation(
+      odometry.getFieldRelativePosition().getRotation().getDegrees(), odometry.getYawRate());
+
+    for (Limelight ll : limelights) {
+      if (!skipWithIMU || !ll.getVersion().integratedIMU) ll.sendOrientation();
+    }
+  }
+
   /** Resets from a FIELD RELATIVE position */
   public void resetOdometry(Pose2d newPose) {
     Pose2d pose = odometry.getFieldRelativePosition();
     odometry.resetPosition(newPose);
     System.out.printf("Reset odometry from %s -> %s\n", pose, newPose);
+
+    // Update Limelights
+    refreshLimelightOrientations(false);
   }
 
   @Override
@@ -251,10 +270,7 @@ public final class SwerveDrive implements Subsystem {
     }
 
     // Update limelights
-    Limelight.setOrientation(
-      odometry.getFieldRelativePosition().getRotation().getDegrees(), odometry.getYawRate());
-
-    limelightFront.sendOrientation();
+    refreshLimelightOrientations(true);
 
     // Calculate haptic feedback (on a 500 m/s^3 to 1750 m/s^3)
     double jerk = odometry.getJerk();
@@ -318,7 +334,9 @@ public final class SwerveDrive implements Subsystem {
     }
 
     // Log limelights
-    limelightFront.log();
+    for (Limelight ll : limelights) {
+      ll.log();
+    }
 
     // Log swerve modules
     for (SwerveModule m : modules) {
@@ -332,6 +350,9 @@ public final class SwerveDrive implements Subsystem {
     }
 
     odometry.checkHardware();
-    limelightFront.checkHardware();
+    
+    for (Limelight ll : limelights) {
+      ll.checkHardware();
+    }
   }
 }
