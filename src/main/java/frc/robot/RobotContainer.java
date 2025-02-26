@@ -81,7 +81,7 @@ public final class RobotContainer {
 
     // Stow elevator when roll limit exceeded
     isRollLimitExceededTrigger
-      .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.STOW))
+      .onTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.STOW))
       .onTrue(new NotificationCommand("Robot roll limit exceeded", "Elevator has been STOWED", false));
 
     // Intake (driver right trigger)
