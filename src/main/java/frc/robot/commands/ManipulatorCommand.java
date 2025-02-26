@@ -2,12 +2,11 @@ package frc.robot.commands;
 
 import java.util.function.BooleanSupplier;
 
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WrapperCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import frc.robot.subsystems.Manipulator;
 
-public class ManipulatorCommand extends WrapperCommand {
+public class ManipulatorCommand extends RepeatCommand {
   /**
    * Runs the manipulator velocity (%) depending on the condition until canceled.
    * @param manipulator
@@ -17,10 +16,9 @@ public class ManipulatorCommand extends WrapperCommand {
    */
   public ManipulatorCommand(Manipulator manipulator, double ifTrue, double ifFalse, BooleanSupplier condition) {
     super(
-      new ConditionalCommand(
-        new InstantCommand(() -> manipulator.setManipulatorVelocity(ifTrue), manipulator).repeatedly(),
-        new InstantCommand(() -> manipulator.setManipulatorVelocity(ifFalse), manipulator).repeatedly(),
-        condition
+      new InstantCommand(
+        () -> manipulator.setManipulatorVelocity(condition.getAsBoolean() ? ifTrue : ifFalse),
+        manipulator
       )
     );
   }
@@ -32,7 +30,7 @@ public class ManipulatorCommand extends WrapperCommand {
    */
   public ManipulatorCommand(Manipulator manipulator, double velocity) {
     super(
-      new InstantCommand(() -> manipulator.setManipulatorVelocity(velocity), manipulator).repeatedly()
+      new InstantCommand(() -> manipulator.setManipulatorVelocity(velocity), manipulator)
     );
   }
 }
