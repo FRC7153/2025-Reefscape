@@ -293,7 +293,18 @@ public final class SwerveOdometry {
     imuHardwareAlert.set(!imu.isConnected());
   }
 
+  /**
+   * 
+   * @return Yaw rate, CCW+, deg/sec
+   */
   public double getYawRate(){
    return imu.getRate(IMUAxis.kYaw);
+  }
+
+  /**
+   * @return Roll, CCW+, in degrees
+   */
+  public double getRoll() {
+    return imu.getAngle(IMUAxis.kRoll);
   }
 }

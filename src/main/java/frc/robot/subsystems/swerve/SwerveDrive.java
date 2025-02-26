@@ -276,6 +276,13 @@ public final class SwerveDrive implements Subsystem {
     return fieldRelative ? odometry.getFieldRelativePosition() : odometry.getAllianceRelativePosition();
   }
 
+  /**
+   * @return Whether the roll limit (+/- 8 degrees) has been exceeded.
+   */
+  public boolean getRollLimitExceeded() {
+    return Math.abs(odometry.getRoll()) > 8.0;
+  }
+
   /** Homes all swerve modules and caches alliance color for odometry. Run in pregame. */
   public void pregame() {
     for (int m = 0; m < 4; m++) {

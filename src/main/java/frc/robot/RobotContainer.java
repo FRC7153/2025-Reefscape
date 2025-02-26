@@ -23,6 +23,7 @@ import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.util.dashboard.AutoChooser;
 import frc.robot.util.dashboard.Dashboard;
+import frc.robot.util.dashboard.NotificationCommand;
 
 public final class RobotContainer {
   // Controllers
@@ -48,9 +49,10 @@ public final class RobotContainer {
   }
 
   private void configureBindings() {
-    // Game mode triggers
+    // Triggers
     Trigger isEnabledTrigger = new Trigger(DriverStation::isEnabled);
     Trigger isTestTrigger = new Trigger(DriverStation::isTestEnabled);
+    Trigger isRollLimitExceededTrigger = new Trigger(base::getRollLimitExceeded);
 
     // SwerveDrive default command (teleop driving)
     base.setDefaultCommand(
@@ -76,6 +78,11 @@ public final class RobotContainer {
     elevator.setDefaultCommand(
       new StowCommand(elevator)
     );
+
+    // Stow elevator when roll limit exceeded
+    isRollLimitExceededTrigger
+      .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.STOW))
+      .onTrue(new NotificationCommand("Robot roll limit exceeded", "Elevator has been STOWED", false));
 
     // Intake (driver right trigger)
     baseController.rightTrigger()
