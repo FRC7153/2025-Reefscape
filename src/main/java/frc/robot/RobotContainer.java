@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ElevatorPositions;
+import frc.robot.commands.AlgaeCommand;
 import frc.robot.commands.ClimbCommand;
 import frc.robot.commands.ElevatorToStateCommand;
 import frc.robot.commands.ManipulatorCommand;
@@ -53,6 +54,7 @@ public final class RobotContainer {
     Trigger isEnabledTrigger = new Trigger(DriverStation::isEnabled);
     Trigger isTestTrigger = new Trigger(DriverStation::isTestEnabled);
     Trigger isRollLimitExceededTrigger = new Trigger(base::getRollLimitExceeded);
+    Trigger isAlgaeSwitchPressedTrigger = new Trigger(manipulator::getAlgaeLimitSwitch);
 
     // SwerveDrive default command (teleop driving)
     base.setDefaultCommand(
@@ -112,6 +114,9 @@ public final class RobotContainer {
     // L4 (arms B)
     armsController.b()
       .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.L4, true));
+
+    armsController.leftTrigger()
+      .whileTrue(new AlgaeCommand(elevator, manipulator, ElevatorPositions.ALGAE_HIGH));
 
     // Temp testing code
     //baseController.a()
