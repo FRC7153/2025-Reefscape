@@ -5,19 +5,25 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.Elevator.ElevatorState;
+import frc.robot.subsystems.Manipulator;
+import frc.robot.util.dashboard.NotificationCommand;
+import libs.Elastic.Notification.NotificationLevel;
 
 public class AlgaeCommand extends SequentialCommandGroup {
   public AlgaeCommand(Elevator elevator, Manipulator manipulator, ElevatorState position) {
     super(
+      // Go to Algae intake position, run intake
       new ElevatorToStateCommand(elevator, position),
       new InstantCommand(() -> manipulator.setManipulatorVelocity(0.3), manipulator),
+      // Wait until limit switch pressed
       new WaitUntilCommand(manipulator::getAlgaeLimitSwitch),
-      new ElevatorToStateCommand(elevator, new ElevatorState(position.height(), position.angle() + 0.1)),
+      // Clamp
+      new ElevatorToStateCommand(elevator, new ElevatorState(position.height(), position.angle() + 0.05)),
+      new NotificationCommand("Algae Intake Success", "Elevator will retract in 1 second", NotificationLevel.INFO),
       new WaitCommand(1.0),
-      new ElevatorToStateCommand(elevator, new ElevatorState(0.1, position.angle() + 0.1)).repeatedly()
+      // Retract elevator, hold here until this command is canceled
+      new ElevatorToStateCommand(elevator, new ElevatorState(0.1, position.angle() + 0.05)).repeatedly()
     );
-    // elevator
   }
 }

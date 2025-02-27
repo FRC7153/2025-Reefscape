@@ -25,6 +25,7 @@ import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.util.dashboard.AutoChooser;
 import frc.robot.util.dashboard.Dashboard;
 import frc.robot.util.dashboard.NotificationCommand;
+import libs.Elastic.Notification.NotificationLevel;
 
 public final class RobotContainer {
   // Controllers
@@ -54,7 +55,6 @@ public final class RobotContainer {
     Trigger isEnabledTrigger = new Trigger(DriverStation::isEnabled);
     Trigger isTestTrigger = new Trigger(DriverStation::isTestEnabled);
     Trigger isRollLimitExceededTrigger = new Trigger(base::getRollLimitExceeded);
-    Trigger isAlgaeSwitchPressedTrigger = new Trigger(manipulator::getAlgaeLimitSwitch);
 
     // SwerveDrive default command (teleop driving)
     base.setDefaultCommand(
@@ -84,7 +84,7 @@ public final class RobotContainer {
     // Stow elevator when roll limit exceeded
     isRollLimitExceededTrigger
       .onTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.STOW))
-      .onTrue(new NotificationCommand("Robot roll limit exceeded", "Elevator has been STOWED", false));
+      .onTrue(new NotificationCommand("Robot roll limit exceeded", "Elevator has been STOWED", NotificationLevel.WARNING));
 
     // Intake (driver right trigger)
     baseController.rightTrigger()

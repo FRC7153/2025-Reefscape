@@ -11,24 +11,17 @@ public class NotificationCommand extends InstantCommand {
    * Command that sends the dashboard a notification and logs it.
    * @param title Title of notification.
    * @param message Message of notification.
-   * @param error If true, the notification is an 'error'. If false, the notification is a 
-   * 'warning'.
+   * @param level The level of the Notification.
    */
-  public NotificationCommand(String title, String message, boolean error) {
+  public NotificationCommand(String title, String message, NotificationLevel level) {
     super(() -> {
-      Elastic.sendNotification(
-        new Notification(
-          error ? NotificationLevel.ERROR : NotificationLevel.WARNING, 
-          title, 
-          message,
-          150000
-        )
-      );
+      Elastic.sendNotification(new Notification(level, title, message, 150000));
 
-      if (error) {
-        ConsoleLogger.reportError(title + ": " + message);
-      } else {
-        ConsoleLogger.reportWarning(title + ": " + message);
+      // Log
+      switch (level) {
+        case ERROR -> ConsoleLogger.reportError(title + ": " + message);
+        case INFO -> System.out.println(title + ": " + message);
+        case WARNING -> ConsoleLogger.reportWarning(title + ": " + message);
       }
     });
   }
