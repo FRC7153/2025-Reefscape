@@ -34,7 +34,7 @@ public final class Constants {
      * If false, the ITC layout is used and limelight pipeline 1 is used.
      * Also effects default positions
      */
-    public static final boolean ON_OFFICIAL_FIELD = false;
+    public static final boolean ON_OFFICIAL_FIELD = true;
     public static final AprilTagFields DEFAULT_FIELD = AprilTagFields.k2025ReefscapeAndyMark; // See TU-12
   }
 
@@ -152,7 +152,7 @@ public final class Constants {
     public static final ElevatorState L4 = new ElevatorState(4.45, -0.02);
 
     public static final ElevatorState ALGAE_LOW = new ElevatorState(0.0, 0.0);
-    public static final ElevatorState ALGAE_HIGH = new ElevatorState(1.5, 0.2);
+    public static final ElevatorState ALGAE_HIGH = new ElevatorState(1.6, 0.2);
   }
 
   public static final class HardwareConstants {

@@ -15,7 +15,7 @@ public class NotificationCommand extends InstantCommand {
    */
   public NotificationCommand(String title, String message, NotificationLevel level) {
     super(() -> {
-      Elastic.sendNotification(new Notification(level, title, message, 150000));
+      Elastic.sendNotification(new Notification(level, title, message, 5000));
 
       // Log
       switch (level) {

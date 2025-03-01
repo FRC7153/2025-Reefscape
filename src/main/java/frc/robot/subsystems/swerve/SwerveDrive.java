@@ -66,7 +66,7 @@ public final class SwerveDrive implements Subsystem {
   private final StructArrayPublisher<SwerveModuleState> statePublisher, reqStatePublisher;
   private final StructPublisher<Pose2d> posePublisher;
   private final IntegerPublisher successfulDAQPublisher, failedDAQPublisher;
-  private final DoublePublisher odometryFreqPublisher, jerkPublisher;
+  private final DoublePublisher odometryFreqPublisher, jerkPublisher, rollPublisher;
   private final BooleanPublisher isClosedLoopPublisher;
   private final Field2d fieldPublisher = new Field2d();
 
@@ -87,6 +87,8 @@ public final class SwerveDrive implements Subsystem {
     new IntegerLogEntry(DataLogManager.getLog(), "Swerve/Failed_DAQs");
   private final DoubleLogEntry odometryFreqLogger =
     new DoubleLogEntry(DataLogManager.getLog(), "Swerve/Odometry_Freq");
+  private final DoubleLogEntry rollLogger = 
+    new DoubleLogEntry(DataLogManager.getLog(), "Swerve/Roll");
 
   private final SwerveModuleState[] currentStates = {
     modules[0].state, modules[1].state, modules[2].state, modules[3].state
@@ -125,6 +127,7 @@ public final class SwerveDrive implements Subsystem {
       odometryFreqPublisher = ntTable.getDoubleTopic("Odometry_Freq").publish();
       isClosedLoopPublisher = ntTable.getBooleanTopic("IsClosedLoop").publish();
       jerkPublisher = ntTable.getDoubleTopic("Jerk").publish();
+      rollPublisher = ntTable.getDoubleTopic("Roll").publish();
     } else {
       // Do not init NT publishers
       statePublisher = null;
@@ -135,6 +138,7 @@ public final class SwerveDrive implements Subsystem {
       odometryFreqPublisher = null;
       isClosedLoopPublisher = null;
       jerkPublisher = null;
+      rollPublisher = null;
     }
 
     // Start odometry thread
@@ -319,6 +323,7 @@ public final class SwerveDrive implements Subsystem {
     successfulDAQLogger.append(odometry.getSuccessfulDAQs());
     failedDAQLogger.append(odometry.getFailedDAQs());
     odometryFreqLogger.append(odometry.getFrequency());
+    rollLogger.append(odometry.getRoll());
 
     // Update field2d
     fieldPublisher.getRobotObject().setPose(pose);
@@ -331,6 +336,7 @@ public final class SwerveDrive implements Subsystem {
       failedDAQPublisher.set(odometry.getFailedDAQs());
       odometryFreqPublisher.set(odometry.getFrequency());
       jerkPublisher.set(odometry.getJerk());
+      rollPublisher.set(odometry.getRoll());
     }
 
     // Log limelights

@@ -83,7 +83,7 @@ public final class RobotContainer {
 
     // Stow elevator when roll limit exceeded
     isRollLimitExceededTrigger
-      .onTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.STOW))
+      //.onTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.STOW))
       .onTrue(new NotificationCommand("Robot roll limit exceeded", "Elevator has been STOWED", NotificationLevel.WARNING));
 
     // Intake (driver right trigger)
@@ -97,7 +97,7 @@ public final class RobotContainer {
 
     // Coral Outtake (arms right trigger)
     armsController.rightTrigger()
-      .whileTrue(new ManipulatorCommand(manipulator, 0.35, 0.1, armsController.a()));
+      .whileTrue(new ManipulatorCommand(manipulator, 0.29, 0.1, armsController.a()));
 
     // L1 (arms A)
     armsController.a()

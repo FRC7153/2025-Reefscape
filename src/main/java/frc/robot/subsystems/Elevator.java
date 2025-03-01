@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -202,12 +203,12 @@ public final class Elevator implements Subsystem {
   public void home(){
     manipulatorPosition.refresh();
     double currentPos = manipulatorPosition.getValueAsDouble();
-    double newPos = manipulator.getManipulatorAbsolutePosition();
+    Pair<Boolean, Double> newPos = manipulator.getManipulatorAbsolutePosition();
 
-    StatusCode resp = manipulatorPivot.setPosition(newPos);
-    System.out.printf("Homed manipulator pivot from %f -> %f\n", currentPos, newPos);
+    StatusCode resp = manipulatorPivot.setPosition(newPos.getSecond());
+    System.out.printf("Homed manipulator pivot from %f -> %f\n", currentPos, newPos.getSecond());
 
-    manipulatorNotHomedAlert.set(!resp.equals(StatusCode.OK));
+    manipulatorNotHomedAlert.set(!resp.equals(StatusCode.OK) || !newPos.getFirst());
     hasManipulatorHomed = resp.equals(StatusCode.OK);
   }
 

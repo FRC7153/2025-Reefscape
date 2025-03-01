@@ -8,6 +8,7 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -73,10 +74,12 @@ public class Manipulator implements Subsystem{
   
   /**
    * returns position of manipulator (in rots)
-   * @return 
+   * @return Pair of success (boolean) and angle (double).
    */
-  public double getManipulatorAbsolutePosition(){
-    return manipulatorAbsoluteEncoder.getPosition();
+  public Pair<Boolean, Double> getManipulatorAbsolutePosition(){
+    double angle = manipulatorAbsoluteEncoder.getPosition();
+
+    return Pair.of(angle != 0.0, angle);
   }
   
   public void log(){
