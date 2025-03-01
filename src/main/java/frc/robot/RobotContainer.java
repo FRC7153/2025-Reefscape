@@ -39,7 +39,7 @@ public final class RobotContainer {
   private final Climber climber = new Climber();
 
   // Dashboard
-  private final AutoChooser auto = new AutoChooser(base, elevator);
+  private final AutoChooser auto = new AutoChooser(base, elevator, climber);
   private final Dashboard dashboard = new Dashboard(baseController, armsController);
   private final Command pregameCommand = new PregameCommand(base, elevator, dashboard, auto);
 

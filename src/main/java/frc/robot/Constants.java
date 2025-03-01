@@ -12,12 +12,15 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 
 import edu.wpi.first.apriltag.AprilTagFields;
 import frc.robot.subsystems.Elevator.ElevatorState;
@@ -44,16 +47,21 @@ public final class Constants {
   }
 
   public static final class ClimberConstants {
-    public static final double CLIMBER_RATIO = 20.0;
+    public static final double CLIMBER_RATIO = 125.0; 
+
+    public static final ClosedLoopConfig CLIMBER_MOTOR_GAINS = new ClosedLoopConfig()
+      .pid(0.0, 0.0, 0.0, ClosedLoopSlot.kSlot0)
+      .feedbackSensor(FeedbackSensor.kPrimaryEncoder);
 
     public static final SparkBaseConfig CLIMBER_CONFIG = new SparkFlexConfig()
       .idleMode(IdleMode.kCoast)
       .inverted(true) 
-      .smartCurrentLimit(80);
+      .smartCurrentLimit(80)
+      .apply(CLIMBER_MOTOR_GAINS);
 
     public static final SparkBaseConfig CLIMBER_FOLLOW_CONFIG = new SparkFlexConfig()
       .apply(CLIMBER_CONFIG)
-      .follow(HardwareConstants.CLIMBER_CAN, true);
+      .follow(HardwareConstants.CLIMBER_CAN, true); //TODO
   }
 
   public static final class ManipulatorConstants {

@@ -1,5 +1,11 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
+
+import org.littletonrobotics.urcl.URCL;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -11,18 +17,22 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.HardwareConstants;
 
 public class Climber implements Subsystem {
   private final SparkFlex climber = new SparkFlex(HardwareConstants.CLIMBER_CAN, MotorType.kBrushless);
-  private final SparkFlex climb2 = new SparkFlex(HardwareConstants.CLIMBER_FOLLOWER_CAN, MotorType.kBrushless);
+  private final SparkFlex climberFollower = new SparkFlex(HardwareConstants.CLIMBER_FOLLOWER_CAN, MotorType.kBrushless);
 
   private final RelativeEncoder climberEncoder = climber.getEncoder();
 
   //Alert Output
   private final Alert climberAlert = new Alert("Climber Leader Motor Alert", AlertType.kError);
 
+  //SysId Routine
+  private SysIdRoutine climberRoutine;
+ 
   // DataLog Output
   private final DoubleLogEntry climberPositionLog =
     new DoubleLogEntry(DataLogManager.getLog(), "Climber/Position", "rots");
@@ -40,7 +50,7 @@ public class Climber implements Subsystem {
       ResetMode.kResetSafeParameters,
       PersistMode.kPersistParameters);
 
-    climb2.configure(
+    climberFollower.configure(
       ClimberConstants.CLIMBER_FOLLOW_CONFIG,
       ResetMode.kResetSafeParameters,
       PersistMode.kPersistParameters
@@ -48,6 +58,22 @@ public class Climber implements Subsystem {
 
     // Reset encoder
     climberEncoder.setPosition(0.0);
+  }
+
+  public SysIdRoutine getClimberRoutine(){
+    System.out.println("Starting URCL SysId Routine");
+    DataLogManager.start();
+    URCL.start();
+
+    if (climberRoutine == null) {
+      climberRoutine = new SysIdRoutine(
+        new SysIdRoutine.Config(Volts.of(0.0).per(Second), Volts.of(0.0), Seconds.of(25)), 
+        new SysIdRoutine.Mechanism((voltage) -> {
+          climber.setVoltage(voltage.in(Volts));
+        },
+         null, this));
+    }
+    return climberRoutine;
   }
 
   /**
@@ -65,6 +91,9 @@ public class Climber implements Subsystem {
     return climberEncoder.getPosition() / ClimberConstants.CLIMBER_RATIO;
   }
 
+  public void stopClimber(){
+    climber.set(0.0);
+  }
   /**
    * logs the position of the left climber
    */
