@@ -12,7 +12,10 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig;
@@ -44,16 +47,22 @@ public final class Constants {
   }
 
   public static final class ClimberConstants {
-    public static final double CLIMBER_RATIO = 20.0;
+    public static final double CLIMBER_RATIO = 125.0; 
 
-    public static final SparkBaseConfig CLIMBER_CONFIG = new SparkFlexConfig()
+    public static final ClosedLoopConfig CLIMBER_PIVOT_MOTOR_GAINS = new ClosedLoopConfig()
+      .pid(0.0, 0.0, 0.0, ClosedLoopSlot.kSlot0) //TODO
+      .feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+
+    public static final SparkBaseConfig CLIMBER_PIVOT_CONFIG = new SparkFlexConfig()
       .idleMode(IdleMode.kBrake)
-      .inverted(true) 
-      .smartCurrentLimit(120);
+      .inverted(true)//TODO 
+      .smartCurrentLimit(60)
+      .apply(CLIMBER_PIVOT_MOTOR_GAINS);
 
-    public static final SparkBaseConfig CLIMBER_FOLLOW_CONFIG = new SparkFlexConfig()
-      .apply(CLIMBER_CONFIG)
-      .follow(HardwareConstants.CLIMBER_CAN, true);
+    public static final SparkBaseConfig CLIMBER_WINCH_CONFIG = new SparkFlexConfig()
+      .idleMode(IdleMode.kBrake)
+      .inverted(false)//TODO
+      .smartCurrentLimit(60);
   }
 
   public static final class ManipulatorConstants {
@@ -178,12 +187,13 @@ public final class Constants {
     public static final int MANIPULATOR_PIVOT_CAN = 16;
 
     // Climber Hardware
-    public static final int CLIMBER_FOLLOWER_CAN = 17;
-    public static final int CLIMBER_CAN = 18;
+    public static final int CLIMBER_WINCH = 17;
+    public static final int CLIMBER_PIVOT = 18;
 
     // Manipulator Hardware 
     public static final int MANIPULATOR_CAN = 19;
 
+    public static final int RASPI_CAN = 20;
     // CAN Busses
     public static final CANBus RIO_CAN = new CANBus("rio");
     public static final CANBus CANIVORE = new CANBus("CANivore");

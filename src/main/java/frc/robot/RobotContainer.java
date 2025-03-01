@@ -33,7 +33,7 @@ public final class RobotContainer {
   private final Climber climber = new Climber();
 
   // Dashboard
-  private final AutoChooser auto = new AutoChooser(base, elevator);
+  private final AutoChooser auto = new AutoChooser(base, elevator, climber);
   private final Dashboard dashboard = new Dashboard(baseController, armsController);
   private final Command pregameCommand = new PregameCommand(base, elevator, dashboard, auto);
 
@@ -45,10 +45,11 @@ public final class RobotContainer {
   }
 
   private void configureBindings() {
+    
     // Triggers
     Trigger isEnabledTrigger = new Trigger(DriverStation::isEnabled);
     Trigger isTestTrigger = new Trigger(DriverStation::isTestEnabled);
-    Trigger isRollLimitExceededTrigger = new Trigger(base::getRollLimitExceeded);
+    Trigger isRollLimitExceededTrigger = new Trigger(base::getRollLimitExceeded);/*
 
     // SwerveDrive default command (teleop driving)
     /*base.setDefaultCommand(
@@ -64,7 +65,9 @@ public final class RobotContainer {
     climber.setDefaultCommand(
       new ClimbCommand(climber, baseController.b(), armsController.b())
     );
+    */
 
+    /* 
     // Manipulator default command (not spinning, unless angled down)
     manipulator.setDefaultCommand( // -0.1, 0.0
       new ManipulatorCommand(manipulator, 0.0, 0.0, () -> elevator.getManipulatorAngle() < 0.1)
@@ -114,8 +117,11 @@ public final class RobotContainer {
 
     // Temp testing code
     baseController.a()
-      .whileTrue(new InstantCommand(() -> climber.runClimber(baseController.getLeftY()), climber).repeatedly())
-      .whileFalse(new InstantCommand(() -> climber.runClimber(0.0), climber).repeatedly());
+      .whileTrue(new InstantCommand(() -> climber.runClimberWinch(baseController.getLeftY()), climber).repeatedly())
+      .whileFalse(new InstantCommand(() -> climber.runClimberWinch(0.0), climber).repeatedly())
+      .whileTrue(new InstantCommand(() -> climber.runClimberPivot(baseController.getRightY()), climber).repeatedly())
+      .whileFalse(new InstantCommand(() -> climber.runClimberPivot(0.0), climber).repeatedly());
+;
 
     // Match timer start/stop
     isEnabledTrigger
@@ -154,4 +160,5 @@ public final class RobotContainer {
   public Command getAutonomousCommand() {
     return auto.getCurrentSelectedCommand();
   }
+   */
 }
