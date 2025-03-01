@@ -49,19 +49,20 @@ public final class Constants {
   public static final class ClimberConstants {
     public static final double CLIMBER_RATIO = 125.0; 
 
-    public static final ClosedLoopConfig CLIMBER_MOTOR_GAINS = new ClosedLoopConfig()
+    public static final ClosedLoopConfig CLIMBER_PIVOT_MOTOR_GAINS = new ClosedLoopConfig()
       .pid(0.0, 0.0, 0.0, ClosedLoopSlot.kSlot0)
       .feedbackSensor(FeedbackSensor.kPrimaryEncoder);
 
-    public static final SparkBaseConfig CLIMBER_CONFIG = new SparkFlexConfig()
-      .idleMode(IdleMode.kCoast)
-      .inverted(true) 
-      .smartCurrentLimit(80)
-      .apply(CLIMBER_MOTOR_GAINS);
+    public static final SparkBaseConfig CLIMBER_PIVOT_CONFIG = new SparkFlexConfig()
+      .idleMode(IdleMode.kBrake)
+      .inverted(true)//TODO 
+      .smartCurrentLimit(60)
+      .apply(CLIMBER_PIVOT_MOTOR_GAINS);
 
-    public static final SparkBaseConfig CLIMBER_FOLLOW_CONFIG = new SparkFlexConfig()
-      .apply(CLIMBER_CONFIG)
-      .follow(HardwareConstants.CLIMBER_CAN, true); //TODO
+    public static final SparkBaseConfig CLIMBER_WINCH_CONFIG = new SparkFlexConfig()
+      .idleMode(IdleMode.kBrake)
+      .inverted(false)//TODO
+      .smartCurrentLimit(60);
   }
 
   public static final class ManipulatorConstants {
@@ -186,8 +187,8 @@ public final class Constants {
     public static final int MANIPULATOR_PIVOT_CAN = 16;
 
     // Climber Hardware
-    public static final int CLIMBER_FOLLOWER_CAN = 17;
-    public static final int CLIMBER_CAN = 18;
+    public static final int CLIMBER_WINCH = 17;
+    public static final int CLIMBER_PIVOT = 18;
 
     // Manipulator Hardware 
     public static final int MANIPULATOR_CAN = 19;

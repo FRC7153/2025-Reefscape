@@ -22,8 +22,8 @@ import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.HardwareConstants;
 
 public class Climber implements Subsystem {
-  private final SparkFlex climber = new SparkFlex(HardwareConstants.CLIMBER_CAN, MotorType.kBrushless);
-  private final SparkFlex climberFollower = new SparkFlex(HardwareConstants.CLIMBER_FOLLOWER_CAN, MotorType.kBrushless);
+  private final SparkFlex climber = new SparkFlex(HardwareConstants.CLIMBER_PIVOT, MotorType.kBrushless);
+  private final SparkFlex climberWinch = new SparkFlex(HardwareConstants.CLIMBER_WINCH, MotorType.kBrushless);
 
   private final RelativeEncoder climberEncoder = climber.getEncoder();
 
@@ -46,12 +46,12 @@ public class Climber implements Subsystem {
    */
   public Climber() {
     climber.configure(
-      ClimberConstants.CLIMBER_CONFIG,
+      ClimberConstants.CLIMBER_PIVOT_CONFIG,
       ResetMode.kResetSafeParameters,
       PersistMode.kPersistParameters);
 
-    climberFollower.configure(
-      ClimberConstants.CLIMBER_FOLLOW_CONFIG,
+    climberWinch.configure(
+      ClimberConstants.CLIMBER_WINCH_CONFIG,
       ResetMode.kResetSafeParameters,
       PersistMode.kPersistParameters
     );
