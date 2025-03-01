@@ -47,9 +47,9 @@ public final class Constants {
     public static final double CLIMBER_RATIO = 20.0;
 
     public static final SparkBaseConfig CLIMBER_CONFIG = new SparkFlexConfig()
-      .idleMode(IdleMode.kCoast)
+      .idleMode(IdleMode.kBrake)
       .inverted(true) 
-      .smartCurrentLimit(80);
+      .smartCurrentLimit(120);
 
     public static final SparkBaseConfig CLIMBER_FOLLOW_CONFIG = new SparkFlexConfig()
       .apply(CLIMBER_CONFIG)

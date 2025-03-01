@@ -83,7 +83,7 @@ public class LockOnCommand extends Command {
     targetState.pose = new Pose2d(projection, direction);
     ChassisSpeeds speeds = SwerveConstants.AUTO_CONTROLLER.calculateRobotRelativeSpeeds(currentPose, targetState);
 
-    //speeds.vxMetersPerSecond += speedSupplier.getAsDouble() * SwerveConstants.FAST_TRANSLATIONAL_SPEED;
+    //speeds.vxMetersPerSecond += speedSupplier.getAsDoubl1e() * SwerveConstants.FAST_TRANSLATIONAL_SPEED;
 
     drive.drive(speeds, true);
 
