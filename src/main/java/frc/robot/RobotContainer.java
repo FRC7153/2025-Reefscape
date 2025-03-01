@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ElevatorPositions;
@@ -51,10 +52,11 @@ public final class RobotContainer {
   }
 
   private void configureBindings() {
+    
     // Triggers
     Trigger isEnabledTrigger = new Trigger(DriverStation::isEnabled);
     Trigger isTestTrigger = new Trigger(DriverStation::isTestEnabled);
-    Trigger isRollLimitExceededTrigger = new Trigger(base::getRollLimitExceeded);
+    Trigger isRollLimitExceededTrigger = new Trigger(base::getRollLimitExceeded);/*
 
     // SwerveDrive default command (teleop driving)
     base.setDefaultCommand(
@@ -70,7 +72,9 @@ public final class RobotContainer {
     climber.setDefaultCommand(
       new ClimbCommand(climber, baseController.b(), armsController.b())
     );
+    */
 
+    /* 
     // Manipulator default command (not spinning, unless angled down)
     manipulator.setDefaultCommand(
       new ManipulatorCommand(manipulator, -0.1, 0.0, () -> elevator.getManipulatorAngle() < 0.1)
@@ -116,12 +120,15 @@ public final class RobotContainer {
       .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.L4, true));
 
     armsController.leftTrigger()
-      .whileTrue(new AlgaeCommand(elevator, manipulator, ElevatorPositions.ALGAE_HIGH));
+      .whileTrue(new AlgaeCommand(elevator, manipulator, ElevatorPositions.ALGAE_HIGH));*/
 
     // Temp testing code
-    //baseController.a()
-    //  .whileTrue(new InstantCommand(() -> climber.runClimber(baseController.getLeftY()), climber).repeatedly())
-    //  .whileFalse(new InstantCommand(() -> climber.runClimber(0.0), climber).repeatedly());
+    baseController.a()
+      .whileTrue(new InstantCommand(() -> climber.runClimberWinch(baseController.getLeftY()), climber).repeatedly())
+      .whileFalse(new InstantCommand(() -> climber.runClimberWinch(0.0), climber).repeatedly())
+      .whileTrue(new InstantCommand(() -> climber.runClimberPivot(baseController.getRightY()), climber).repeatedly())
+      .whileFalse(new InstantCommand(() -> climber.runClimberPivot(0.0), climber).repeatedly());
+;
 
     // Match timer start/stop
     isEnabledTrigger
@@ -160,4 +167,5 @@ public final class RobotContainer {
   public Command getAutonomousCommand() {
     return auto.getCurrentSelectedCommand();
   }
+   */
 }

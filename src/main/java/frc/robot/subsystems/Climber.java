@@ -22,30 +22,35 @@ import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.HardwareConstants;
 
 public class Climber implements Subsystem {
-  private final SparkFlex climber = new SparkFlex(HardwareConstants.CLIMBER_PIVOT, MotorType.kBrushless);
+  private final SparkFlex climberPivot = new SparkFlex(HardwareConstants.CLIMBER_PIVOT, MotorType.kBrushless);
   private final SparkFlex climberWinch = new SparkFlex(HardwareConstants.CLIMBER_WINCH, MotorType.kBrushless);
 
-  private final RelativeEncoder climberEncoder = climber.getEncoder();
+  private final RelativeEncoder climberPivotEncoder = climberPivot.getEncoder();
+  private final RelativeEncoder climberWinchEncoder = climberWinch.getEncoder();
 
   //Alert Output
   private final Alert climberAlert = new Alert("Climber Leader Motor Alert", AlertType.kError);
 
   //SysId Routine
-  private SysIdRoutine climberRoutine;
+  private SysIdRoutine climberPivotRoutine;
  
   // DataLog Output
-  private final DoubleLogEntry climberPositionLog =
-    new DoubleLogEntry(DataLogManager.getLog(), "Climber/Position", "rots");
-  private final DoubleLogEntry climberCurrentLog = 
-    new DoubleLogEntry(DataLogManager.getLog(), "Climber/Current", "amps");
-  private final DoubleLogEntry climberPercentageLog = 
-    new DoubleLogEntry(DataLogManager.getLog(), "Climber/Percentage", "%");
+  private final DoubleLogEntry climberPivotPositionLog =
+    new DoubleLogEntry(DataLogManager.getLog(), "ClimberPivot/Position", "rots");
+  private final DoubleLogEntry climberPivotCurrentLog = 
+    new DoubleLogEntry(DataLogManager.getLog(), "ClimberPivot/Current", "amps");
+  private final DoubleLogEntry climberPivotPercentageLog = 
+    new DoubleLogEntry(DataLogManager.getLog(), "ClimberPivot/Percentage", "%");
+  private final DoubleLogEntry climberWinchCurrentLog = 
+    new DoubleLogEntry(DataLogManager.getLog(), "ClimberWinch/Current", "amps");
+  private final DoubleLogEntry climberWinchPercentageLog = 
+    new DoubleLogEntry(DataLogManager.getLog(), "ClimberWinch/Percentage", "%");
 
   /**
    * Init
    */
   public Climber() {
-    climber.configure(
+    climberPivot.configure(
       ClimberConstants.CLIMBER_PIVOT_CONFIG,
       ResetMode.kResetSafeParameters,
       PersistMode.kPersistParameters);
@@ -57,7 +62,7 @@ public class Climber implements Subsystem {
     );
 
     // Reset encoder
-    climberEncoder.setPosition(0.0);
+    climberPivotEncoder.setPosition(0.0);
   }
 
   public SysIdRoutine getClimberRoutine(){
@@ -65,44 +70,52 @@ public class Climber implements Subsystem {
     DataLogManager.start();
     URCL.start();
 
-    if (climberRoutine == null) {
-      climberRoutine = new SysIdRoutine(
+    if (climberPivotRoutine == null) {
+      climberPivotRoutine = new SysIdRoutine(
         new SysIdRoutine.Config(Volts.of(0.0).per(Second), Volts.of(0.0), Seconds.of(25)), 
         new SysIdRoutine.Mechanism((voltage) -> {
-          climber.setVoltage(voltage.in(Volts));
+          climberPivot.setVoltage(voltage.in(Volts));
         },
          null, this));
     }
-    return climberRoutine;
+    return climberPivotRoutine;
   }
 
   /**
    * @param percentage Runs climber in percentage
    */
-  public void runClimber(double percentage) {
-    climber.set(percentage);
-    climberPercentageLog.append(percentage);
+  public void runClimberPivot(double percentage) {
+    climberPivot.set(percentage);
+    climberPivotPercentageLog.append(percentage);
   }
 
+  public void runClimberWinch(double percentage){
+    climberWinch.set(percentage);
+    climberWinchPercentageLog.append(percentage);
+  }
+  /* 
   /**
    * @return Position (in rots)
    */
   public double getPosition() {
-    return climberEncoder.getPosition() / ClimberConstants.CLIMBER_RATIO;
+    return climberPivotEncoder.getPosition() / ClimberConstants.CLIMBER_RATIO;
   }
 
   public void stopClimber(){
-    climber.set(0.0);
+    climberPivot.set(0.0);
+    climberWinch.set(0.0);
   }
+  
   /**
    * logs the position of the left climber
    */
   public void log(){
-    climberPositionLog.append(getPosition());
-    climberCurrentLog.append(climber.getOutputCurrent());
+    climberPivotPositionLog.append(getPosition());
+    climberPivotCurrentLog.append(climberPivot.getOutputCurrent());
+    climberWinchCurrentLog.append(climberWinch.getOutputCurrent());
   }
 
   public void checkHardware(){
-    climberAlert.set(climber.hasActiveFault() || climber.hasActiveWarning());
+    climberAlert.set(climberPivot.hasActiveFault() || climberPivot.hasActiveWarning());
   }
 }
