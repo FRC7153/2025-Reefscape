@@ -5,6 +5,7 @@ import time
 import bitarray
 import math
 
+# Init CAN bus
 def initCAN() -> can.ThreadSafeBus:
   os.system("sudo ip link set can0 type can bitrate 1000000")
   os.system("sudo ifconfig can0 up")
@@ -12,9 +13,11 @@ def initCAN() -> can.ThreadSafeBus:
   bus.set_filters(None)
   return bus
 
+# Convert int to binary string
 def intToBinary(value: int, length: int) -> str:
   return "{0:b}".format(value).zfill(length)[:length]
 
+# Format CAN arbitration id
 def formatArb(devType: int, manCode: int, apiClass: int, apiIndex: int, deviceId: int) -> int:
   arb = intToBinary(devType, 5)
   arb += intToBinary(manCode, 8)
@@ -23,7 +26,8 @@ def formatArb(devType: int, manCode: int, apiClass: int, apiIndex: int, deviceId
   arb += intToBinary(deviceId, 6)
   return int(arb, 2)
 
-def sendMessage(bus: can.ThreadSafeBus, arb: int, data: int):
+# Send a message on the CAN bus
+def sendMessage(bus: can.ThreadSafeBus, arb: int, data: int) -> None:
   msg = can.Message(
     arbitration_id = arb,
     data = data,
@@ -35,33 +39,59 @@ def sendMessage(bus: can.ThreadSafeBus, arb: int, data: int):
   except Exception as e:
     print(f"Failed to send message: {e}")
 
+# PWM port callback
+highTick = 0
+lowTick = 0
+pulseWidth = 0
+
+def pwmCallback(_, level: int, tick: int) -> None:
+  global highTick, lowTick, pulseWidth
+  if level == 1:
+    highTick = tick
+  elif level == 0:
+    lowTick = tick
+    pulseWidth = pigpio.tickDiff(highTick, lowTick)
+
 # Run
 if __name__ == "__main__":
-  os.system("sudo pigpiod")
-  pi = pigpio.pi()
-  bus = initCAN()
-
-  # Init PWM Absolute encoder
+  # Config
+  CAN_ID = 20
   ENC_IN = 22
   ENC_OFFSET = (0.776622 + .25)
-  LS_IN = 23
+  LIMIT_SWITCH_IN = 23
+
+  ENC_OFFSET = 0
+
+  # Init Pi inputs
+  os.system("sudo pigpiod")
+
+  time.sleep(3)
+
+  pi = pigpio.pi()
+  #bus = initCAN()
+  arb = formatArb(11, 8, 1, 0, CAN_ID) # API 1, index 0
+
+  callback = pi.callback(ENC_IN, pigpio.EITHER_EDGE, pwmCallback)
 
   while True:
-    angle = (pi.get_servo_pulsewidth(ENC_IN) / 1025.0) * 360.0
+    # Read angle
+    angle = (pulseWidth / 1025.0) * 360.0
     angle = ((angle - ENC_OFFSET) * -1) % 360
-    angle = math.floor(angle * 100)
+    #angle = math.floor(angle * 100)
+    print(angle)
+    time.sleep(0.5)
+    continue
 
-    ls = pi.read(LS_IN)
+    # Read limit switch
+    ls = pi.read(LIMIT_SWITCH_IN)
 
+    # Send packet
     packet = bitarray.bitarray()
     packet.extend(intToBinary(angle, 16))
     packet.append(bool(ls))
     packet = packet.zfill(64)
 
-    sendMessage(
-      bus,
-      formatArb(11, 8, 1, 0, 20),
-      packet
-    )
+    sendMessage(bus, arb, packet)
 
-    time.sleep(0.015)
+    # Wait
+    time.sleep(0.02)

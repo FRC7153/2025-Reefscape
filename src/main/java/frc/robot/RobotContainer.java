@@ -10,8 +10,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.ClimbCommand;
-import frc.robot.commands.ManipulatorCommand;
 import frc.robot.commands.PregameCommand;
 import frc.robot.commands.TestCommand;
 import frc.robot.subsystems.Climber;
@@ -62,10 +60,9 @@ public final class RobotContainer {
     );*/
     
     // Climber default command (climb if both buttons pressed)
-    climber.setDefaultCommand(
-      new ClimbCommand(climber, baseController.b(), armsController.b())
-    );
-    */
+    //climber.setDefaultCommand(
+    ///  new ClimbCommand(climber, baseController.b(), armsController.b())
+    //);
 
     /* 
     // Manipulator default command (not spinning, unless angled down)
@@ -119,9 +116,8 @@ public final class RobotContainer {
     baseController.a()
       .whileTrue(new InstantCommand(() -> climber.runClimberWinch(baseController.getLeftY()), climber).repeatedly())
       .whileFalse(new InstantCommand(() -> climber.runClimberWinch(0.0), climber).repeatedly())
-      .whileTrue(new InstantCommand(() -> climber.runClimberPivot(baseController.getRightY()), climber).repeatedly())
-      .whileFalse(new InstantCommand(() -> climber.runClimberPivot(0.0), climber).repeatedly());
-;
+      .whileTrue(new InstantCommand(() -> climber.runClimberPivot(-baseController.getRightY())).repeatedly())
+      .whileFalse(new InstantCommand(() -> climber.runClimberPivot(0.0)).repeatedly());
 
     // Match timer start/stop
     isEnabledTrigger
@@ -160,5 +156,4 @@ public final class RobotContainer {
   public Command getAutonomousCommand() {
     return auto.getCurrentSelectedCommand();
   }
-   */
 }

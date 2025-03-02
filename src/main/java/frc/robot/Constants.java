@@ -62,7 +62,7 @@ public final class Constants {
     public static final SparkBaseConfig CLIMBER_WINCH_CONFIG = new SparkFlexConfig()
       .idleMode(IdleMode.kBrake)
       .inverted(false)//TODO
-      .smartCurrentLimit(60);
+      .smartCurrentLimit(80);
   }
 
   public static final class ManipulatorConstants {
@@ -187,8 +187,8 @@ public final class Constants {
     public static final int MANIPULATOR_PIVOT_CAN = 16;
 
     // Climber Hardware
-    public static final int CLIMBER_WINCH = 17;
-    public static final int CLIMBER_PIVOT = 18;
+    public static final int CLIMBER_WINCH = 18;
+    public static final int CLIMBER_PIVOT = 17;
 
     // Manipulator Hardware 
     public static final int MANIPULATOR_CAN = 19;
