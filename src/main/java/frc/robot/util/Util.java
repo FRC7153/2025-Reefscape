@@ -2,8 +2,11 @@ package frc.robot.util;
 
 import java.util.Optional;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.Constants.BuildConstants;
 import frc.robot.util.logging.ConsoleLogger;
 import libs.Elastic;
 import libs.Elastic.Notification;
@@ -56,6 +59,22 @@ public class Util {
    */
   public static double applyDeadband(double value, double min) {
     return (Math.abs(value) < min) ? 0 : value;
+  }
+
+  /**
+   * @param tag Tag id
+   * @return The 2d position of the tag on the field
+   */
+  public static Translation2d getTagPose(int tag) {
+    Optional<Pose3d> pose = BuildConstants.FIELD.getTagPose(tag);
+
+    if (pose.isEmpty()) {
+      // Unknown tag
+      ConsoleLogger.reportWarning(String.format("Unknown tag request (id %d)", tag));
+      return Translation2d.kZero;
+    } else {
+      return new Translation2d(pose.get().getX(), pose.get().getY());
+    }
   }
 
   /** Prevent instantiation */

@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.Constants.BuildConstants;
+import frc.robot.autos.AutoCommandHandler;
 import frc.robot.autos.BackAndForthTestAuto;
 import frc.robot.autos.SimpleDriveTestAuto;
 import frc.robot.commands.sysid.ElevatorSysIdCommand;
@@ -34,6 +35,9 @@ public final class AutoChooser {
       currentLoadedCommand = null;
       noAutoLoadedAlert.set(true);
     });
+
+    // Init Named Commands
+    AutoCommandHandler.initNamedCommands(elevator);
 
     // Add default option
     chooser.setDefaultOption("No-op", () -> noOpCommand); // TODO set starting pose here

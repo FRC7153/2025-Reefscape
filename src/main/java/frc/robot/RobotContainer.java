@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ElevatorPositions;
 import frc.robot.commands.AlgaeCommand;
 import frc.robot.commands.ElevatorToStateCommand;
+import frc.robot.commands.LockOnCommand;
 import frc.robot.commands.ManipulatorCommand;
 import frc.robot.commands.PregameCommand;
 import frc.robot.commands.StowCommand;
@@ -21,6 +22,7 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.swerve.SwerveDrive;
+import frc.robot.util.AlignmentVector;
 import frc.robot.util.dashboard.AutoChooser;
 import frc.robot.util.dashboard.Dashboard;
 import frc.robot.util.dashboard.NotificationCommand;
@@ -50,7 +52,6 @@ public final class RobotContainer {
   }
 
   private void configureBindings() {
-    
     // Triggers
     Trigger isEnabledTrigger = new Trigger(DriverStation::isEnabled);
     Trigger isTestTrigger = new Trigger(DriverStation::isTestEnabled);
@@ -85,6 +86,18 @@ public final class RobotContainer {
     isRollLimitExceededTrigger
       //.onTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.STOW))
       .onTrue(new NotificationCommand("Robot roll limit exceeded", "Elevator has been STOWED", NotificationLevel.WARNING));
+
+    // Line up with left targets (base X)
+    baseController.x()
+      .whileTrue(new LockOnCommand(base, baseController::getLeftY, dashboard::setAllRumble, AlignmentVector.LEFT_VECTORS));
+
+    // Line up with center targets (base A)
+    baseController.a()
+    .whileTrue(new LockOnCommand(base, baseController::getLeftY, dashboard::setAllRumble, AlignmentVector.CENTER_VECTORS));
+
+    // Line up with right targets (base B)
+    baseController.b()
+      .whileTrue(new LockOnCommand(base, baseController::getLeftY, dashboard::setAllRumble, AlignmentVector.RIGHT_VECTORS));
 
     // Intake (driver right trigger)
     baseController.rightTrigger()

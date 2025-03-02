@@ -75,6 +75,7 @@
     "linalg",
     "lstsq",
     "odometry",
+    "perp",
     "Pregamed",
     "quasistatic",
     "rawfiducials",

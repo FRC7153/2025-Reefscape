@@ -64,7 +64,7 @@ public final class SwerveDrive implements Subsystem {
 
   // NT Logging
   private final StructArrayPublisher<SwerveModuleState> statePublisher, reqStatePublisher;
-  private final StructPublisher<Pose2d> posePublisher;
+  private final StructPublisher<Pose2d> posePublisher, allianceRelativePosePublisher;
   private final IntegerPublisher successfulDAQPublisher, failedDAQPublisher;
   private final DoublePublisher odometryFreqPublisher, jerkPublisher, rollPublisher;
   private final BooleanPublisher isClosedLoopPublisher;
@@ -122,6 +122,7 @@ public final class SwerveDrive implements Subsystem {
       statePublisher = ntTable.getStructArrayTopic("State", SwerveModuleState.struct).publish();
       reqStatePublisher = ntTable.getStructArrayTopic("Request", SwerveModuleState.struct).publish();
       posePublisher = ntTable.getStructTopic("Pose", Pose2d.struct).publish();
+      allianceRelativePosePublisher = ntTable.getStructTopic("AllianceRelativePose", Pose2d.struct).publish();
       successfulDAQPublisher = ntTable.getIntegerTopic("Successful_DAQs").publish();
       failedDAQPublisher = ntTable.getIntegerTopic("Failed_DAQs").publish();
       odometryFreqPublisher = ntTable.getDoubleTopic("Odometry_Freq").publish();
@@ -133,6 +134,7 @@ public final class SwerveDrive implements Subsystem {
       statePublisher = null;
       reqStatePublisher = null;
       posePublisher = null;
+      allianceRelativePosePublisher = null;
       successfulDAQPublisher = null;
       failedDAQPublisher = null;
       odometryFreqPublisher = null;
@@ -332,6 +334,7 @@ public final class SwerveDrive implements Subsystem {
       statePublisher.set(currentStates);
       reqStatePublisher.set(currentRequests);
       posePublisher.set(pose);
+      allianceRelativePosePublisher.set(odometry.getAllianceRelativePosition());
       successfulDAQPublisher.set(odometry.getSuccessfulDAQs());
       failedDAQPublisher.set(odometry.getFailedDAQs());
       odometryFreqPublisher.set(odometry.getFrequency());

@@ -23,7 +23,6 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
-import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.HardwareConstants;
 
 /**
@@ -95,7 +94,7 @@ public final class SwerveConstants {
 
   // Base size
   public static final Translation2d BASE_DIMENSIONS = 
-    new Translation2d(Units.inchesToMeters(30), Units.inchesToMeters(25));
+    new Translation2d(Units.inchesToMeters(34.5), Units.inchesToMeters(25));
 
   // Module positions
   /*
@@ -120,12 +119,7 @@ public final class SwerveConstants {
       new PIDConstants(9.0, 0.0, 0.0) // Rotational
     );
 
-  // Default positions, if none is set by the auto program by PREGAME
-  public static final Pose2d DEFAULT_BLUE_POSE = BuildConstants.ON_OFFICIAL_FIELD ?
-    // Actual field, against the reef
-    new Pose2d(3.3 - (BASE_DIMENSIONS.getX() / 2.0) - BUMPER_WIDTH, 4.026, Rotation2d.kZero) :
-    // ITC map default pose, 1 square from the origin
-    new Pose2d(0.6096, 0.6096, Rotation2d.kZero);
-  
+  // Default positions (against the front reef), if none is set by the auto program by PREGAME
+  public static final Pose2d DEFAULT_BLUE_POSE = new Pose2d(3.3 - (BASE_DIMENSIONS.getX() / 2.0) - BUMPER_WIDTH, 4.026, Rotation2d.kZero);
   public static final Pose2d DEFAULT_RED_POSE = FlippingUtil.flipFieldPose(DEFAULT_BLUE_POSE);
 }

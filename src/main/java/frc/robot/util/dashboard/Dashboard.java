@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -74,6 +75,17 @@ public class Dashboard {
    */
   public Command getStopTimerCommand() {
     return new InstantCommand(matchTimer::stop).ignoringDisable(true);
+  }
+
+  /**
+   * Sets the rumble to all controllers.
+   * @param type
+   * @param value
+   */
+  public void setAllRumble(RumbleType type, double value) {
+    for (CommandGenericHID controller : controllers) {
+      controller.setRumble(type, value);
+    }
   }
   
   public void update() {

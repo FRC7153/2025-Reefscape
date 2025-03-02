@@ -22,6 +22,7 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import frc.robot.subsystems.Elevator.ElevatorState;
 
@@ -32,13 +33,7 @@ public final class Constants {
     public static final boolean PUBLISH_EVERYTHING = true;
     public static final boolean INCLUDE_TEST_AUTOS = true;
 
-    /**
-     * If true, the real field layout is used and limelight pipeline 0 is used.
-     * If false, the ITC layout is used and limelight pipeline 1 is used.
-     * Also effects default positions
-     */
-    public static final boolean ON_OFFICIAL_FIELD = true;
-    public static final AprilTagFields DEFAULT_FIELD = AprilTagFields.k2025ReefscapeAndyMark; // See TU-12
+    public static final AprilTagFieldLayout FIELD = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark); // See TU-12
   }
 
   public static final class DashboardConstants {

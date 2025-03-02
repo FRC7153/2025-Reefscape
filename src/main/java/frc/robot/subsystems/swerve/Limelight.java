@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.BuildConstants;
-import frc.robot.util.AprilTagMap;
+import frc.robot.util.Util;
 import frc.robot.util.logging.ConsoleLogger;
 import libs.LimelightHelpers;
 
@@ -104,7 +104,7 @@ public class Limelight {
     NetworkTable cameraTable = NetworkTableInstance.getDefault().getTable(cameraName);
 
     poseSub = cameraTable
-      .getDoubleArrayTopic(BuildConstants.ON_OFFICIAL_FIELD ? "botpose_orb_wpiblue" : "botpose_orb")
+      .getDoubleArrayTopic("botpose_orb_wpiblue")
       .subscribe(new double[0]);
     stdDevSub = cameraTable.getDoubleArrayTopic("stddevs").subscribe(new double[0]);
     orientationPub = cameraTable.getDoubleArrayTopic("robot_orientation_set").publish();
@@ -113,7 +113,7 @@ public class Limelight {
     heartbeatSub = cameraTable.getDoubleTopic("hb").subscribe(-1.0);
 
     // Enforce Pipeline
-    cameraTable.getDoubleTopic("pipeline").publish().set(BuildConstants.ON_OFFICIAL_FIELD ? 0 : 1);
+    cameraTable.getDoubleTopic("pipeline").publish().set(0);
 
     // Init logging
     String logName = String.format("Limelight/%s/", name);
@@ -203,7 +203,7 @@ public class Limelight {
     Translation2d[] seenTagsTemp = new Translation2d[numTags];
 
     for (int t = 0; t < numTags; t++) {
-      seenTagsTemp[t] = AprilTagMap.getTagPose((int)data[11 + (t * 7)]);
+      seenTagsTemp[t] = Util.getTagPose((int)data[11 + (t * 7)]);
     }
 
     seenTags = seenTagsTemp;
