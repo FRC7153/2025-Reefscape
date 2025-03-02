@@ -1,14 +1,12 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -27,7 +25,7 @@ public class Manipulator implements Subsystem{
 
   private final RelativeEncoder manipulatorEncoder = manipulator.getEncoder();
   private final SparkLimitSwitch algaeLimitSwitch = manipulator.getForwardLimitSwitch();
-  private final SparkAbsoluteEncoder manipulatorAbsoluteEncoder = manipulator.getAbsoluteEncoder();
+  //private final SparkAbsoluteEncoder manipulatorAbsoluteEncoder = manipulator.getAbsoluteEncoder();
 
   //Alert System
   private final Alert manipulatorAlert = new Alert("Manipulator Motor Error", AlertType.kError);
@@ -72,16 +70,6 @@ public class Manipulator implements Subsystem{
     return algaeLimitSwitch.isPressed();
   }
   
-  /**
-   * returns position of manipulator (in rots)
-   * @return Pair of success (boolean) and angle (double).
-   */
-  public Pair<Boolean, Double> getManipulatorAbsolutePosition(){
-    double angle = manipulatorAbsoluteEncoder.getPosition();
-
-    return Pair.of(angle != 0.0, angle);
-  }
-  
   public void log(){
     manipulatorVeloLog.append(manipulatorEncoder.getVelocity());
     algaeLimitSwitchLog.append(algaeLimitSwitch.isPressed());
@@ -94,5 +82,4 @@ public class Manipulator implements Subsystem{
   public void checkHardware(){
     manipulatorAlert.set(manipulator.hasActiveFault() || manipulator.hasActiveWarning());
   }
-
 }

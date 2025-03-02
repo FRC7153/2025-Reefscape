@@ -88,8 +88,9 @@ public final class Constants {
 
   public static final class ElevatorConstants {
     public static final double ELEVATOR_RATIO = 7.75;
-    public static final double MANIPULATOR_PIVOT_RATIO = 25.0; // used to be 5.0
+    public static final double MANIPULATOR_PIVOT_RATIO = 25.0;
     public static final double MANIPULATOR_PIVOT_OFFSET = (0.776622 + .25) % 1.0;
+    public static final double MANIPULATOR_PIVOT_DEFAULT_POS = 0.2; // TODO
 
     private static final Slot0Configs ELEVATOR_MOTOR_GAINS = new Slot0Configs()
       .withKP(3.596).withKI(0.0).withKD(0.0)

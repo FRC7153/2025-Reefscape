@@ -9,7 +9,6 @@ import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -58,7 +57,6 @@ public final class Elevator implements Subsystem {
   private final Alert manipulatorNotHomedAlert = new Alert("Manipulator pivot failed to home", AlertType.kError);
 
   private SysIdRoutine elevatorRoutine, manipulatorPivotRoutine;
-  private final Manipulator manipulator;
   private boolean hasManipulatorHomed = false;
 
   // NT Logging
@@ -78,9 +76,7 @@ public final class Elevator implements Subsystem {
   /**
    * @param manipulator A reference to the manipulator subsystem, for homing.
    */
-  public Elevator(Manipulator manipulator) {
-    this.manipulator = manipulator;
-    
+  public Elevator() {    
     elevatorMain.getConfigurator().apply(ElevatorConstants.ELEVATOR_CONFIG);
     elevatorFollower.getConfigurator().apply(ElevatorConstants.ELEVATOR_CONFIG);
 
@@ -203,12 +199,11 @@ public final class Elevator implements Subsystem {
   public void home(){
     manipulatorPosition.refresh();
     double currentPos = manipulatorPosition.getValueAsDouble();
-    Pair<Boolean, Double> newPos = manipulator.getManipulatorAbsolutePosition();
 
-    StatusCode resp = manipulatorPivot.setPosition(newPos.getSecond());
-    System.out.printf("Homed manipulator pivot from %f -> %f\n", currentPos, newPos.getSecond());
+    StatusCode resp = manipulatorPivot.setPosition(ElevatorConstants.MANIPULATOR_PIVOT_DEFAULT_POS);
+    System.out.printf("Homed manipulator pivot from %f -> %f\n", currentPos, ElevatorConstants.MANIPULATOR_PIVOT_DEFAULT_POS);
 
-    manipulatorNotHomedAlert.set(!resp.equals(StatusCode.OK) || !newPos.getFirst());
+    manipulatorNotHomedAlert.set(!resp.equals(StatusCode.OK));
     hasManipulatorHomed = resp.equals(StatusCode.OK);
   }
 

@@ -34,7 +34,7 @@ public final class RobotContainer {
   // Subsystems
   private final SwerveDrive base = new SwerveDrive(baseController::setRumble);
   private final Manipulator manipulator = new Manipulator();
-  private final Elevator elevator = new Elevator(manipulator);
+  private final Elevator elevator = new Elevator();
   private final Climber climber = new Climber();
 
   // Dashboard
