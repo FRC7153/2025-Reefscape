@@ -12,22 +12,22 @@ public class ClimberSysIdCommand extends SequentialCommandGroup{
         super(
             new PrintCommand("Climber Q+"),
             new ParallelRaceGroup(
-                climber.getClimberRoutine().quasistatic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kForward),
+                climber.getClimberPivotRoutine().quasistatic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kForward),
                 new WaitUntilCommand(() -> climber.getPosition() >= 0.0)//TODO
             ), 
             new PrintCommand("Climber Q-"),
             new ParallelRaceGroup(
-                climber.getClimberRoutine().quasistatic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kReverse),
+                climber.getClimberPivotRoutine().quasistatic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kReverse),
                 new WaitUntilCommand(() -> climber.getPosition() <= 0.0)// TODO
             ),
             new PrintCommand("Climber D+"),
             new ParallelRaceGroup(
-                climber.getClimberRoutine().dynamic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kForward),
+                climber.getClimberPivotRoutine().dynamic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kForward),
                 new WaitUntilCommand(() -> climber.getPosition() >= 0.0)// TODO
             ),
             new PrintCommand("Climber D-"),
             new ParallelRaceGroup(
-                climber.getClimberRoutine().dynamic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kReverse),
+                climber.getClimberPivotRoutine().dynamic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kReverse),
                 new WaitUntilCommand(() -> climber.getPosition() <= 0.0)// TODO
             ),
             new PrintCommand("Climber SysId Done"),

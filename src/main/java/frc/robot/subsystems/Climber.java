@@ -1,9 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Volts;
-
 import org.littletonrobotics.urcl.URCL;
 
 import com.revrobotics.RelativeEncoder;
@@ -12,6 +8,9 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -29,22 +28,25 @@ public class Climber implements Subsystem {
   private final RelativeEncoder climberWinchEncoder = climberWinch.getEncoder();
 
   //Alert Output
-  private final Alert climberAlert = new Alert("Climber Leader Motor Alert", AlertType.kError);
+  private final Alert climberPivotAlert = new Alert("Climber Pivot Motor Alert", AlertType.kError);
+  private final Alert climberWinchAlert = new Alert("Climber Winch Motor Alert", AlertType.kError);
 
   //SysId Routine
   private SysIdRoutine climberPivotRoutine;
  
   // DataLog Output
   private final DoubleLogEntry climberPivotPositionLog =
-    new DoubleLogEntry(DataLogManager.getLog(), "ClimberPivot/Position", "rots");
+    new DoubleLogEntry(DataLogManager.getLog(), "Climber/PivotPosition", "rots");
   private final DoubleLogEntry climberPivotCurrentLog = 
-    new DoubleLogEntry(DataLogManager.getLog(), "ClimberPivot/Current", "amps");
+    new DoubleLogEntry(DataLogManager.getLog(), "Climber/PivotCurrent", "amps");
   private final DoubleLogEntry climberPivotPercentageLog = 
-    new DoubleLogEntry(DataLogManager.getLog(), "ClimberPivot/Percentage", "%");
+    new DoubleLogEntry(DataLogManager.getLog(), "Climber/PivotPercentage", "%");
+    private final DoubleLogEntry climberWinchPositionLog = 
+    new DoubleLogEntry(DataLogManager.getLog(), "Climber/WinchPosition", "rots");
   private final DoubleLogEntry climberWinchCurrentLog = 
-    new DoubleLogEntry(DataLogManager.getLog(), "ClimberWinch/Current", "amps");
+    new DoubleLogEntry(DataLogManager.getLog(), "Climber/WinchCurrent", "amps");
   private final DoubleLogEntry climberWinchPercentageLog = 
-    new DoubleLogEntry(DataLogManager.getLog(), "ClimberWinch/Percentage", "%");
+    new DoubleLogEntry(DataLogManager.getLog(), "Climber/WinchPercentage", "%");
 
   /**
    * Init
@@ -63,9 +65,10 @@ public class Climber implements Subsystem {
 
     // Reset encoder
     climberPivotEncoder.setPosition(0.0);
+    climberWinchEncoder.setPosition(0.0);
   }
 
-  public SysIdRoutine getClimberRoutine(){
+  public SysIdRoutine getClimberPivotRoutine(){
     System.out.println("Starting URCL SysId Routine");
     DataLogManager.start();
     URCL.start();
@@ -112,10 +115,12 @@ public class Climber implements Subsystem {
   public void log(){
     climberPivotPositionLog.append(getPosition());
     climberPivotCurrentLog.append(climberPivot.getOutputCurrent());
+    climberWinchPositionLog.append(climberWinchEncoder.getPosition());
     climberWinchCurrentLog.append(climberWinch.getOutputCurrent());
   }
 
   public void checkHardware(){
-    climberAlert.set(climberPivot.hasActiveFault() || climberPivot.hasActiveWarning());
+    climberPivotAlert.set(climberPivot.hasActiveFault() || climberPivot.hasActiveWarning());
+    climberWinchAlert.set(climberWinch.hasActiveFault() || climberWinch.hasActiveWarning());
   }
 }

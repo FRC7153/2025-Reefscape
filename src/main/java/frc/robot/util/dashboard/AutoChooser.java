@@ -14,11 +14,11 @@ import frc.robot.autos.SimpleDriveTestAuto;
 import frc.robot.commands.sysid.ElevatorSysIdCommand;
 import frc.robot.commands.sysid.ManipulatorPivotSysIdCommand;
 import frc.robot.commands.sysid.SysIdCharacterizationCommand;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.swerve.SwervePaths;
 import frc.robot.subsystems.swerve.SwerveSysId;
-import frc.robot.subsystems.Climber;
 
 public final class AutoChooser {
   private static final Command noOpCommand = new PrintCommand("No-op auto selected.");
@@ -100,13 +100,13 @@ public final class AutoChooser {
       
      // Add Climber SysId auto
       chooser.addOption("SYSID Climber Pivot Q+", 
-        () -> new SysIdCharacterizationCommand(climber.getClimberRoutine(), true, true));
+        () -> new SysIdCharacterizationCommand(climber.getClimberPivotRoutine(), true, true));
       chooser.addOption("SYSID Climber Pivot Q-", 
-        () -> new SysIdCharacterizationCommand(climber.getClimberRoutine(), true, false));
+        () -> new SysIdCharacterizationCommand(climber.getClimberPivotRoutine(), true, false));
       chooser.addOption("SYSID Climber Pivot D+", 
-        () -> new SysIdCharacterizationCommand(climber.getClimberRoutine(), false, true));
+        () -> new SysIdCharacterizationCommand(climber.getClimberPivotRoutine(), false, true));
       chooser.addOption("SYSID Climber Pivot D-", 
-        () -> new SysIdCharacterizationCommand(climber.getClimberRoutine(), false, false));
+        () -> new SysIdCharacterizationCommand(climber.getClimberPivotRoutine(), false, false));
     }
 
     // Add to dashboard
