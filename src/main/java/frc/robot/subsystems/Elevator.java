@@ -107,11 +107,11 @@ public final class Elevator implements Subsystem {
   }
 
   /**
-   * @param rotations sets elevator to set rotations (in rots). 0.0 is bottom, 4.45 is top.
+   * @param rotations sets elevator to set rotations (in rots). 0.0 is bottom, 4.5 is top.
    */
   public void setElevatorPosition(double rotations){
     // Sanity check rotations
-    rotations = MathUtil.clamp(rotations, 0.0, 4.45);
+    rotations = MathUtil.clamp(rotations, 0.0, 4.5);
 
     elevatorMain.setControl(elevatorPositionRequest.withPosition(rotations));
     elevatorSetpointLog.append(rotations);

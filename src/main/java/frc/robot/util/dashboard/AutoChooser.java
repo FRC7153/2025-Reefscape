@@ -12,6 +12,7 @@ import frc.robot.Constants.BuildConstants;
 import frc.robot.autos.AutoCommandHandler;
 import frc.robot.autos.BackAndForthTestAuto;
 import frc.robot.autos.SimpleDriveTestAuto;
+import frc.robot.autos.SinglePieceAuto;
 import frc.robot.commands.sysid.ElevatorSysIdCommand;
 import frc.robot.commands.sysid.ManipulatorPivotSysIdCommand;
 import frc.robot.commands.sysid.SysIdCharacterizationCommand;
@@ -44,6 +45,8 @@ public final class AutoChooser {
 
     // Autos that are used for testing
     if (BuildConstants.INCLUDE_TEST_AUTOS) {
+      chooser.addOption("Test Auto 1", () -> new SinglePieceAuto(drive, elevator));
+
       // Add Swerve SysId drive autos
       chooser.addOption("SYSID Swerve Drive Q+", 
         () -> new SysIdCharacterizationCommand(SwerveSysId.getModuleDriveRoutine(drive), true, true));

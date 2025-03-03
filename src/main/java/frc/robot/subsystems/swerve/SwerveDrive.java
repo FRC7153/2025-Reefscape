@@ -276,7 +276,7 @@ public final class SwerveDrive implements Subsystem {
     }
 
     // Update limelights
-    refreshLimelightOrientations(true);
+    refreshLimelightOrientations(false);
 
     // Calculate haptic feedback (on a 500 m/s^3 to 1750 m/s^3)
     double jerk = odometry.getJerk();

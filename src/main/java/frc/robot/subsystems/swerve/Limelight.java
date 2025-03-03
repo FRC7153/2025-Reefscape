@@ -16,6 +16,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.IntegerLogEntry;
@@ -86,6 +87,7 @@ public class Limelight {
 
   // NT Logging
   private final StructArrayPublisher<Translation2d> seenTagsPub;
+  private final StructPublisher<Pose2d> positionPub;
 
   // Cached values
   private final Matrix<N3, N1> stdDevs = VecBuilder.fill(0, 0, 99999); // NEVER trust yaw measurement
@@ -131,8 +133,12 @@ public class Limelight {
     if (BuildConstants.PUBLISH_EVERYTHING) {
       NetworkTable nt = NetworkTableInstance.getDefault().getTable("Limelight/AllTags");
       seenTagsPub = nt.getStructArrayTopic(name, Translation2d.struct).publish();
+
+      NetworkTable nt2 = NetworkTableInstance.getDefault().getTable("Limelight/Poses");
+      positionPub = nt2.getStructTopic(name, Pose2d.struct).publish();
     } else {
       seenTagsPub = null;
+      positionPub = null;
     }
 
     // Limelight MegaTag2 pose listener
@@ -183,11 +189,9 @@ public class Limelight {
     }
 
     // Calculate new Pose
-    Pose2d receivedPose = new Pose2d(
-      new Translation2d(data[0], data[1]),
-      //Rotation2d.fromDegrees(data[5])
-      Rotation2d.kZero // this is ignored by stddevs anyways
-    );
+    Translation2d receivedTranslation = new Translation2d(data[0], data[1]);
+    Pose2d receivedPose = new Pose2d(receivedTranslation, Rotation2d.fromDegrees(data[5]));
+
     double timestamp = (event.valueData.value.getTime() / 1000000.0) - (data[6] / 1000.0); // Seconds
     
     // Update standard deviations
@@ -197,6 +201,7 @@ public class Limelight {
 
     odometry.addVisionMeasurement(receivedPose, timestamp, stdDevs);
     frameCount++;
+    positionPub.set(receivedPose);
 
     // Update seen tags array
     int numTags = (int)data[7];

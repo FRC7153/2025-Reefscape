@@ -93,7 +93,7 @@ public final class RobotContainer {
 
     // Line up with center targets (base A)
     baseController.a()
-    .whileTrue(new LockOnCommand(base, baseController::getLeftY, dashboard::setAllRumble, AlignmentVector.CENTER_VECTORS));
+      .whileTrue(new LockOnCommand(base, baseController::getLeftY, dashboard::setAllRumble, AlignmentVector.CENTER_VECTORS));
 
     // Line up with right targets (base B)
     baseController.b()
@@ -110,7 +110,7 @@ public final class RobotContainer {
 
     // Coral Outtake (arms right trigger)
     armsController.rightTrigger()
-      .whileTrue(new ManipulatorCommand(manipulator, 0.29, 0.1, armsController.a()));
+      .whileTrue(new ManipulatorCommand(manipulator, 0.25, 0.1, armsController.a())); // .25 .1
 
     // L1 (arms A)
     armsController.a()

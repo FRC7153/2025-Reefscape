@@ -28,8 +28,10 @@ public class AlignmentVector {
 
   /** Pre-defined RIGHT alignment vectors */
   public static final AlignmentVector[] RIGHT_VECTORS = {
-    new AlignmentVector("REEF_B", new Translation2d(3.36, 3.855), Rotation2d.fromDegrees(0)),
-    new AlignmentVector("REEF_D", new Translation2d(4.063, 2.958), Rotation2d.fromDegrees(60)),
+    //new AlignmentVector("REEF_B", new Translation2d(3.36, 3.855), Rotation2d.fromDegrees(0)),
+    new AlignmentVector("REEF_B", new Translation2d(2.98, 3.89), Rotation2d.fromDegrees(0)),
+    //new AlignmentVector("REEF_D", new Translation2d(4.063, 2.958), Rotation2d.fromDegrees(60)),
+    new AlignmentVector("REEF_D", new Translation2d(3.82, 2.71), Rotation2d.fromDegrees(60)),
     new AlignmentVector("REEF_F", new Translation2d(5.193, 3.123), Rotation2d.fromDegrees(120)),
     new AlignmentVector("REEF_H", new Translation2d(5.62, 4.185), Rotation2d.fromDegrees(180)),
     new AlignmentVector("REEF_J", new Translation2d(4.907, 5.082), Rotation2d.fromDegrees(240)),

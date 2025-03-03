@@ -8,6 +8,7 @@ import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
@@ -32,6 +33,7 @@ public class Manipulator implements Subsystem{
 
   // NT Output
   private final BooleanPublisher algaeLimitSwitchPub;
+  private final DoublePublisher manipulatorCurrentPub;
 
   // DataLog Output 
   private final DoubleLogEntry manipulatorVeloLog = 
@@ -50,8 +52,10 @@ public class Manipulator implements Subsystem{
       NetworkTable nt = NetworkTableInstance.getDefault().getTable("manipulator");
 
       algaeLimitSwitchPub = nt.getBooleanTopic("algaeLimitSwitch").publish();
+      manipulatorCurrentPub = nt.getDoubleTopic("manipulatorCurrent").publish();
     } else {
       algaeLimitSwitchPub = null;
+      manipulatorCurrentPub = null;
     }
   }
 
@@ -76,6 +80,7 @@ public class Manipulator implements Subsystem{
 
     if (BuildConstants.PUBLISH_EVERYTHING) {
       algaeLimitSwitchPub.set(algaeLimitSwitch.isPressed());
+      manipulatorCurrentPub.set(manipulator.getOutputCurrent());
     }
   }
 

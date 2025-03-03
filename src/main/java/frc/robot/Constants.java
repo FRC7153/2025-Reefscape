@@ -85,7 +85,7 @@ public final class Constants {
     public static final double ELEVATOR_RATIO = 7.75;
     public static final double MANIPULATOR_PIVOT_RATIO = 25.0;
     public static final double MANIPULATOR_PIVOT_OFFSET = (0.776622 + .25) % 1.0;
-    public static final double MANIPULATOR_PIVOT_DEFAULT_POS = 0.2; // TODO
+    public static final double MANIPULATOR_PIVOT_DEFAULT_POS = 0.397217;
 
     private static final Slot0Configs ELEVATOR_MOTOR_GAINS = new Slot0Configs()
       .withKP(3.596).withKI(0.0).withKD(0.0)
@@ -93,8 +93,8 @@ public final class Constants {
       .withKG(0.5609).withGravityType(GravityTypeValue.Elevator_Static);
 
     private static final MotionMagicConfigs ELEVATOR_MM_CONFIGS = new MotionMagicConfigs()
-      .withMotionMagicCruiseVelocity(4.5)
-      .withMotionMagicAcceleration(9.5);
+      .withMotionMagicCruiseVelocity(3.0) // 4.5
+      .withMotionMagicAcceleration(5.5); // 9.5
 
     private static final Slot0Configs MANIPULATOR_PIVOT_GAINS = new Slot0Configs()
       .withKP(57.811).withKI(0.0).withKD(6.2107)
@@ -147,17 +147,17 @@ public final class Constants {
   }
 
   public static final class ElevatorPositions {
-    public static final ElevatorState STOW = new ElevatorState(0.15, 0.4);
+    public static final ElevatorState STOW = new ElevatorState(0.15, 0.4); // 0.15 original height
     public static final ElevatorState INTAKE = new ElevatorState(1.195, 0.3);
     public static final ElevatorState PROCESSOR = new ElevatorState(0.0, 0.0);
 
-    public static final ElevatorState L1 = new ElevatorState(0.05, 0.255);
+    public static final ElevatorState L1 = new ElevatorState(0.07, 0.255);
     public static final ElevatorState L2 = new ElevatorState(1.53, 0.11);
-    public static final ElevatorState L3 = new ElevatorState(2.42, 0.11);
-    public static final ElevatorState L4 = new ElevatorState(4.45, -0.02);
+    public static final ElevatorState L3 = new ElevatorState(2.44, 0.11);
+    public static final ElevatorState L4 = new ElevatorState(4.5, 0.05);
 
     public static final ElevatorState ALGAE_LOW = new ElevatorState(0.0, 0.0);
-    public static final ElevatorState ALGAE_HIGH = new ElevatorState(1.6, 0.2);
+    public static final ElevatorState ALGAE_HIGH = new ElevatorState(1.65, 0.2);
   }
 
   public static final class HardwareConstants {

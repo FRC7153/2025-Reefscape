@@ -18,6 +18,7 @@ import frc.robot.Constants.BuildConstants;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.util.AlignmentVector;
+import frc.robot.util.Util;
 
 /** aka "LockedInCommand" */
 public class LockOnCommand extends Command {
@@ -113,11 +114,16 @@ public class LockOnCommand extends Command {
     ChassisSpeeds speeds = SwerveConstants.AUTO_CONTROLLER.calculateRobotRelativeSpeeds(currentPose, targetState);
 
     // Add user input
-    double userSpeed = speedSupplier.getAsDouble() * SwerveConstants.FAST_TRANSLATIONAL_SPEED;
+    double userSpeed = speedSupplier.getAsDouble() * SwerveConstants.FAST_TRANSLATIONAL_SPEED * -1.0;
     Rotation2d userInputToRobot = alignment.direction.minus(currentPose.getRotation());
 
     speeds.vxMetersPerSecond += userInputToRobot.getCos() * userSpeed;
     speeds.vyMetersPerSecond += userInputToRobot.getSin() * userSpeed;
+
+    // Apply deadband
+    speeds.vxMetersPerSecond = Util.applyDeadband(speeds.vxMetersPerSecond, 0.06);
+    speeds.vyMetersPerSecond = Util.applyDeadband(speeds.vyMetersPerSecond, 0.06);
+    speeds.omegaRadiansPerSecond = Util.applyDeadband(speeds.omegaRadiansPerSecond, 0.01);
 
     // Drive
     drive.drive(speeds, true);
@@ -125,7 +131,7 @@ public class LockOnCommand extends Command {
     // Give user feedback
     double dist = currentPose.getTranslation().getDistance(alignment.target);
 
-    double rumble = (Math.abs(dist) <= BuildConstants.EPSILON) ? 1.0 : Math.min(0.03 / dist, 1.0);
+    double rumble = (Math.abs(dist) <= BuildConstants.EPSILON) ? 1.0 : Math.min(0.007 / dist, 1.0);
     rumbleConsumer.accept(RumbleType.kRightRumble, rumble);
 
     LockOnDistPublisher.set(dist);

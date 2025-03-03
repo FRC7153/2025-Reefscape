@@ -53,9 +53,13 @@ public final class SwerveConstants {
   public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(4.0) * Math.PI;
   public static final double DRIVE_RATIO = 6.75; // SDS Mk4i L2
 
-  private static final Slot0Configs DRIVE_MOTOR_GAINS = new Slot0Configs()
+  /*private static final Slot0Configs DRIVE_MOTOR_GAINS = new Slot0Configs()
     .withKP(0.96573).withKI(0.0).withKD(0.0)
-    .withKS(0.088062).withKV(0.77811).withKA(0.013299);
+    .withKS(0.088062).withKV(0.77811).withKA(0.013299);*/
+
+  private static final Slot0Configs DRIVE_MOTOR_GAINS = new Slot0Configs()
+    .withKP(0.98926).withKI(0.0).withKD(0.0)
+    .withKS(0.14905).withKV(0.74563).withKA(0.017388);
 
   private static final CurrentLimitsConfigs DRIVE_MOTOR_CURRENT = new CurrentLimitsConfigs()
     .withSupplyCurrentLimit(45).withSupplyCurrentLimitEnable(true)
@@ -120,6 +124,6 @@ public final class SwerveConstants {
     );
 
   // Default positions (against the front reef), if none is set by the auto program by PREGAME
-  public static final Pose2d DEFAULT_BLUE_POSE = new Pose2d(3.3 - (BASE_DIMENSIONS.getX() / 2.0) - BUMPER_WIDTH, 4.026, Rotation2d.kZero);
+  public static final Pose2d DEFAULT_BLUE_POSE = new Pose2d(3.6 - (BASE_DIMENSIONS.getX() / 2.0) - BUMPER_WIDTH, 4.026, Rotation2d.kZero);
   public static final Pose2d DEFAULT_RED_POSE = FlippingUtil.flipFieldPose(DEFAULT_BLUE_POSE);
 }
