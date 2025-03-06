@@ -4,14 +4,11 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -23,16 +20,12 @@ import frc.robot.Constants.ManipulatorConstants;
 
 public class Manipulator implements Subsystem{
   private final SparkFlex manipulator = new SparkFlex(HardwareConstants.MANIPULATOR_CAN, MotorType.kBrushless);
-
   private final RelativeEncoder manipulatorEncoder = manipulator.getEncoder();
-  private final SparkLimitSwitch algaeLimitSwitch = manipulator.getForwardLimitSwitch();
-  //private final SparkAbsoluteEncoder manipulatorAbsoluteEncoder = manipulator.getAbsoluteEncoder();
 
   //Alert System
   private final Alert manipulatorAlert = new Alert("Manipulator Motor Error", AlertType.kError);
 
   // NT Output
-  private final BooleanPublisher algaeLimitSwitchPub;
   private final DoublePublisher manipulatorCurrentPub;
 
   // DataLog Output 
@@ -40,9 +33,7 @@ public class Manipulator implements Subsystem{
     new DoubleLogEntry(DataLogManager.getLog(), "manipulator/Velo", "RPM");
   private final DoubleLogEntry manipulatorPercentageLog = 
     new DoubleLogEntry(DataLogManager.getLog(), "manipulator/Percentage", "%");
-  private final BooleanLogEntry algaeLimitSwitchLog = 
-    new BooleanLogEntry(DataLogManager.getLog(), "manipulator/algaeSwitch");
-
+  
   public Manipulator() {
     manipulator.configure(ManipulatorConstants.MANIPULATOR_CONFIG,
     ResetMode.kResetSafeParameters,
@@ -51,10 +42,8 @@ public class Manipulator implements Subsystem{
     if (BuildConstants.PUBLISH_EVERYTHING) {
       NetworkTable nt = NetworkTableInstance.getDefault().getTable("manipulator");
 
-      algaeLimitSwitchPub = nt.getBooleanTopic("algaeLimitSwitch").publish();
       manipulatorCurrentPub = nt.getDoubleTopic("manipulatorCurrent").publish();
     } else {
-      algaeLimitSwitchPub = null;
       manipulatorCurrentPub = null;
     }
   }
@@ -67,19 +56,10 @@ public class Manipulator implements Subsystem{
     manipulatorPercentageLog.append(velocity);
   }
 
-  /**
-   * @return Whether the algae limit switch is pressed.
-   */
-  public boolean getAlgaeLimitSwitch() {
-    return algaeLimitSwitch.isPressed();
-  }
-  
   public void log(){
     manipulatorVeloLog.append(manipulatorEncoder.getVelocity());
-    algaeLimitSwitchLog.append(algaeLimitSwitch.isPressed());
 
     if (BuildConstants.PUBLISH_EVERYTHING) {
-      algaeLimitSwitchPub.set(algaeLimitSwitch.isPressed());
       manipulatorCurrentPub.set(manipulator.getOutputCurrent());
     }
   }

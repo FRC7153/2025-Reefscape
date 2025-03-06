@@ -17,7 +17,7 @@ public class AlgaeCommand extends SequentialCommandGroup {
       new ElevatorToStateCommand(elevator, position),
       new InstantCommand(() -> manipulator.setManipulatorVelocity(0.3), manipulator),
       // Wait until limit switch pressed
-      new WaitUntilCommand(manipulator::getAlgaeLimitSwitch),
+      new WaitUntilCommand(elevator::getAlgaeLimitSwitch),
       // Clamp
       //new ElevatorToStateCommand(elevator, new ElevatorState(position.height(), position.angle() + 0.05)),
       new NotificationCommand("Algae Intake Success", "Elevator will retract in 1 second", NotificationLevel.INFO),

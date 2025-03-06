@@ -7,8 +7,15 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkLimitSwitch;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -18,6 +25,7 @@ import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -35,6 +43,10 @@ public final class Elevator implements Subsystem {
   private final TalonFX elevatorMain = new TalonFX(HardwareConstants.ELEVATOR_LEADER_CAN, HardwareConstants.CANIVORE);
   private final TalonFX elevatorFollower = new TalonFX(HardwareConstants.ELEVATOR_FOLLOWER_CAN, HardwareConstants.CANIVORE);
   private final TalonFX manipulatorPivot = new TalonFX(HardwareConstants.MANIPULATOR_PIVOT_CAN, HardwareConstants.RIO_CAN);
+
+  private final SparkMax manipulatorSensors = new SparkMax(HardwareConstants.MANIPULATOR_SENSORS_CAN, MotorType.kBrushed);
+  private final AbsoluteEncoder manipulatorAbsEncoder = manipulatorSensors.getAbsoluteEncoder();
+  private final SparkLimitSwitch algaeLimitSwitch = manipulatorSensors.getForwardLimitSwitch();
 
   private final MotionMagicVoltage elevatorPositionRequest = new MotionMagicVoltage(0.0)
     .withOverrideBrakeDurNeutral(true)
@@ -55,6 +67,7 @@ public final class Elevator implements Subsystem {
   private final Alert elevatorFollowerAlert = new Alert("Elevator Follower Motor Alert", AlertType.kError);
   private final Alert manipulatorAlert = new Alert("Manipulator Pivot Motor Alert", AlertType.kError);
   private final Alert manipulatorNotHomedAlert = new Alert("Manipulator pivot failed to home", AlertType.kError);
+  private final Alert manipulatorSensorsAlert = new Alert("Manipulator Sensors Spark Max Alert", AlertType.kError);
 
   private SysIdRoutine elevatorRoutine, manipulatorPivotRoutine;
   private boolean hasManipulatorHomed = false;
@@ -62,6 +75,7 @@ public final class Elevator implements Subsystem {
   // NT Logging
   private final DoublePublisher elevatorPositionPub, elevatorFollowerPositionPub, elevatorAccelerationPub, 
     elevatorSetpointPub, manipulatorPositionPub, manipulatorSetpointPub;
+  private final BooleanPublisher algaeLimitSwitchPub;
 
   //DataLog
   private final DoubleLogEntry elevatorPositionLog = 
@@ -72,6 +86,8 @@ public final class Elevator implements Subsystem {
     new DoubleLogEntry(DataLogManager.getLog(), "Manipulator/Position", "rotations");
   private final DoubleLogEntry manipulatorPivotSetPointLog =
     new DoubleLogEntry(DataLogManager.getLog(), "Manipulator/Setpoint", "rotations");
+  private final BooleanLogEntry algaeLimitSwitchLog = 
+    new BooleanLogEntry(DataLogManager.getLog(), "manipulator/algaeSwitch");
 
   /**
    * @param manipulator A reference to the manipulator subsystem, for homing.
@@ -84,6 +100,11 @@ public final class Elevator implements Subsystem {
 
     manipulatorPivot.getConfigurator().apply(ElevatorConstants.MANIPULATOR_PIVOT_CONFIG);
 
+    manipulatorSensors.configure(
+      ElevatorConstants.MANIPULATOR_SENSOR_CONFIG, 
+      SparkBase.ResetMode.kResetSafeParameters, 
+      PersistMode.kPersistParameters);
+
     if (BuildConstants.PUBLISH_EVERYTHING) {
       NetworkTable nt = NetworkTableInstance.getDefault().getTable("Elevator");
 
@@ -93,6 +114,7 @@ public final class Elevator implements Subsystem {
       elevatorSetpointPub = nt.getDoubleTopic("elevatorSetpoint").publish();
       manipulatorPositionPub = nt.getDoubleTopic("manipulatorPosition").publish();
       manipulatorSetpointPub = nt.getDoubleTopic("manipulatorSetpoint").publish();
+      algaeLimitSwitchPub = nt.getBooleanTopic("algaeLimitSwitch").publish();
     } else {
       elevatorPositionPub = null;
       elevatorFollowerPositionPub = null;
@@ -100,10 +122,14 @@ public final class Elevator implements Subsystem {
       elevatorSetpointPub = null;
       manipulatorPositionPub = null;
       manipulatorSetpointPub = null;
+      algaeLimitSwitchPub = null;
     }
 
     // Reset the elevator's encoders
     resetElevatorEncoder();
+
+    // Disable sensors-only spark max
+    manipulatorSensors.disable();
   }
 
   /**
@@ -190,7 +216,13 @@ public final class Elevator implements Subsystem {
   public double getManipulatorAngle() {
     manipulatorPosition.refresh();
     return manipulatorPosition.getValueAsDouble();
-    
+  }
+
+  /**
+   * @return Whether the algae limit switch is pressed.
+   */
+  public boolean getAlgaeLimitSwitch() {
+    return algaeLimitSwitch.isPressed();
   }
 
   /**
@@ -200,11 +232,18 @@ public final class Elevator implements Subsystem {
     manipulatorPosition.refresh();
     double currentPos = manipulatorPosition.getValueAsDouble();
 
-    StatusCode resp = manipulatorPivot.setPosition(ElevatorConstants.MANIPULATOR_PIVOT_DEFAULT_POS);
+    // If the absolute position is exactly 0.0, the sensor is likely disconnected. Use the default
+    // position instead.
+    double absPos = manipulatorAbsEncoder.getPosition();
+
+    StatusCode resp = manipulatorPivot.setPosition(
+      absPos != 0.0 ? absPos : ElevatorConstants.MANIPULATOR_PIVOT_DEFAULT_POS
+    );
     System.out.printf("Homed manipulator pivot from %f -> %f\n", currentPos, ElevatorConstants.MANIPULATOR_PIVOT_DEFAULT_POS);
 
-    manipulatorNotHomedAlert.set(!resp.equals(StatusCode.OK));
-    hasManipulatorHomed = resp.equals(StatusCode.OK);
+    boolean success = resp.equals(StatusCode.OK) && absPos != 0.0;
+    manipulatorNotHomedAlert.set(!success);
+    hasManipulatorHomed = success;
   }
 
   public SysIdRoutine getElevatorRoutine() {
@@ -251,6 +290,8 @@ public final class Elevator implements Subsystem {
 
     elevatorPositionLog.append(elevatorPosition.getValueAsDouble());
     manipulatorPivotPositionLog.append(manipulatorPosition.getValueAsDouble());
+    
+    algaeLimitSwitchLog.append(getAlgaeLimitSwitch());
 
     if (BuildConstants.PUBLISH_EVERYTHING) {
       elevatorFollowerPosition.refresh();
@@ -260,6 +301,8 @@ public final class Elevator implements Subsystem {
       elevatorAccelerationPub.set(elevatorAcceleration.getValueAsDouble());
       manipulatorPositionPub.set(manipulatorPosition.getValueAsDouble());
       elevatorFollowerPositionPub.set(elevatorFollowerPosition.getValueAsDouble());
+
+      algaeLimitSwitchPub.set(getAlgaeLimitSwitch());
     }
   }
 
@@ -267,5 +310,6 @@ public final class Elevator implements Subsystem {
     elevatorMainAlert.set(!elevatorMain.isAlive() || !elevatorMain.isConnected());
     elevatorFollowerAlert.set(!elevatorFollower.isAlive() || !elevatorFollower.isConnected());
     manipulatorAlert.set(!manipulatorPivot.isAlive() || !manipulatorPivot.isConnected());
+    manipulatorSensorsAlert.set(manipulatorSensors.getFaults().can);
   }
 }

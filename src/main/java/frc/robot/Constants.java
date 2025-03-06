@@ -62,23 +62,11 @@ public final class Constants {
 
   public static final class ManipulatorConstants {
     public static final double MANIPULATOR_RATIO = 1.0;
-     
-    private static final AbsoluteEncoderConfig MANIPULATOR_ABSOLUTE_ENCODER_CONFIG = new AbsoluteEncoderConfig()
-      .zeroOffset(ElevatorConstants.MANIPULATOR_PIVOT_OFFSET)
-      .inverted(true)
-      .zeroCentered(true);
-    
-    private static final LimitSwitchConfig MANIPULATOR_LIMIT_SWITCH_CONFIG = new LimitSwitchConfig()
-      .forwardLimitSwitchEnabled(false)
-      .reverseLimitSwitchEnabled(false)
-      .forwardLimitSwitchType(Type.kNormallyOpen);
 
     public static final SparkBaseConfig MANIPULATOR_CONFIG = new SparkFlexConfig()
       .idleMode(IdleMode.kBrake)
       .inverted(false)
-      .smartCurrentLimit(60)
-      .apply(MANIPULATOR_ABSOLUTE_ENCODER_CONFIG)
-      .apply(MANIPULATOR_LIMIT_SWITCH_CONFIG);
+      .smartCurrentLimit(60);
   }
 
   public static final class ElevatorConstants {
@@ -144,6 +132,21 @@ public final class Constants {
       .withFeedback(MANIPULATOR_PIVOT_ENCODER)
       .withAudio(HardwareConstants.TALON_AUDIO_CONFIG)
       .withMotorOutput(MANIPULATOR_PIVOT_OUTPUT);
+
+    // Sensor Spark Max configs
+    private static final AbsoluteEncoderConfig MANIPULATOR_ABSOLUTE_ENCODER_CONFIG = new AbsoluteEncoderConfig()
+      .zeroOffset(ElevatorConstants.MANIPULATOR_PIVOT_OFFSET)
+      .inverted(true)
+      .zeroCentered(true);
+
+    private static final LimitSwitchConfig ALGAE_LIMIT_SWITCH_CONFIG = new LimitSwitchConfig()
+      .forwardLimitSwitchEnabled(false)
+      .reverseLimitSwitchEnabled(false)
+      .forwardLimitSwitchType(Type.kNormallyOpen);
+
+    public static final SparkBaseConfig MANIPULATOR_SENSOR_CONFIG = new SparkFlexConfig()
+      .apply(MANIPULATOR_ABSOLUTE_ENCODER_CONFIG)
+      .apply(ALGAE_LIMIT_SWITCH_CONFIG);
   }
 
   public static final class ElevatorPositions {
@@ -188,8 +191,8 @@ public final class Constants {
 
     // Manipulator Hardware 
     public static final int MANIPULATOR_CAN = 19;
+    public static final int MANIPULATOR_SENSORS_CAN = 20; // Spark Max, no motor
 
-    public static final int SPARKMAX_CAN = 20;
     // CAN Busses
     public static final CANBus RIO_CAN = new CANBus("rio");
     public static final CANBus CANIVORE = new CANBus("CANivore");
