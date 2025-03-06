@@ -189,7 +189,7 @@ public final class Constants {
     // Manipulator Hardware 
     public static final int MANIPULATOR_CAN = 19;
 
-    public static final int RASPI_CAN = 20;
+    public static final int SPARKMAX_CAN = 20;
     // CAN Busses
     public static final CANBus RIO_CAN = new CANBus("rio");
     public static final CANBus CANIVORE = new CANBus("CANivore");
