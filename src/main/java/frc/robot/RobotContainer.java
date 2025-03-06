@@ -23,6 +23,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.util.AlignmentVector;
+import frc.robot.util.Util;
 import frc.robot.util.dashboard.AutoChooser;
 import frc.robot.util.dashboard.Dashboard;
 import frc.robot.util.dashboard.NotificationCommand;
@@ -34,10 +35,10 @@ public final class RobotContainer {
   private final CommandXboxController armsController = new CommandXboxController(1);
 
   // Subsystems
-  private final SwerveDrive base = new SwerveDrive(baseController::setRumble);
-  private final Manipulator manipulator = new Manipulator();
-  private final Elevator elevator = new Elevator();
-  private final Climber climber = new Climber();
+  private final SwerveDrive base = Util.timeInstantiation(() -> new SwerveDrive(baseController::setRumble));
+  private final Manipulator manipulator = Util.timeInstantiation(Manipulator::new);
+  private final Elevator elevator = Util.timeInstantiation(Elevator::new);
+  private final Climber climber = Util.timeInstantiation(Climber::new);
 
   // Dashboard
   private final AutoChooser auto = new AutoChooser(base, elevator, climber);

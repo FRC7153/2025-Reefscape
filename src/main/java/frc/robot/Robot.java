@@ -10,12 +10,12 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.commands.PregameCommand;
+import frc.robot.util.Util;
 import frc.robot.util.logging.CANLogger;
 import frc.robot.util.logging.ConsoleLogger;
 
@@ -23,6 +23,7 @@ public final class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
+  private final CANLogger m_canLogger;
 
   public Robot() {
     ConsoleLogger.init();
@@ -41,13 +42,11 @@ public final class Robot extends TimedRobot {
     NetworkTableInstance.getDefault().startConnectionDataLog(DataLogManager.getLog(), "NTConnections");
 
     // Init CAN logging
-    CANLogger canLogger = new CANLogger(HardwareConstants.RIO_CAN, HardwareConstants.CANIVORE);
-    canLogger.start();
+    m_canLogger = new CANLogger(HardwareConstants.RIO_CAN, HardwareConstants.CANIVORE);
+    m_canLogger.start();
 
     // Init robot base
-    double start = Timer.getFPGATimestamp();
-    m_robotContainer = new RobotContainer();
-    System.out.printf("RobotContainer instantiation took %f seconds\n", Timer.getFPGATimestamp() - start);
+    m_robotContainer = Util.timeInstantiation(RobotContainer::new);
 
     // Add logging periodic
     addPeriodic(m_robotContainer::log, 0.1, 0.001); // every 100 ms

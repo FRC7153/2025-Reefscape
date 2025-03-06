@@ -1,11 +1,13 @@
 package frc.robot.util;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.util.logging.ConsoleLogger;
 import libs.Elastic;
@@ -75,6 +77,22 @@ public class Util {
     } else {
       return new Translation2d(pose.get().getX(), pose.get().getY());
     }
+  }
+
+  /**
+   * Times and outputs the amount of time taken to instantiate an object.
+   * @param <T> The type of the object to be instantiated.
+   * @param constructor The constructor that instantiates the object.
+   * @return The instantiated object
+   */
+  public static <T> T timeInstantiation(Supplier<T> constructor) {
+    double start = Timer.getFPGATimestamp();
+    T obj = constructor.get();
+    double elapsed = Timer.getFPGATimestamp() - start;
+
+    System.out.printf(
+      "%s took %.4f seconds to instantiate\n", obj.getClass().getSimpleName(), elapsed);
+    return obj;
   }
 
   /** Prevent instantiation */
