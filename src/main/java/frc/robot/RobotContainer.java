@@ -133,16 +133,28 @@ public final class RobotContainer {
     armsController.b()
       .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.L4, true));
 
-    // High Algae Intake (arms left trigger)
-    armsController.leftTrigger()
-      .whileTrue(new AlgaeCommand(elevator, manipulator, ElevatorPositions.ALGAE_HIGH));
+    // High Algae Intake (arms POV up)
+    armsController.povUp()
+      .onTrue(new AlgaeCommand(elevator, manipulator, ElevatorPositions.ALGAE_HIGH));
 
-    // Climber deploy (arms d pad down)
-    armsController.povDown().or(armsController.povDownLeft()).or(armsController.povDownRight())
+    // Low algae Intake (arms POV down)
+    armsController.povDown()
+      .onTrue(new AlgaeCommand(elevator,manipulator, ElevatorPositions.ALGAE_LOW));
+
+    // Processer algae position (arms POV left)
+    armsController.povLeft()
+      .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.PROCESSOR).repeatedly());
+
+    // Algae outtake (arms left trigger)
+    armsController.leftTrigger()
+      .whileTrue(new ManipulatorCommand(manipulator, -0.3));
+
+    // Climber deploy (arms right stick press)
+    armsController.rightStick()
       .onTrue(new DeployClimberCommand(climber));
 
-    // Climber deploy (arms d pad down)
-    armsController.povUp().or(armsController.povUpLeft()).or(armsController.povUpRight())
+    // Climber deploy (arms left stick press)
+    armsController.leftStick()
       .whileTrue(new RetractClimberCommand(climber));
     
     // Match timer start/stop

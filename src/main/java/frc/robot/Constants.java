@@ -151,15 +151,15 @@ public final class Constants {
 
   public static final class ElevatorPositions {
     public static final ElevatorState STOW = new ElevatorState(0.15, 0.4); // 0.15 original height
-    public static final ElevatorState INTAKE = new ElevatorState(1.195, 0.3);
-    public static final ElevatorState PROCESSOR = new ElevatorState(0.0, 0.0);
+    public static final ElevatorState INTAKE = new ElevatorState(1.0, 0.3);
+    public static final ElevatorState PROCESSOR = new ElevatorState(0.1, 0.2);
 
     public static final ElevatorState L1 = new ElevatorState(0.05, 0.255);
-    public static final ElevatorState L2 = new ElevatorState(1.5, 0.11);
-    public static final ElevatorState L3 = new ElevatorState(2.42, 0.11);
+    public static final ElevatorState L2 = new ElevatorState(1.4, 0.11); 
+    public static final ElevatorState L3 = new ElevatorState(2.6, 0.06);
     public static final ElevatorState L4 = new ElevatorState(4.45, -0.02);
 
-    public static final ElevatorState ALGAE_LOW = new ElevatorState(0.0, 0.0);
+    public static final ElevatorState ALGAE_LOW = new ElevatorState(0.55, 0.2);
     public static final ElevatorState ALGAE_HIGH = new ElevatorState(1.65, 0.2);
   }
 

@@ -11,6 +11,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
+import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEvent;
@@ -71,6 +72,7 @@ public class Limelight {
   private final DoubleArraySubscriber poseSub, statsSub, stdDevSub;
   private final DoubleSubscriber heartbeatSub;
   private final DoubleArrayPublisher orientationPub;
+  private final DoublePublisher imuModePub;
   private final Alert notConnectedAlert;
 
   // Stats
@@ -106,13 +108,20 @@ public class Limelight {
     NetworkTable cameraTable = NetworkTableInstance.getDefault().getTable(cameraName);
 
     poseSub = cameraTable
-      .getDoubleArrayTopic("botpose_orb_wpiblue")
+      .getDoubleArrayTopic("botpose_wpiblue") // botpose_orb_wpiblue
       .subscribe(new double[0]);
     stdDevSub = cameraTable.getDoubleArrayTopic("stddevs").subscribe(new double[0]);
     orientationPub = cameraTable.getDoubleArrayTopic("robot_orientation_set").publish();
     
     statsSub = cameraTable.getDoubleArrayTopic("hw").subscribe(new double[4]);
     heartbeatSub = cameraTable.getDoubleTopic("hb").subscribe(-1.0);
+
+    if (version.integratedIMU) {
+      imuModePub = cameraTable.getDoubleTopic("imumode_set").publish();
+      imuModePub.set(1.0);
+    } else {
+      imuModePub = null;
+    }
 
     // Enforce Pipeline
     cameraTable.getDoubleTopic("pipeline").publish().set(0);
@@ -219,7 +228,11 @@ public class Limelight {
    * {@code Limelight.setOrientation(...)}.
    */
   public void sendOrientation() {
+    if (version.integratedIMU) imuModePub.set(1.0);
+
     orientationPub.set(orientation);
+
+    if (version.integratedIMU) imuModePub.set(2.0);
   }
 
   /**
