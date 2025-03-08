@@ -160,6 +160,9 @@ public final class Elevator implements Subsystem {
   }
 
   public void resetElevatorEncoder() {
+    elevatorPosition.refresh();
+    System.out.printf("Reset elevator position from %f to 0.0\n", elevatorPosition.getValueAsDouble());
+
     elevatorMain.setPosition(0.0);
     elevatorFollower.setPosition(0.0);
   }

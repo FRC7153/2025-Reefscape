@@ -19,7 +19,7 @@ def offsetPosition(input, distance, angle):
   )
 
 # See AlignmentVector.java
-def generate(perpDistToReef, reefCenterOffsets):
+def generate(reefCenterOffsets):
   # Each reef position (from the corresponding AprilTag position, from the AndyMark field)
   reef = [(3.66, 4.02), (4.07, 3.30), (4.90, 3.30), (5.32, 4.02), (4.90, 4.74), (4.07, 4.74)]
   reefNames = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"]
@@ -34,21 +34,15 @@ def generate(perpDistToReef, reefCenterOffsets):
     angle = i * 60
 
     # Create center vector
-    centerVectors.append(formatVector(
-      f"REEF_{i+1}",
-      offsetPosition(reef[i], -1.0 * perpDistToReef, angle),
-      angle
-    ))
+    centerVectors.append(formatVector(f"REEF_{i+1}", reef[i], angle))
     
     # Create left vector
     left = offsetPosition(reef[i], reefCenterOffsets, angle+90)
-    left = offsetPosition(left, -1.0 * perpDistToReef, angle)
 
     leftVectors.append(formatVector(f"REEF_{reefNames[i*2]}", left, angle))
 
     # Create right vector
     right = offsetPosition(reef[i], reefCenterOffsets, angle-90)
-    right = offsetPosition(right, -1.0 * perpDistToReef, angle)
 
     rightVectors.append(formatVector(f"REEF_{reefNames[i*2 + 1]}", right, angle))
 
@@ -67,6 +61,6 @@ def generate(perpDistToReef, reefCenterOffsets):
 # Run
 if __name__ == "__main__":
   generate(
-    0.3, # distance from center of robot to reef
-    0.165 # offset of each reef pole from the center of that face of the reef
+    0.1635125 # offset of each reef pole from the center of that face of the reef (meters)
+          # Currently half of 12 7/8"
   )

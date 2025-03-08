@@ -8,34 +8,32 @@ import edu.wpi.first.math.numbers.N2;
 public class AlignmentVector {
   /** Pre-defined CENTER alignment vectors */
   public static final AlignmentVector[] CENTER_VECTORS = {
-    new AlignmentVector("REEF_1", new Translation2d(3.36, 4.02), Rotation2d.fromDegrees(0)),
-    new AlignmentVector("REEF_2", new Translation2d(3.92, 3.04), Rotation2d.fromDegrees(60)),
-    new AlignmentVector("REEF_3", new Translation2d(5.05, 3.04), Rotation2d.fromDegrees(120)),
-    new AlignmentVector("REEF_4", new Translation2d(5.62, 4.02), Rotation2d.fromDegrees(180)),
-    new AlignmentVector("REEF_5", new Translation2d(5.05, 5.0), Rotation2d.fromDegrees(240)),
-    new AlignmentVector("REEF_6", new Translation2d(3.92, 5.0), Rotation2d.fromDegrees(300))
+    new AlignmentVector("REEF_1", new Translation2d(3.66, 4.02), Rotation2d.fromDegrees(0)),
+    new AlignmentVector("REEF_2", new Translation2d(4.07, 3.3), Rotation2d.fromDegrees(60)),
+    new AlignmentVector("REEF_3", new Translation2d(4.9, 3.3), Rotation2d.fromDegrees(120)),
+    new AlignmentVector("REEF_4", new Translation2d(5.32, 4.02), Rotation2d.fromDegrees(180)),
+    new AlignmentVector("REEF_5", new Translation2d(4.9, 4.74), Rotation2d.fromDegrees(240)),
+    new AlignmentVector("REEF_6", new Translation2d(4.07, 4.74), Rotation2d.fromDegrees(300))
   };
 
   /** Pre-defined LEFT alignment vectors */
   public static final AlignmentVector[] LEFT_VECTORS = {
-    new AlignmentVector("REEF_A", new Translation2d(3.36, 4.185), Rotation2d.fromDegrees(0)),
-    new AlignmentVector("REEF_C", new Translation2d(3.777, 3.123), Rotation2d.fromDegrees(60)),
-    new AlignmentVector("REEF_E", new Translation2d(4.907, 2.958), Rotation2d.fromDegrees(120)),
-    new AlignmentVector("REEF_G", new Translation2d(5.62, 3.855), Rotation2d.fromDegrees(180)),
-    new AlignmentVector("REEF_I", new Translation2d(5.193, 4.917), Rotation2d.fromDegrees(240)),
-    new AlignmentVector("REEF_K", new Translation2d(4.063, 5.082), Rotation2d.fromDegrees(300))
+    new AlignmentVector("REEF_A", new Translation2d(3.66, 4.184), Rotation2d.fromDegrees(0)),
+    new AlignmentVector("REEF_C", new Translation2d(3.928, 3.382), Rotation2d.fromDegrees(60)),
+    new AlignmentVector("REEF_E", new Translation2d(4.758, 3.218), Rotation2d.fromDegrees(120)),
+    new AlignmentVector("REEF_G", new Translation2d(5.32, 3.856), Rotation2d.fromDegrees(180)),
+    new AlignmentVector("REEF_I", new Translation2d(5.042, 4.658), Rotation2d.fromDegrees(240)),
+    new AlignmentVector("REEF_K", new Translation2d(4.212, 4.822), Rotation2d.fromDegrees(300))
   };
 
   /** Pre-defined RIGHT alignment vectors */
   public static final AlignmentVector[] RIGHT_VECTORS = {
-    //new AlignmentVector("REEF_B", new Translation2d(3.36, 3.855), Rotation2d.fromDegrees(0)),
-    new AlignmentVector("REEF_B", new Translation2d(2.98, 3.89), Rotation2d.fromDegrees(0)),
-    //new AlignmentVector("REEF_D", new Translation2d(4.063, 2.958), Rotation2d.fromDegrees(60)),
-    new AlignmentVector("REEF_D", new Translation2d(3.82, 2.71), Rotation2d.fromDegrees(60)),
-    new AlignmentVector("REEF_F", new Translation2d(5.193, 3.123), Rotation2d.fromDegrees(120)),
-    new AlignmentVector("REEF_H", new Translation2d(5.62, 4.185), Rotation2d.fromDegrees(180)),
-    new AlignmentVector("REEF_J", new Translation2d(4.907, 5.082), Rotation2d.fromDegrees(240)),
-    new AlignmentVector("REEF_L", new Translation2d(3.777, 4.917), Rotation2d.fromDegrees(300))
+    new AlignmentVector("REEF_B", new Translation2d(3.66, 3.856), Rotation2d.fromDegrees(0)),
+    new AlignmentVector("REEF_D", new Translation2d(4.212, 3.218), Rotation2d.fromDegrees(60)),
+    new AlignmentVector("REEF_F", new Translation2d(5.042, 3.382), Rotation2d.fromDegrees(120)),
+    new AlignmentVector("REEF_H", new Translation2d(5.32, 4.184), Rotation2d.fromDegrees(180)),
+    new AlignmentVector("REEF_J", new Translation2d(4.758, 4.822), Rotation2d.fromDegrees(240)),
+    new AlignmentVector("REEF_L", new Translation2d(3.928, 4.658), Rotation2d.fromDegrees(300))
   };
 
   public final String name;

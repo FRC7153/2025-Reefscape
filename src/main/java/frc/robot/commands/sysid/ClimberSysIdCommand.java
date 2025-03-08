@@ -13,22 +13,22 @@ public class ClimberSysIdCommand extends SequentialCommandGroup{
             new PrintCommand("Climber Q+"),
             new ParallelRaceGroup(
                 climber.getClimberPivotRoutine().quasistatic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kForward),
-                new WaitUntilCommand(() -> climber.getPosition() >= 0.0)//TODO
+                new WaitUntilCommand(() -> climber.getPivotPosition() >= 0.0)//TODO
             ), 
             new PrintCommand("Climber Q-"),
             new ParallelRaceGroup(
                 climber.getClimberPivotRoutine().quasistatic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kReverse),
-                new WaitUntilCommand(() -> climber.getPosition() <= 0.0)// TODO
+                new WaitUntilCommand(() -> climber.getPivotPosition() <= 0.0)// TODO
             ),
             new PrintCommand("Climber D+"),
             new ParallelRaceGroup(
                 climber.getClimberPivotRoutine().dynamic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kForward),
-                new WaitUntilCommand(() -> climber.getPosition() >= 0.0)// TODO
+                new WaitUntilCommand(() -> climber.getPivotPosition() >= 0.0)// TODO
             ),
             new PrintCommand("Climber D-"),
             new ParallelRaceGroup(
                 climber.getClimberPivotRoutine().dynamic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kReverse),
-                new WaitUntilCommand(() -> climber.getPosition() <= 0.0)// TODO
+                new WaitUntilCommand(() -> climber.getPivotPosition() <= 0.0)// TODO
             ),
             new PrintCommand("Climber SysId Done"),
             new InstantCommand(() -> climber.stopClimber())

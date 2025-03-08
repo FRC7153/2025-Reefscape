@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.Constants.BuildConstants;
 
 /**
  * Captures Java's Console messages to WPILogs, because the built-in logger sometimes garbles
@@ -15,6 +18,18 @@ import edu.wpi.first.wpilibj.DriverStation;
 public class ConsoleLogger {
   private static final StringLogEntry outLog = 
     new StringLogEntry(DataLogManager.getLog(), "messages");
+
+  private static final StringPublisher outPub;
+
+  static {
+    // Init string publisher conditionally
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      NetworkTableInstance nt = NetworkTableInstance.getDefault();
+      outPub = nt.getStringTopic("ConsoleOut").publish();
+    } else {
+      outPub = null;
+    }
+  }
 
   /**
    * OutputStream that captures to DataLog.
@@ -39,6 +54,11 @@ public class ConsoleLogger {
       if (b == '\n' || buffer.length() > 800) {
         // Flush buffer
         dataLogOut.append(buffer.toString());
+
+        if (BuildConstants.PUBLISH_EVERYTHING) {
+          outPub.set(buffer.toString());
+        }
+        
         buffer.delete(0, buffer.length());
       } else {
         // Append to buffer
@@ -66,6 +86,10 @@ public class ConsoleLogger {
   public static void reportWarning(String msg) {
     outLog.append("[WARNING] " + msg);
     DriverStation.reportWarning(msg, false);
+
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      outPub.set("[WARNING] " + msg);
+    }
   }
 
   /**
@@ -74,6 +98,10 @@ public class ConsoleLogger {
   public static void reportError(String msg) {
     outLog.append("[ERROR] " + msg);
     DriverStation.reportError(msg, false);
+
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      outPub.set("[ERROR] " + msg);
+    }
   }
 
   /** Utility class, prevent instantiation */

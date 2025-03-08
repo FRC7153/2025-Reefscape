@@ -7,7 +7,12 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -17,10 +22,11 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.HardwareConstants;
 
-public class Climber implements Subsystem {
+public final class Climber implements Subsystem {
   private final SparkFlex climberPivot = new SparkFlex(HardwareConstants.CLIMBER_PIVOT, MotorType.kBrushless);
   private final SparkFlex climberWinch = new SparkFlex(HardwareConstants.CLIMBER_WINCH, MotorType.kBrushless);
 
@@ -33,6 +39,9 @@ public class Climber implements Subsystem {
 
   //SysId Routine
   private SysIdRoutine climberPivotRoutine;
+
+  // NT Output
+  private final DoublePublisher winchPositionPub, pivotPositionPub;
  
   // DataLog Output
   private final DoubleLogEntry climberPivotPositionLog =
@@ -63,9 +72,20 @@ public class Climber implements Subsystem {
       PersistMode.kPersistParameters
     );
 
+    // Init NT
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      NetworkTable nt = NetworkTableInstance.getDefault().getTable("Climber");
+      pivotPositionPub = nt.getDoubleTopic("PivotPosition").publish();
+      winchPositionPub = nt.getDoubleTopic("WinchPosition").publish();
+    } else {
+      pivotPositionPub = null;
+      winchPositionPub = null;
+    }
+
     // Reset encoder
-    climberPivotEncoder.setPosition(0.0);
-    climberWinchEncoder.setPosition(0.0);
+    homeClimberToBottom();
+
+    setBrakeMode(true);
   }
 
   public SysIdRoutine getClimberPivotRoutine(){
@@ -96,27 +116,65 @@ public class Climber implements Subsystem {
     climberWinch.set(percentage);
     climberWinchPercentageLog.append(percentage);
   }
-  /* 
+
+  public void setBrakeMode(boolean pivotBrake, boolean winchBrake) {
+    climberPivot.configure(
+      new SparkMaxConfig().idleMode(pivotBrake ? IdleMode.kBrake : IdleMode.kCoast), 
+      ResetMode.kNoResetSafeParameters, 
+      PersistMode.kNoPersistParameters);
+    
+    climberWinch.configure(
+      new SparkMaxConfig().idleMode(winchBrake ? IdleMode.kBrake : IdleMode.kCoast), 
+      ResetMode.kNoResetSafeParameters, 
+      PersistMode.kNoPersistParameters);
+
+    System.out.printf("Climber brake mode set (pivot: %b, winch: %b)\n", pivotBrake, winchBrake);
+  }
+
+  public void setBrakeMode(boolean brake) {
+    setBrakeMode(brake, brake);
+  }
+ 
   /**
-   * @return Position (in rots)
+   * @return Pivot position (in rots, no gear ratio)
    */
-  public double getPosition() {
-    return climberPivotEncoder.getPosition() / ClimberConstants.CLIMBER_RATIO;
+  public double getPivotPosition() {
+    return climberPivotEncoder.getPosition();
+  }
+
+  /**
+   * @return Winch position (in rots, no gear ratio)
+   */
+  public double getWinchPosition() {
+    return climberWinchEncoder.getPosition();
   }
 
   public void stopClimber(){
-    climberPivot.set(0.0);
-    climberWinch.set(0.0);
+    runClimberPivot(0.0);
+    runClimberWinch(0.0);
+  }
+
+  public void homeClimberToBottom() {
+    System.out.printf("Homed climber pivot from %f -> 0.1\n", climberPivotEncoder.getPosition());
+    System.out.printf("Homed climber winch from %f -> 0.0\n", climberWinchEncoder.getPosition());
+
+    climberPivotEncoder.setPosition(0.1);
+    climberWinchEncoder.setPosition(0.0);
   }
   
   /**
    * logs the position of the left climber
    */
   public void log(){
-    climberPivotPositionLog.append(getPosition());
+    climberPivotPositionLog.append(getPivotPosition());
     climberPivotCurrentLog.append(climberPivot.getOutputCurrent());
     climberWinchPositionLog.append(climberWinchEncoder.getPosition());
     climberWinchCurrentLog.append(climberWinch.getOutputCurrent());
+
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      pivotPositionPub.set(getPivotPosition());
+      winchPositionPub.set(getWinchPosition());
+    }
   }
 
   public void checkHardware(){

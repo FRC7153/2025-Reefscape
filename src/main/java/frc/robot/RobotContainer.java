@@ -7,14 +7,17 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ElevatorPositions;
 import frc.robot.commands.AlgaeCommand;
+import frc.robot.commands.DeployClimberCommand;
 import frc.robot.commands.ElevatorToStateCommand;
 import frc.robot.commands.LockOnCommand;
 import frc.robot.commands.ManipulatorCommand;
 import frc.robot.commands.PregameCommand;
+import frc.robot.commands.RetractClimberCommand;
 import frc.robot.commands.StowCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.commands.TestCommand;
@@ -43,7 +46,7 @@ public final class RobotContainer {
   // Dashboard
   private final AutoChooser auto = new AutoChooser(base, elevator, climber);
   private final Dashboard dashboard = new Dashboard(baseController, armsController);
-  private final Command pregameCommand = new PregameCommand(base, elevator, dashboard, auto);
+  private final Command pregameCommand = new PregameCommand(base, elevator, climber, dashboard, auto);
 
   public RobotContainer() {
     // Add Pregame command to the dashboard
@@ -68,11 +71,6 @@ public final class RobotContainer {
         baseController.leftTrigger())
     );
     
-    // Climber default command (climb if both buttons pressed)
-    //climber.setDefaultCommand(
-    ///  new ClimbCommand(climber, baseController.b(), armsController.b())
-    //);
-
     // Manipulator default command (not spinning, unless angled down)
     manipulator.setDefaultCommand(
       new ManipulatorCommand(manipulator, -1.0, 0.0, () -> elevator.getManipulatorAngle() < 0.1)
@@ -82,6 +80,12 @@ public final class RobotContainer {
     elevator.setDefaultCommand(
       new StowCommand(elevator)
     );
+
+    // Climber default command (no moving)
+    climber.setDefaultCommand(
+      new InstantCommand(climber::stopClimber, climber).withName("ClimberDefaultCommand")
+    );
+    //elevator elevator elevator elevator elevator elevator elevator elevator elevator elevator
 
     // Stow elevator when roll limit exceeded
     isRollLimitExceededTrigger
@@ -133,13 +137,14 @@ public final class RobotContainer {
     armsController.leftTrigger()
       .whileTrue(new AlgaeCommand(elevator, manipulator, ElevatorPositions.ALGAE_HIGH));
 
-    // Temp testing code
-    //baseController.a()
-    //  .whileTrue(new InstantCommand(() -> climber.runClimberWinch(baseController.getLeftY()), climber).repeatedly())
-    //  .whileFalse(new InstantCommand(() -> climber.runClimberWinch(0.0), climber).repeatedly())
-    //  .whileTrue(new InstantCommand(() -> climber.runClimberPivot(-baseController.getRightY())).repeatedly())
-    //  .whileFalse(new InstantCommand(() -> climber.runClimberPivot(0.0)).repeatedly());
+    // Climber deploy (arms d pad down)
+    armsController.povDown().or(armsController.povDownLeft()).or(armsController.povDownRight())
+      .onTrue(new DeployClimberCommand(climber));
 
+    // Climber deploy (arms d pad down)
+    armsController.povUp().or(armsController.povUpLeft()).or(armsController.povUpRight())
+      .whileTrue(new RetractClimberCommand(climber));
+    
     // Match timer start/stop
     isEnabledTrigger
       .onTrue(dashboard.getRestartTimerCommand())
@@ -147,7 +152,7 @@ public final class RobotContainer {
 
     // Test mode
     isTestTrigger
-      .whileTrue(new TestCommand(elevator, manipulator));
+      .whileTrue(new TestCommand(elevator, manipulator, climber, () -> -armsController.getLeftY()));
   }
 
   /** Checks all hardware, called periodically */

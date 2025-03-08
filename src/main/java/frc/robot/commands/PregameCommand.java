@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.util.dashboard.AutoChooser;
@@ -24,13 +25,15 @@ public class PregameCommand extends InstantCommand {
 
   public static boolean getHasPregamed() { return hasPregamed;  }
 
-  public PregameCommand(SwerveDrive drive, Elevator elevator, Dashboard dashboard, AutoChooser chooser) {
+  public PregameCommand(SwerveDrive drive, Elevator elevator, Climber climber, Dashboard dashboard, AutoChooser chooser) {
     super(() -> {
       // Run pregame actions:
       drive.pregame();
       elevator.home();
 
+      // Reset encoders
       elevator.resetElevatorEncoder();
+      climber.homeClimberToBottom();
 
       dashboard.stopWebServerIfFMS();
 
