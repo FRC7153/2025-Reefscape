@@ -1,4 +1,6 @@
 import math
+import json
+import sys
 
 DEG_TO_RAD = math.pi/180
 
@@ -18,11 +20,19 @@ def offsetPosition(input, distance, angle):
     input[1] + (distance * math.sin(angle * DEG_TO_RAD))
   )
 
+# Gets tag pose
+def getTagPose(tagJson, tagId):
+  for t in tagJson["tags"]:
+    if t["ID"] == tagId:
+      return t["pose"]
+    
+  print(f"Could not find tag id {tagId}")
+  return None
+
 # See AlignmentVector.java
-def generate(reefCenterOffsets):
-  # Each reef position (from the corresponding AprilTag position, from the AndyMark field)
-  reef = [(3.66, 4.02), (4.07, 3.30), (4.90, 3.30), (5.32, 4.02), (4.90, 4.74), (4.07, 4.74)]
-  reefNames = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"]
+def generate(aprilTagFile, reefCenterOffsets):
+  with open(aprilTagFile, "r") as f:
+    tags = json.load(f)
 
   # Init output
   leftVectors = []
@@ -30,19 +40,24 @@ def generate(reefCenterOffsets):
   rightVectors = []
 
   # Generate reef vectors
+  reefNames = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"]
+  reefTag = [18, 17, 22, 21, 20, 19]
+
   for i in range(6):
+    pose = getTagPose(tags, reefTag[i])
+    pose = (pose["translation"]["x"], pose["translation"]["y"])
     angle = i * 60
 
     # Create center vector
-    centerVectors.append(formatVector(f"REEF_{i+1}", reef[i], angle))
+    centerVectors.append(formatVector(f"REEF_{i+1}", pose, angle))
     
     # Create left vector
-    left = offsetPosition(reef[i], reefCenterOffsets, angle+90)
+    left = offsetPosition(pose, reefCenterOffsets, angle+90)
 
     leftVectors.append(formatVector(f"REEF_{reefNames[i*2]}", left, angle))
 
     # Create right vector
-    right = offsetPosition(reef[i], reefCenterOffsets, angle-90)
+    right = offsetPosition(pose, reefCenterOffsets, angle-90)
 
     rightVectors.append(formatVector(f"REEF_{reefNames[i*2 + 1]}", right, angle))
 
@@ -61,6 +76,6 @@ def generate(reefCenterOffsets):
 # Run
 if __name__ == "__main__":
   generate(
-    0.1635125 # offset of each reef pole from the center of that face of the reef (meters)
-          # Currently half of 12 7/8"
+    sys.argv[1], # AprilTag .json file
+    0.329 / 2.0 # offset of each reef pole from the center of that face of the reef (meters)
   )

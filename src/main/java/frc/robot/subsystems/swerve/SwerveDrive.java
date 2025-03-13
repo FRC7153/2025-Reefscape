@@ -188,7 +188,7 @@ public final class SwerveDrive implements Subsystem {
     });
 
     // Warm up PathPlanner
-    FollowPathCommand.warmupCommand().schedule();
+    FollowPathCommand.warmupCommand().withName("PathPlannerWarmUpCommand").schedule();
   }
 
   /**
@@ -299,10 +299,10 @@ public final class SwerveDrive implements Subsystem {
   }
 
   /**
-   * @return Whether the roll limit (+/- 8 degrees) has been exceeded.
+   * @return Whether the roll limit (+/- 20 degrees) has been exceeded.
    */
   public boolean getRollLimitExceeded() {
-    return Math.abs(odometry.getRoll()) > 8.0;
+    return Math.abs(odometry.getRoll()) > 20.0;
   }
 
   /** Homes all swerve modules and caches alliance color for odometry. Run in pregame. */

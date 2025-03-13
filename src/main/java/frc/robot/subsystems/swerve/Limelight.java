@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoublePublisher;
@@ -47,6 +48,9 @@ public class Limelight {
     }
   }
 
+  // Distance (m) to switch from MT2 to MT1
+  private static final double MT2_MIN_DISTANCE = 1.25;
+
   // Shared orientation array for MegaTag2
   private static final double[] orientation = new double[6];
 
@@ -69,7 +73,7 @@ public class Limelight {
   private final SwerveOdometry odometry;
 
   // Network tables
-  private final DoubleArraySubscriber poseSub, statsSub, stdDevSub;
+  private final DoubleArraySubscriber mt1PoseSub, mt2PoseSub, targetPoseSub, statsSub, stdDevSub;
   private final DoubleSubscriber heartbeatSub;
   private final DoubleArrayPublisher orientationPub;
   private final DoublePublisher imuModePub;
@@ -84,12 +88,13 @@ public class Limelight {
   // Logging
   private final DoubleLogEntry fpsLog, cpuTempLog, ramLog, tempLog;
   private final IntegerLogEntry frameCountLog;
-  private final BooleanLogEntry isAliveLog;
+  private final BooleanLogEntry isAliveLog, isMegaTag2Log;
   private final StructArrayLogEntry<Translation2d> seenTagsLog;
 
   // NT Logging
   private final StructArrayPublisher<Translation2d> seenTagsPub;
   private final StructPublisher<Pose2d> positionPub;
+  private final BooleanPublisher isMegaTag2Pub;
 
   // Cached values
   private final Matrix<N3, N1> stdDevs = VecBuilder.fill(0, 0, 99999); // NEVER trust yaw measurement
@@ -107,9 +112,18 @@ public class Limelight {
     // Get NT topics
     NetworkTable cameraTable = NetworkTableInstance.getDefault().getTable(cameraName);
 
-    poseSub = cameraTable
+    mt1PoseSub = cameraTable
+      .getDoubleArrayTopic("botpose_wpiblue")
+      .subscribe(new double[0]);
+
+    mt2PoseSub = cameraTable
       .getDoubleArrayTopic("botpose_orb_wpiblue")
       .subscribe(new double[0]);
+
+    targetPoseSub = cameraTable
+      .getDoubleArrayTopic("targetpose_robotspace")
+      .subscribe(new double[0]);
+
     stdDevSub = cameraTable.getDoubleArrayTopic("stddevs").subscribe(new double[0]);
     orientationPub = cameraTable.getDoubleArrayTopic("robot_orientation_set").publish();
     
@@ -135,6 +149,7 @@ public class Limelight {
     tempLog = new DoubleLogEntry(DataLogManager.getLog(), logName + "temp", "f");
     isAliveLog = new BooleanLogEntry(DataLogManager.getLog(), logName + "is_alive");
     frameCountLog = new IntegerLogEntry(DataLogManager.getLog(), logName + "frame_count");
+    isMegaTag2Log = new BooleanLogEntry(DataLogManager.getLog(), logName + "is_megatag_2");
     
     seenTagsLog = StructArrayLogEntry.create(DataLogManager.getLog(), "Limelight/AllTags/" + name, Translation2d.struct);
 
@@ -145,6 +160,9 @@ public class Limelight {
 
       NetworkTable nt2 = NetworkTableInstance.getDefault().getTable("Limelight/Poses");
       positionPub = nt2.getStructTopic(name, Pose2d.struct).publish();
+
+      NetworkTable nt3 = NetworkTableInstance.getDefault().getTable("Limelight/" + name);
+      isMegaTag2Pub = nt3.getBooleanTopic("IsMegaTag2").publish();
     } else {
       seenTagsPub = null;
       positionPub = null;
@@ -152,9 +170,16 @@ public class Limelight {
 
     // Limelight MegaTag2 pose listener
     NetworkTableInstance.getDefault().addListener(
-      poseSub, 
+      mt2PoseSub, 
       EnumSet.of(NetworkTableEvent.Kind.kValueRemote),
-      this::processPose
+      (NetworkTableEvent event) -> processPose(event, true)
+    ); 
+
+    // Limelight MegaTag1 pose listener
+    NetworkTableInstance.getDefault().addListener(
+      mt1PoseSub, 
+      EnumSet.of(NetworkTableEvent.Kind.kValueRemote),
+      (NetworkTableEvent event) -> processPose(event, false)
     ); 
   }
 
@@ -162,19 +187,7 @@ public class Limelight {
    * Runs when NT detects a change on the robot pose entry.
    * @param event
    */
-  private void processPose(NetworkTableEvent event) {
-    // Check that the NT type is correct
-    if (!event.valueData.value.isDoubleArray()) {
-      ConsoleLogger.reportError(
-        String.format(
-          "Robot pose from limelight %s wasn't double[], was %s", 
-          cameraName,
-          event.valueData.value.getType().getValueStr()
-        )
-      );
-      return;
-    }
-
+  private void processPose(NetworkTableEvent event, boolean megaTag2) {
     double[] data = event.valueData.value.getDoubleArray();
     double[] stdDevsUpdate = stdDevSub.get();
 
@@ -195,6 +208,28 @@ public class Limelight {
       // No tags here
       seenTags = EMPTY_TRANSLATION_ARRAY;
       return;
+    }
+
+    // Get distance to nearest tag
+    // If farther than MT2_MIN_DISTANCE, use MegaTag2. Else, use MegaTag1.
+    double[] targetPose = targetPoseSub.get();
+
+    if (targetPose.length != 6) {
+      ConsoleLogger.reportError(
+        String.format("Limelight %s received invalid targetpose length (expected 6, was %d)", cameraName, targetPose.length)
+      );
+
+      if (!megaTag2) return;
+    } else {
+      // For some reason, we need X and Z position here?
+      double dist = Math.hypot(targetPose[0], targetPose[2]);
+      if ((megaTag2 && dist < MT2_MIN_DISTANCE) || (!megaTag2 && dist >= MT2_MIN_DISTANCE)) return;
+    }
+
+    isMegaTag2Log.append(megaTag2);
+
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      isMegaTag2Pub.set(megaTag2);
     }
 
     // Calculate new Pose

@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import frc.robot.subsystems.Manipulator;
 
 public class ManipulatorCommand extends RepeatCommand {
+  private final String name;
+
   /**
    * Runs the manipulator velocity (%) depending on the condition until canceled.
    * @param manipulator
@@ -21,6 +23,8 @@ public class ManipulatorCommand extends RepeatCommand {
         manipulator
       )
     );
+
+    name = String.format("ManipulatorCommand(%.3f, %.3f)", ifTrue, ifFalse);
   }
 
   /**
@@ -32,5 +36,12 @@ public class ManipulatorCommand extends RepeatCommand {
     super(
       new InstantCommand(() -> manipulator.setManipulatorVelocity(velocity), manipulator)
     );
+
+    name = String.format("ManipulatorCommand(%.3f)", velocity);
+  }
+
+  @Override
+  public String getName() {
+    return name;
   }
 }

@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.util;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;

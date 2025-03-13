@@ -25,9 +25,9 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.Threads;
 import frc.robot.Constants.BuildConstants;
-import frc.robot.util.DerivativeCalculator;
 import frc.robot.util.Util;
 import frc.robot.util.logging.ConsoleLogger;
+import frc.robot.util.math.DerivativeCalculator;
 
 /**
  * 4-module SwerveOdometry thread based off of CTRE's SwerveBase.

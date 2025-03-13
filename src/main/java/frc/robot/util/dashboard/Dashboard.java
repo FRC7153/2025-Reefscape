@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
-import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.DashboardConstants;
 
 /**
@@ -48,9 +47,7 @@ public class Dashboard {
     matchTimer.reset();
 
     // Begin hosting CommandScheduler for debugging
-    if (BuildConstants.PUBLISH_EVERYTHING) {
-      SmartDashboard.putData("Commands", CommandScheduler.getInstance());
-    }
+    SmartDashboard.putData("Commands", CommandScheduler.getInstance());
   }
 
   /**

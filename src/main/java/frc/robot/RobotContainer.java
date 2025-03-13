@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,21 +16,23 @@ import frc.robot.Constants.ElevatorPositions;
 import frc.robot.commands.AlgaeCommand;
 import frc.robot.commands.DeployClimberCommand;
 import frc.robot.commands.ElevatorToStateCommand;
-import frc.robot.commands.LockOnCommand;
 import frc.robot.commands.ManipulatorCommand;
 import frc.robot.commands.PregameCommand;
 import frc.robot.commands.RetractClimberCommand;
 import frc.robot.commands.StowCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.commands.TestCommand;
+import frc.robot.commands.alignment.LockOnReefCommand;
+import frc.robot.commands.alignment.LockOnReefCommand.ReefSetpoint;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.swerve.SwerveDrive;
-import frc.robot.util.AlignmentVector;
 import frc.robot.util.Util;
 import frc.robot.util.dashboard.AutoChooser;
 import frc.robot.util.dashboard.Dashboard;
+import frc.robot.util.dashboard.LockOnTelemetry;
+import frc.robot.util.dashboard.LockOnTelemetry.TargetType;
 import frc.robot.util.dashboard.NotificationCommand;
 import libs.Elastic.Notification.NotificationLevel;
 
@@ -57,18 +61,18 @@ public final class RobotContainer {
 
   private void configureBindings() {
     // Triggers
-    Trigger isEnabledTrigger = new Trigger(DriverStation::isEnabled);
-    Trigger isTestTrigger = new Trigger(DriverStation::isTestEnabled);
-    Trigger isRollLimitExceededTrigger = new Trigger(base::getRollLimitExceeded);
+    final Trigger isEnabledTrigger = new Trigger(DriverStation::isEnabled);
+    final Trigger isTestTrigger = new Trigger(DriverStation::isTestEnabled);
+    final Trigger isRollLimitExceededTrigger = new Trigger(base::getRollLimitExceeded);
+
+    // Inverted inputs
+    final Supplier<Double> baseLeftX = () -> -baseController.getLeftX();
+    final Supplier<Double> baseLeftY = () -> -baseController.getLeftY();
+    final Supplier<Double> baseRightX = () -> -baseController.getRightX();
 
     // SwerveDrive default command (teleop driving)
     base.setDefaultCommand(
-      new TeleopDriveCommand(
-        base, 
-        () -> -baseController.getLeftX(), 
-        () -> -baseController.getLeftY(), 
-        () -> -baseController.getRightX(), 
-        baseController.leftTrigger())
+      new TeleopDriveCommand(base, baseLeftX, baseLeftY, baseRightX, baseController.leftTrigger())
     );
     
     // Manipulator default command (not spinning, unless angled down)
@@ -85,24 +89,42 @@ public final class RobotContainer {
     climber.setDefaultCommand(
       new InstantCommand(climber::stopClimber, climber).withName("ClimberDefaultCommand")
     );
-    //elevator elevator elevator elevator elevator elevator elevator elevator elevator elevator
 
     // Stow elevator when roll limit exceeded
     isRollLimitExceededTrigger
       //.onTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.STOW))
-      .onTrue(new NotificationCommand("Robot roll limit exceeded", "Elevator has been STOWED", NotificationLevel.WARNING));
+      .onTrue(new NotificationCommand("Robot roll limit exceeded", "", NotificationLevel.WARNING));
+
+    // Lock in to reef targets (base POV down)
+    baseController.povDown()
+      .onTrue(new InstantCommand(() -> LockOnTelemetry.setTargetType(TargetType.REEF)));
+
+    // Lock in to coral station targets (base POV left)
+    baseController.povLeft()
+      .onTrue(new InstantCommand(() -> LockOnTelemetry.setTargetType(TargetType.CORAL_STATION)));
+
+    // Lock in to cage targets (base POV up)
+    baseController.povUp()
+      .onTrue(new InstantCommand(() -> LockOnTelemetry.setTargetType(TargetType.CAGE)));
+
+    // Lock in to reef targets (base POV right)
+    baseController.povRight()
+      .onTrue(new InstantCommand(() -> LockOnTelemetry.setTargetType(TargetType.ALGAE_SCORING)));
 
     // Line up with left targets (base X)
     baseController.x()
-      .whileTrue(new LockOnCommand(base, baseController::getLeftY, dashboard::setAllRumble, AlignmentVector.LEFT_VECTORS));
+      /*.whileTrue(new SelectCommand<>(Map.of(
+        TargetType.REEF, new LockOnReefCommand(base, baseLeftX, baseLeftY, dashboard::setAllRumble, ReefSetpoint.LEFT)
+      ), LockOnTelemetry::getTargetType))*/
+      .whileTrue(new LockOnReefCommand(base, baseLeftX, baseLeftY, dashboard::setAllRumble, ReefSetpoint.LEFT));
 
     // Line up with center targets (base A)
     baseController.a()
-      .whileTrue(new LockOnCommand(base, baseController::getLeftY, dashboard::setAllRumble, AlignmentVector.CENTER_VECTORS));
+    .whileTrue(new LockOnReefCommand(base, baseLeftX, baseLeftY, dashboard::setAllRumble, ReefSetpoint.CENTER));
 
     // Line up with right targets (base B)
     baseController.b()
-      .whileTrue(new LockOnCommand(base, baseController::getLeftY, dashboard::setAllRumble, AlignmentVector.RIGHT_VECTORS));
+    .whileTrue(new LockOnReefCommand(base, baseLeftX, baseLeftY, dashboard::setAllRumble, ReefSetpoint.RIGHT));
 
     // Intake (driver right trigger)
     baseController.rightTrigger()
@@ -141,7 +163,7 @@ public final class RobotContainer {
     armsController.povDown()
       .onTrue(new AlgaeCommand(elevator,manipulator, ElevatorPositions.ALGAE_LOW));
 
-    // Processer algae position (arms POV left)
+    // Processor algae position (arms POV left)
     armsController.povLeft()
       .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.PROCESSOR).repeatedly());
 
@@ -155,7 +177,7 @@ public final class RobotContainer {
 
     // Climber deploy (arms left stick press)
     armsController.leftStick()
-      .whileTrue(new RetractClimberCommand(climber));
+      .onTrue(new RetractClimberCommand(climber));
     
     // Match timer start/stop
     isEnabledTrigger

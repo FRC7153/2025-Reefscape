@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -61,6 +62,17 @@ public class Util {
    */
   public static double applyDeadband(double value, double min) {
     return (Math.abs(value) < min) ? 0 : value;
+  }
+
+  /**
+   * @param speeds Input speeds. Modified in place.
+   * @param xyMin The translational deadband (m/s).
+   * @param omegaMin The rotational deadband (rad/sec).
+   */
+  public static void deadbandChassisSpeeds(ChassisSpeeds speeds, double xyMin, double omegaMin) {
+    speeds.vxMetersPerSecond = applyDeadband(speeds.vxMetersPerSecond, xyMin);
+    speeds.vyMetersPerSecond = applyDeadband(speeds.vyMetersPerSecond, xyMin);
+    speeds.omegaRadiansPerSecond = applyDeadband(speeds.omegaRadiansPerSecond, omegaMin);
   }
 
   /**
