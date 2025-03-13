@@ -6,6 +6,10 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.Climber;
 
 public class DeployClimberCommand extends SequentialCommandGroup {
+  /**
+   * Deploys the climber outward.
+   * @param climber
+   */
   public DeployClimberCommand(Climber climber) {
     super(
       new InstantCommand(() -> climber.runClimberPivot(0.75), climber),

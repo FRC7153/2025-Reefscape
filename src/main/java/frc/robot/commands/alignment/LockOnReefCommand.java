@@ -3,25 +3,16 @@ package frc.robot.commands.alignment;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.BuildConstants;
-import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveDrive;
-import frc.robot.util.Util;
-import frc.robot.util.dashboard.LockOnTelemetry;
 import frc.robot.util.logging.ConsoleLogger;
 import frc.robot.util.math.AlignmentVector;
 import frc.robot.util.math.Triangle2d;
 
-public class LockOnReefCommand extends Command {
+public class LockOnReefCommand extends LockOnCommand {
   /** Reef setpoints that can be locked on to. */
   public static enum ReefSetpoint {
     /** Predefined LEFT reef vectors */
@@ -77,13 +68,7 @@ public class LockOnReefCommand extends Command {
     new Triangle2d(REEF_CENTER, REEF_CORNERS_EXPANDED[5], REEF_CORNERS_EXPANDED[0]), // K/L
   };
 
-  private final SwerveDrive drive;
-  private final Supplier<Double> xSupplier, ySupplier;
-  private final BiConsumer<RumbleType, Double> rumbleConsumer;
-  private final ReefSetpoint setpoints;
-  private final PathPlannerTrajectoryState targetState = new PathPlannerTrajectoryState();
-
-  private AlignmentVector vector;
+  private final String name;
 
   /**
    * Locks onto the best Reef target of the ones supplied in setpoints.
@@ -100,96 +85,33 @@ public class LockOnReefCommand extends Command {
     BiConsumer<RumbleType, Double> rumbleConsumers,
     ReefSetpoint setpoints
   ) {
-    this.drive = drive;
-    this.xSupplier = xSupplier;
-    this.ySupplier = ySupplier;
-    this.rumbleConsumer = rumbleConsumers;
-    this.setpoints = setpoints;
+    super(
+      drive, 
+      () -> {
+        // Determine which side of the reef to use
+        Pose2d currentPose = drive.getPosition(false);
 
-    addRequirements(drive);
-  }
+        for (int i = 0; i < REEF_ZONES.length; i++) {
+          if (REEF_ZONES[i].containsPoint(currentPose.getTranslation())) {
+            // We are in this zone
+            return setpoints.vectors[i];
+          }
+        }
 
-  @Override
-  public void initialize() {
-    // Determine which side of the reef to use
-    Pose2d currentPose = drive.getPosition(false);
-    vector = null;
-
-    for (int i = 0; i < REEF_ZONES.length; i++) {
-      if (REEF_ZONES[i].containsPoint(currentPose.getTranslation())) {
-        // We are in this zone
-        vector = setpoints.vectors[i];
-        break;
-      }
-    }
-
-    // Make sure we were in at least 1 zone
-    if (vector == null) {
-      ConsoleLogger.reportError("Robot position is not in any reef zone!");
-      vector = setpoints.vectors[0];
-    }
-
-    // Output
-    LockOnTelemetry.setTargetName(vector.getName()); 
-  }
-
-  @Override
-  public void execute() {
-    // Get current pose
-    Pose2d currentPose = drive.getPosition(false);
-    
-    // Get user input (note y and x are swapped here, because forward (y+) should be a vector of 0 degrees)
-    Translation2d speed = new Translation2d(
-      ySupplier.get() * SwerveConstants.SLOW_TRANSLATIONAL_SPEED,
-      xSupplier.get() * SwerveConstants.SLOW_TRANSLATIONAL_SPEED
+        // We are in no zones?
+        ConsoleLogger.reportError("Robot position is not in any reef zone!");
+        return setpoints.vectors[0]; 
+      }, 
+      xSupplier, 
+      ySupplier, 
+      rumbleConsumers
     );
 
-    double projectedSpeedMagnitude = vector.projectVector(speed).getNorm();
-
-    // Determine target position
-    Translation2d projection = vector.projectPoint(
-      currentPose.getTranslation(), 
-      projectedSpeedMagnitude * TimedRobot.kDefaultPeriod
-    );
-
-    // Get drive base speed
-    targetState.pose = new Pose2d(projection, vector.getDirection());
-    targetState.heading = vector.getDirection();
-    targetState.linearVelocity = projectedSpeedMagnitude;
-
-    ChassisSpeeds chassis = 
-      SwerveConstants.AUTO_CONTROLLER.calculateRobotRelativeSpeeds(currentPose, targetState);
-
-    Util.deadbandChassisSpeeds(chassis, 0.05, 0.01);
-    
-    // Drive
-    drive.drive(chassis, true);
-
-    // Feedback
-    double dist = currentPose.getTranslation().getDistance(vector.getTarget());
-
-    double rumble = (Math.abs(dist) <= BuildConstants.EPSILON) ? 1.0 : Math.min(0.007 / dist, 1.0);
-    rumbleConsumer.accept(RumbleType.kRightRumble, rumble);
-
-    LockOnTelemetry.setTargetSetpoint(targetState.pose, dist);
-  }
-
-  @Override
-  public void end(boolean interrupted) {
-    rumbleConsumer.accept(RumbleType.kRightRumble, 0.0);
-    LockOnTelemetry.clearTargetName();
-
-    if (interrupted) drive.stop();
-  }
-
-  @Override
-  public boolean isFinished() {
-    // Never finish
-    return false;
+    name = String.format("LockOnReefCommand(%s)", setpoints.name());
   }
 
   @Override
   public String getName() {
-    return String.format("LockOnReefCommand(%s)", setpoints.name());
+    return name;
   }
 }

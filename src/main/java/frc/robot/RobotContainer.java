@@ -24,6 +24,8 @@ import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.commands.TestCommand;
 import frc.robot.commands.alignment.LockOnReefCommand;
 import frc.robot.commands.alignment.LockOnReefCommand.ReefSetpoint;
+import frc.robot.commands.alignment.LockOnTargetChooserCommand;
+import frc.robot.commands.alignment.LockOnTargetChooserCommand.TargetType;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Manipulator;
@@ -31,8 +33,6 @@ import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.util.Util;
 import frc.robot.util.dashboard.AutoChooser;
 import frc.robot.util.dashboard.Dashboard;
-import frc.robot.util.dashboard.LockOnTelemetry;
-import frc.robot.util.dashboard.LockOnTelemetry.TargetType;
 import frc.robot.util.dashboard.NotificationCommand;
 import libs.Elastic.Notification.NotificationLevel;
 
@@ -97,25 +97,25 @@ public final class RobotContainer {
 
     // Lock in to reef targets (base POV down)
     baseController.povDown()
-      .onTrue(new InstantCommand(() -> LockOnTelemetry.setTargetType(TargetType.REEF)));
+      .onTrue(new LockOnTargetChooserCommand(TargetType.REEF));
 
     // Lock in to coral station targets (base POV left)
     baseController.povLeft()
-      .onTrue(new InstantCommand(() -> LockOnTelemetry.setTargetType(TargetType.CORAL_STATION)));
+      .onTrue(new LockOnTargetChooserCommand(TargetType.CORAL_STATION));
 
     // Lock in to cage targets (base POV up)
     baseController.povUp()
-      .onTrue(new InstantCommand(() -> LockOnTelemetry.setTargetType(TargetType.CAGE)));
+      .onTrue(new LockOnTargetChooserCommand(TargetType.CAGE));
 
     // Lock in to reef targets (base POV right)
     baseController.povRight()
-      .onTrue(new InstantCommand(() -> LockOnTelemetry.setTargetType(TargetType.ALGAE_SCORING)));
+      .onTrue(new LockOnTargetChooserCommand(TargetType.ALGAE_SCORING));
 
     // Line up with left targets (base X)
     baseController.x()
       /*.whileTrue(new SelectCommand<>(Map.of(
         TargetType.REEF, new LockOnReefCommand(base, baseLeftX, baseLeftY, dashboard::setAllRumble, ReefSetpoint.LEFT)
-      ), LockOnTelemetry::getTargetType))*/
+      ), LockOnTargetChooserCommand::getTargetType))*/
       .whileTrue(new LockOnReefCommand(base, baseLeftX, baseLeftY, dashboard::setAllRumble, ReefSetpoint.LEFT));
 
     // Line up with center targets (base A)
