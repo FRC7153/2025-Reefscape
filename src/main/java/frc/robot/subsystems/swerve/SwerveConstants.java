@@ -94,7 +94,7 @@ public final class SwerveConstants {
   public static final IMUAxis GYRO_ROLL = IMUAxis.kX;
 
   // Odometry
-  public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(0.3, 0.3, 0.1);
+  public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(0.4, 0.4, 0.01);
 
   // Base size
   public static final Translation2d BASE_DIMENSIONS = 
@@ -119,7 +119,7 @@ public final class SwerveConstants {
   public static final PPHolonomicDriveController AUTO_CONTROLLER = 
     new PPHolonomicDriveController(
       //new PIDConstants(19.303, 0.0, 1.3841), // Translational
-      new PIDConstants(3.5, 0.0, 0.0), // Translational
+      new PIDConstants(5.5, 0.0, 0.0), // Translational
       new PIDConstants(9.0, 0.0, 0.0) // Rotational
     );
 

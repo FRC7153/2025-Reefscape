@@ -43,8 +43,8 @@ public final class RobotContainer {
 
   // Subsystems
   private final SwerveDrive base = Util.timeInstantiation(() -> new SwerveDrive(baseController::setRumble));
-  private final Manipulator manipulator = Util.timeInstantiation(Manipulator::new);
   private final Elevator elevator = Util.timeInstantiation(Elevator::new);
+  private final Manipulator manipulator = Util.timeInstantiation(() -> new Manipulator(elevator::getManipulatorAngle));
   private final Climber climber = Util.timeInstantiation(Climber::new);
 
   // Dashboard

@@ -84,15 +84,13 @@ public class AlignmentVector {
   }
 
   /**
-   * Projects a vector onto this vector.
+   * Projects a vector onto this vector and returns the magnitude.
    * @param vector The vector to project.
-   * @return The projected vector.
+   * @return The projected vector's magnitude (may be negative).
    */
-  public Translation2d projectVector(Translation2d vector) {
-    double scalar = vector.toVector().dot(unitDirectionVector);
+  public double getProjectedVectorMagnitude(Translation2d vector) {
     // Unit direction vector magnitude is always 1, so we can ignore it
-
-    return vector.times(scalar);
+    return vector.toVector().dot(unitDirectionVector);
   }
 
   public Translation2d getTarget() {

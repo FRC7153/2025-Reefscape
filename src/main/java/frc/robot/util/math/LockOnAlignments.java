@@ -8,32 +8,32 @@ public class LockOnAlignments {
 
   /** Alignment vectors for REEF LEFT scoring */
   public static final AlignmentVector[] REEF_LEFT_VECTORS = {
-    new AlignmentVector("REEF_A", new Translation2d(3.658, 4.185), Rotation2d.fromDegrees(0), 18, 7),
-    new AlignmentVector("REEF_C", new Translation2d(3.931, 3.383), Rotation2d.fromDegrees(60), 17, 8),
-    new AlignmentVector("REEF_E", new Translation2d(4.762, 3.219), Rotation2d.fromDegrees(120), 22, 9),
-    new AlignmentVector("REEF_G", new Translation2d(5.321, 3.856), Rotation2d.fromDegrees(180), 21, 10),
-    new AlignmentVector("REEF_I", new Translation2d(5.047, 4.658), Rotation2d.fromDegrees(240), 20, 11),
-    new AlignmentVector("REEF_K", new Translation2d(4.216, 4.823), Rotation2d.fromDegrees(300), 19, 6)
+    new AlignmentVector("REEF_A", new Translation2d(3.658, 4.262), Rotation2d.fromDegrees(0), 18, 7),
+    new AlignmentVector("REEF_C", new Translation2d(3.931, 3.46), Rotation2d.fromDegrees(60), 17, 8),
+    new AlignmentVector("REEF_E", new Translation2d(4.762, 3.295), Rotation2d.fromDegrees(120), 22, 9),
+    new AlignmentVector("REEF_G", new Translation2d(5.321, 3.933), Rotation2d.fromDegrees(180), 21, 10),
+    new AlignmentVector("REEF_I", new Translation2d(5.047, 4.734), Rotation2d.fromDegrees(240), 20, 11),
+    new AlignmentVector("REEF_K", new Translation2d(4.216, 4.899), Rotation2d.fromDegrees(300), 19, 6)
   };
 
   /** Alignment vectors for REEF CENTER scoring */
-  public static final AlignmentVector[] REEF_RIGHT_VECTORS = {
-    new AlignmentVector("REEF_1", new Translation2d(3.658, 4.021), Rotation2d.fromDegrees(0), 18, 7),
-    new AlignmentVector("REEF_2", new Translation2d(4.074, 3.301), Rotation2d.fromDegrees(60), 17, 8),
-    new AlignmentVector("REEF_3", new Translation2d(4.905, 3.301), Rotation2d.fromDegrees(120), 22, 9),
-    new AlignmentVector("REEF_4", new Translation2d(5.321, 4.021), Rotation2d.fromDegrees(180), 21, 10),
-    new AlignmentVector("REEF_5", new Translation2d(4.905, 4.74), Rotation2d.fromDegrees(240), 20, 11),
-    new AlignmentVector("REEF_6", new Translation2d(4.074, 4.74), Rotation2d.fromDegrees(300), 19, 6)
+  public static final AlignmentVector[] REEF_CENTER_VECTORS = {
+    new AlignmentVector("REEF_1", new Translation2d(3.658, 4.097), Rotation2d.fromDegrees(0), 18, 7),
+    new AlignmentVector("REEF_2", new Translation2d(4.074, 3.377), Rotation2d.fromDegrees(60), 17, 8),
+    new AlignmentVector("REEF_3", new Translation2d(4.905, 3.377), Rotation2d.fromDegrees(120), 22, 9),
+    new AlignmentVector("REEF_4", new Translation2d(5.321, 4.097), Rotation2d.fromDegrees(180), 21, 10),
+    new AlignmentVector("REEF_5", new Translation2d(4.905, 4.817), Rotation2d.fromDegrees(240), 20, 11),
+    new AlignmentVector("REEF_6", new Translation2d(4.074, 4.817), Rotation2d.fromDegrees(300), 19, 6)
   };
 
   /** Alignment vectors for REEF RIGHT scoring */
-  public static final AlignmentVector[] REEF_CENTER_VECTORS = {
-    new AlignmentVector("REEF_B", new Translation2d(3.658, 3.856), Rotation2d.fromDegrees(0), 18, 7),
-    new AlignmentVector("REEF_D", new Translation2d(4.216, 3.219), Rotation2d.fromDegrees(60), 17, 8),
-    new AlignmentVector("REEF_F", new Translation2d(5.047, 3.383), Rotation2d.fromDegrees(120), 22, 9),
-    new AlignmentVector("REEF_H", new Translation2d(5.321, 4.185), Rotation2d.fromDegrees(180), 21, 10),
-    new AlignmentVector("REEF_J", new Translation2d(4.762, 4.823), Rotation2d.fromDegrees(240), 20, 11),
-    new AlignmentVector("REEF_L", new Translation2d(3.931, 4.658), Rotation2d.fromDegrees(300), 19, 6)
+  public static final AlignmentVector[] REEF_RIGHT_VECTORS = {
+    new AlignmentVector("REEF_B", new Translation2d(3.658, 3.933), Rotation2d.fromDegrees(0), 18, 7),
+    new AlignmentVector("REEF_D", new Translation2d(4.216, 3.295), Rotation2d.fromDegrees(60), 17, 8),
+    new AlignmentVector("REEF_F", new Translation2d(5.047, 3.46), Rotation2d.fromDegrees(120), 22, 9),
+    new AlignmentVector("REEF_H", new Translation2d(5.321, 4.262), Rotation2d.fromDegrees(180), 21, 10),
+    new AlignmentVector("REEF_J", new Translation2d(4.762, 4.899), Rotation2d.fromDegrees(240), 20, 11),
+    new AlignmentVector("REEF_L", new Translation2d(3.931, 4.734), Rotation2d.fromDegrees(300), 19, 6)
   };
 
   /** Center of reef */

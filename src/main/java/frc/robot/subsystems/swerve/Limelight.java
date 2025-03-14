@@ -49,7 +49,7 @@ public class Limelight {
   }
 
   // Distance (m) to switch from MT2 to MT1
-  private static final double MT2_MIN_DISTANCE = 1.5;
+  private static final double MT2_MIN_DISTANCE = -1.0; // 1.5, -1 to disable MT1
 
   // Shared orientation array for MegaTag2
   private static final double[] orientation = new double[6];

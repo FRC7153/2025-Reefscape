@@ -129,11 +129,13 @@ public class LockOnCommand extends Command {
     
     // Get user input (note y and x are swapped here, because forward (y+) should be a vector of 0 degrees)
     Translation2d speed = new Translation2d(
-      ySupplier.get() * SwerveConstants.SLOW_TRANSLATIONAL_SPEED,
-      xSupplier.get() * SwerveConstants.SLOW_TRANSLATIONAL_SPEED
+      ySupplier.get() * SwerveConstants.FAST_TRANSLATIONAL_SPEED,
+      xSupplier.get() * SwerveConstants.FAST_TRANSLATIONAL_SPEED
     );
 
-    double projectedSpeedMagnitude = vector.projectVector(speed).getNorm();
+    double projectedSpeedMagnitude = vector.getProjectedVectorMagnitude(speed);
+
+    System.out.printf("Speed is %.3f/%.3f\n", projectedSpeedMagnitude, SwerveConstants.FAST_TRANSLATIONAL_SPEED);
 
     // Determine target position
     Translation2d projection = vector.projectPoint(

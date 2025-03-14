@@ -5,12 +5,14 @@ import sys
 DEG_TO_RAD = math.pi/180
 
 # Formats a Java AlignmentVector
-def formatVector(name, target, angle, decimals=3):
-  return "new AlignmentVector(\"{}\", new Translation2d({}, {}), Rotation2d.fromDegrees({}))".format(
+def formatVector(name, target, angle, tags, decimals=3):
+  return "new AlignmentVector(\"{}\", new Translation2d({}, {}), Rotation2d.fromDegrees({}){}{})".format(
     name,
     round(target[0], decimals),
     round(target[1], decimals),
-    round(angle, decimals)
+    round(angle, decimals),
+    ", " if len(tags) != 0 else "",
+    ", ".join(str(t) for t in tags)
   )
 
 # Offsets a position by a distance and angle (in degrees)
@@ -30,7 +32,7 @@ def getTagPose(tagJson, tagId):
   return None
 
 # See AlignmentVector.java
-def generate(aprilTagFile, reefCenterOffsets):
+def generate(aprilTagFile, reefCenterOffsets, overallReefOffset):
   with open(aprilTagFile, "r") as f:
     tags = json.load(f)
 
@@ -41,25 +43,31 @@ def generate(aprilTagFile, reefCenterOffsets):
 
   # Generate reef vectors
   reefNames = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"]
-  reefTag = [18, 17, 22, 21, 20, 19]
+  reefTags = [18, 17, 22, 21, 20, 19]
+  redReefTags = [7, 8, 9, 10, 11, 6]
 
   for i in range(6):
-    pose = getTagPose(tags, reefTag[i])
+    pose = getTagPose(tags, reefTags[i])
     pose = (pose["translation"]["x"], pose["translation"]["y"])
     angle = i * 60
 
+    alignmentTags = [reefTags[i], redReefTags[i]]
+
+    # Add offset
+    pose = (pose[0] + overallReefOffset[0], pose[1] + overallReefOffset[1])
+
     # Create center vector
-    centerVectors.append(formatVector(f"REEF_{i+1}", pose, angle))
+    centerVectors.append(formatVector(f"REEF_{i+1}", pose, angle, alignmentTags))
     
     # Create left vector
     left = offsetPosition(pose, reefCenterOffsets, angle+90)
 
-    leftVectors.append(formatVector(f"REEF_{reefNames[i*2]}", left, angle))
+    leftVectors.append(formatVector(f"REEF_{reefNames[i*2]}", left, angle, alignmentTags))
 
     # Create right vector
     right = offsetPosition(pose, reefCenterOffsets, angle-90)
 
-    rightVectors.append(formatVector(f"REEF_{reefNames[i*2 + 1]}", right, angle))
+    rightVectors.append(formatVector(f"REEF_{reefNames[i*2 + 1]}", right, angle, alignmentTags))
 
   # TODO generate intake vectors
 
@@ -77,5 +85,6 @@ def generate(aprilTagFile, reefCenterOffsets):
 if __name__ == "__main__":
   generate(
     sys.argv[1], # AprilTag .json file
-    0.329 / 2.0 # offset of each reef pole from the center of that face of the reef (meters)
+    0.329 / 2.0, # offset of each reef pole from the center of that face of the reef (meters)
+    [0, 0.0762] # x/y offset to add to every single position to fix constant error (meters)
   )
