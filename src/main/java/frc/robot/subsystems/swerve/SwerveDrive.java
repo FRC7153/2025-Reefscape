@@ -254,6 +254,14 @@ public final class SwerveDrive implements Subsystem {
     }
   }
 
+  public void setLimelightTagFilter(double[] tags) {
+    for (Limelight ll : limelights) {
+      ll.setTagIdFilter(tags);
+    }
+
+    System.out.printf("Updated all limelights to filter for %d tags\n", tags.length);
+  }
+
   /** Resets from a FIELD RELATIVE position */
   public void resetOdometry(Pose2d newPose) {
     Pose2d pose = odometry.getFieldRelativePosition();

@@ -49,7 +49,7 @@ public class Limelight {
   }
 
   // Distance (m) to switch from MT2 to MT1
-  private static final double MT2_MIN_DISTANCE = 1.25;
+  private static final double MT2_MIN_DISTANCE = 1.5;
 
   // Shared orientation array for MegaTag2
   private static final double[] orientation = new double[6];
@@ -75,7 +75,7 @@ public class Limelight {
   // Network tables
   private final DoubleArraySubscriber mt1PoseSub, mt2PoseSub, targetPoseSub, statsSub, stdDevSub;
   private final DoubleSubscriber heartbeatSub;
-  private final DoubleArrayPublisher orientationPub;
+  private final DoubleArrayPublisher orientationPub, tagFilterPub;
   private final DoublePublisher imuModePub;
   private final Alert notConnectedAlert;
 
@@ -123,6 +123,8 @@ public class Limelight {
     targetPoseSub = cameraTable
       .getDoubleArrayTopic("targetpose_robotspace")
       .subscribe(new double[0]);
+
+    tagFilterPub = cameraTable.getDoubleArrayTopic("fiducial_id_filters_set").publish();
 
     stdDevSub = cameraTable.getDoubleArrayTopic("stddevs").subscribe(new double[0]);
     orientationPub = cameraTable.getDoubleArrayTopic("robot_orientation_set").publish();
@@ -239,9 +241,9 @@ public class Limelight {
     double timestamp = (event.valueData.value.getTime() / 1000000.0) - (data[6] / 1000.0); // Seconds
     
     // Update standard deviations
-    stdDevs.set(0, 0, stdDevsUpdate[6]); // X
-    stdDevs.set(1, 0, stdDevsUpdate[7]); // Y
-    //stdDevs.set(2, 0, stdDevsUpdate[11]); // Yaw
+    stdDevs.set(0, 0, stdDevsUpdate[megaTag2 ? 6 : 0]); // X
+    stdDevs.set(1, 0, stdDevsUpdate[megaTag2 ? 7 : 1]); // Y
+    //stdDevs.set(2, 0, stdDevsUpdate[megaTag2 ? 11 : 5]); // Yaw
 
     odometry.addVisionMeasurement(receivedPose, timestamp, stdDevs);
     frameCount++;
@@ -268,6 +270,13 @@ public class Limelight {
     orientationPub.set(orientation);
 
     if (version.integratedIMU) imuModePub.set(2.0);
+  }
+
+  /**
+   * @param tags AprilTag Ids to filter for.
+   */
+  public void setTagIdFilter(double[] tags) {
+    tagFilterPub.set(tags);
   }
 
   /**

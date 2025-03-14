@@ -17,18 +17,30 @@ public class AlignmentVector {
   private final Rotation2d direction;
   private final Vector<N2> unitDirectionVector;
 
+  private final double[] aprilTags;
+
   /**
    * Helper class for storing alignment targets.
    * @param name
    * @param target Target point to reach.
    * @param direction Direction of vector to drive along, originating from target.
+   * @param aprilTags April tag IDs to use to target.
    */
-  public AlignmentVector(String name, Translation2d target, Rotation2d direction) {
+  public AlignmentVector(String name, Translation2d target, Rotation2d direction, int... aprilTags) {
     this.name = name;
     this.target = target;
     this.direction = direction;
     unitDirection = new Translation2d(1.0, direction);
     unitDirectionVector = unitDirection.toVector();
+
+    // Copy ints into a double array for publishing
+    double[] aprilTagDoubleArray = new double[aprilTags.length];
+
+    for (int i = 0; i < aprilTags.length; i++) {
+      aprilTagDoubleArray[i] = aprilTags[i];
+    }
+
+    this.aprilTags = aprilTagDoubleArray;
 
     // Publish this alignment vector to NT for verification
     if (BuildConstants.PUBLISH_EVERYTHING) {
@@ -89,6 +101,10 @@ public class AlignmentVector {
 
   public Rotation2d getDirection() {
     return direction;
+  }
+
+  public double[] getAprilTags() {
+    return aprilTags;
   }
 
   public String getName() {

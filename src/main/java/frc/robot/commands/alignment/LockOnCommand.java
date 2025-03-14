@@ -16,15 +16,24 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.BuildConstants;
+import frc.robot.commands.alignment.LockOnTargetChooserCommand.TargetType;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.util.Util;
+import frc.robot.util.logging.ConsoleLogger;
 import frc.robot.util.math.AlignmentVector;
+import frc.robot.util.math.LockOnAlignments;
 
 /**
  * Extend this class to lock on to different AligmentVectors.
  */
 public class LockOnCommand extends Command {
+  /** Represents which set of targets to use. */
+  public static enum TargetGroup { LEFT, CENTER, RIGHT }
+
+  // Empty double array, for resetting Limelight tag filters
+  private static final double[] EMPTY_TAG_SET = new double[0];
+
   // Shared LockOn output
   private static final DoublePublisher distPub = 
     NetworkTableInstance.getDefault().getTable("Swerve/LockOn").getDoubleTopic("Distance").publish();
@@ -39,7 +48,9 @@ public class LockOnCommand extends Command {
   private final BiConsumer<RumbleType, Double> rumbleConsumer;
   private final PathPlannerTrajectoryState targetState = new PathPlannerTrajectoryState();
 
-  private final Supplier<AlignmentVector> vectorSupplier;
+  private final TargetGroup group;
+  private final AlignmentVector[] reefVectorGroup;
+
   private AlignmentVector vector;
 
   /**
@@ -52,30 +63,65 @@ public class LockOnCommand extends Command {
    */
   public LockOnCommand(
     SwerveDrive drive, 
-    Supplier<AlignmentVector> vectorSupplier,
     Supplier<Double> xSupplier,
     Supplier<Double> ySupplier,
-    BiConsumer<RumbleType, Double> rumbleConsumers
+    BiConsumer<RumbleType, Double> rumbleConsumers,
+    TargetGroup group
   ) {
     this.drive = drive;
     this.xSupplier = xSupplier;
     this.ySupplier = ySupplier;
     this.rumbleConsumer = rumbleConsumers;
-    this.vectorSupplier = vectorSupplier;
+    this.group = group;
+
+    // Get vectors for the reef
+    reefVectorGroup = switch (group) {
+      case LEFT -> LockOnAlignments.REEF_LEFT_VECTORS;
+      case RIGHT -> LockOnAlignments.REEF_RIGHT_VECTORS;
+      case CENTER -> LockOnAlignments.REEF_CENTER_VECTORS;
+    };
 
     addRequirements(drive);
   }
 
+  // MARK: Target initialization
   @Override
   public void initialize() {
-    // Determine which side of the reef to use
-    vector = vectorSupplier.get();
+    // Determine which vector to use
+    vector = null;
+    TargetType type = LockOnTargetChooserCommand.getTargetType();
+
+    if (type == TargetType.REEF) {
+      // Scoring on reef
+      // Determine which side of the reef the robot is on
+      Pose2d currentPose = drive.getPosition(false);
+
+      for (int i = 0; i < LockOnAlignments.REEF_ZONES.length; i++) {
+        if (LockOnAlignments.REEF_ZONES[i].containsPoint(currentPose.getTranslation())) {
+          // We are in this zone
+          vector = reefVectorGroup[i];
+          break;
+        }
+      }
+      
+      if (vector == null) {
+        // We are in no zones?
+        ConsoleLogger.reportError("Robot position is not in any reef zone!");
+        vector = reefVectorGroup[0];
+      }
+    } else {
+      // TODO alignment for cage, loading, and algae
+    }
+
+    // Update Limelight filters
+    drive.setLimelightTagFilter(vector.getAprilTags());
 
     // Output
     targetPub.set(vector.getName());
     System.out.printf("Now locking on to %s\n", vector.getName());
   }
 
+  // MARK: Alignment
   @Override
   public void execute() {
     // Get current pose
@@ -92,7 +138,7 @@ public class LockOnCommand extends Command {
     // Determine target position
     Translation2d projection = vector.projectPoint(
       currentPose.getTranslation(), 
-      projectedSpeedMagnitude * TimedRobot.kDefaultPeriod
+      projectedSpeedMagnitude * TimedRobot.kDefaultPeriod // Position offset = requested velocity * time
     );
 
     // Get drive base speed
@@ -121,10 +167,13 @@ public class LockOnCommand extends Command {
     }
   }
 
+  // MARK: End
   @Override
   public void end(boolean interrupted) {
     rumbleConsumer.accept(RumbleType.kRightRumble, 0.0);
     targetPub.set("N/A");
+
+    drive.setLimelightTagFilter(EMPTY_TAG_SET);
 
     if (interrupted) drive.stop();
   }
@@ -133,5 +182,10 @@ public class LockOnCommand extends Command {
   public boolean isFinished() {
     // Never finish
     return false;
+  }
+
+  @Override
+  public String getName() {
+    return String.format("LockOnCommand(%s)", group.name());
   }
 }
