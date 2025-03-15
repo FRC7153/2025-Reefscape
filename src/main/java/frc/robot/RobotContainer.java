@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ElevatorPositions;
+import frc.robot.Constants.LEDColors;
 import frc.robot.commands.AlgaeCommand;
 import frc.robot.commands.DeployClimberCommand;
 import frc.robot.commands.ElevatorToStateCommand;
@@ -26,8 +27,11 @@ import frc.robot.commands.alignment.LockOnCommand;
 import frc.robot.commands.alignment.LockOnCommand.TargetGroup;
 import frc.robot.commands.alignment.LockOnTargetChooserCommand;
 import frc.robot.commands.alignment.LockOnTargetChooserCommand.TargetType;
+import frc.robot.commands.led.SetLEDColorCommand;
+import frc.robot.commands.led.SetLEDEnabledCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.util.Util;
@@ -46,6 +50,7 @@ public final class RobotContainer {
   private final Elevator elevator = Util.timeInstantiation(Elevator::new);
   private final Manipulator manipulator = Util.timeInstantiation(() -> new Manipulator(elevator::getManipulatorAngle));
   private final Climber climber = Util.timeInstantiation(Climber::new);
+  private final LED led = Util.timeInstantiation(LED::new);
 
   // Dashboard
   private final AutoChooser auto = new AutoChooser(base, elevator, climber);
@@ -88,6 +93,11 @@ public final class RobotContainer {
     // Climber default command (no moving)
     climber.setDefaultCommand(
       new InstantCommand(climber::stopClimber, climber).withName("ClimberDefaultCommand")
+    );
+
+    // LED default command (alliance color)
+    led.setDefaultCommand(
+      new SetLEDColorCommand(led, () -> Util.isRedAlliance() ? LEDColors.RED : LEDColors.BLUE).repeatedly()
     );
 
     // Stow elevator when roll limit exceeded
@@ -182,7 +192,9 @@ public final class RobotContainer {
     // Match timer start/stop
     isEnabledTrigger
       .onTrue(dashboard.getRestartTimerCommand())
-      .onFalse(dashboard.getStopTimerCommand());
+      .onFalse(dashboard.getStopTimerCommand())
+      .onTrue(new SetLEDEnabledCommand(led, true))
+      .onFalse(new SetLEDEnabledCommand(led, false));
 
     // Test mode
     isTestTrigger

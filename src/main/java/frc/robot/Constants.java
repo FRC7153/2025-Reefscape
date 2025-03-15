@@ -163,6 +163,14 @@ public final class Constants {
     public static final ElevatorState ALGAE_HIGH = new ElevatorState(1.65, 0.2);
   }
 
+  public static final class LEDColors {
+    public static final double RED = 0.61;
+    public static final double BLUE = 0.87;
+    public static final double GREEN = 0.71;
+    public static final double YELLOW = 0.69;
+    public static final double BLACK = 0.99;
+  }
+
   public static final class HardwareConstants {
     public static final int PDH_CAN = 1;
 
@@ -200,5 +208,12 @@ public final class Constants {
     // CTRE Specific
     public static final AudioConfigs TALON_AUDIO_CONFIG = new AudioConfigs()
       .withBeepOnBoot(false).withBeepOnConfig(true);
+
+    // LED
+    public static final int LED_PWM_PORT = 9;
+  }
+
+  public static final class LEDConstants {
+    public static double LED_COLOR = 0.0; 
   }
 }
