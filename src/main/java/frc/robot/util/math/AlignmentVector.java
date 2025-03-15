@@ -61,17 +61,33 @@ public class AlignmentVector {
   }
 
   /**
+   * Gets the scalar distance of the nearest point on a vector to a point outside the vector.
+   * @param point The point to project
+   * @return The scalar value to use for projection
+   */
+  public double getPointProjectionScalar(Translation2d point) {
+    Translation2d delta = point.minus(target);
+    return delta.toVector().dot(unitDirectionVector);
+  }
+
+  /**
+   * Gets the point along a vector at the scalar distance.
+   * @param scalar Distance along vector
+   * @return
+   */
+  public Translation2d getPointOnVectorFromScalar(double scalar) {
+    return target.plus(unitDirection.times(scalar));
+  }
+
+  /**
    * Projects a 2d position onto this vector, with a specified offset.
    * @param point The point to project.
    * @param scalarOffset A distance added to the vector scalar.
    * @return The projected point.
    */
   public Translation2d projectPoint(Translation2d point, double scalarOffset) {
-    Translation2d delta = point.minus(target);
-
-    double scalar = delta.toVector().dot(unitDirectionVector);
-    scalar += scalarOffset;
-    return target.plus(unitDirection.times(scalar));
+    double scalar = getPointProjectionScalar(point) + scalarOffset;
+    return getPointOnVectorFromScalar(scalar);
   }
 
   /**

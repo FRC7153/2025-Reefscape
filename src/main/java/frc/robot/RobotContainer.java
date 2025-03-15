@@ -126,15 +126,15 @@ public final class RobotContainer {
       /*.whileTrue(new SelectCommand<>(Map.of(
         TargetType.REEF, new LockOnReefCommand(base, baseLeftX, baseLeftY, dashboard::setAllRumble, ReefSetpoint.LEFT)
       ), LockOnTargetChooserCommand::getTargetType))*/
-      .whileTrue(new LockOnCommand(base, baseLeftX, baseLeftY, dashboard::setAllRumble, TargetGroup.LEFT));
+      .whileTrue(new LockOnCommand(base, led, baseLeftX, baseLeftY, dashboard::setAllRumble, TargetGroup.LEFT));
 
     // Line up with center targets (base A)
     baseController.a()
-    .whileTrue(new LockOnCommand(base, baseLeftX, baseLeftY, dashboard::setAllRumble, TargetGroup.CENTER));
+    .whileTrue(new LockOnCommand(base, led, baseLeftX, baseLeftY, dashboard::setAllRumble, TargetGroup.CENTER));
 
     // Line up with right targets (base B)
     baseController.b()
-      .whileTrue(new LockOnCommand(base, baseLeftX, baseLeftY, dashboard::setAllRumble, TargetGroup.RIGHT));
+      .whileTrue(new LockOnCommand(base, led, baseLeftX, baseLeftY, dashboard::setAllRumble, TargetGroup.RIGHT));
 
     // Intake (driver right trigger)
     baseController.rightTrigger()

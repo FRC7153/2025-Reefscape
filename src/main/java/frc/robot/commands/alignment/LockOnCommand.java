@@ -16,7 +16,10 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.BuildConstants;
+import frc.robot.Constants.LEDColors;
 import frc.robot.commands.alignment.LockOnTargetChooserCommand.TargetType;
+import frc.robot.commands.led.FlashLEDCommand;
+import frc.robot.subsystems.LED;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.util.Util;
@@ -43,7 +46,9 @@ public class LockOnCommand extends Command {
     NetworkTableInstance.getDefault().getTable("Swerve/LockOn").getStructTopic("Setpoint", Pose2d.struct).publish() : 
     null;
 
+
   private final SwerveDrive drive;
+  private final Command flashLEDCommand;
   private final Supplier<Double> xSupplier, ySupplier;
   private final BiConsumer<RumbleType, Double> rumbleConsumer;
   private final PathPlannerTrajectoryState targetState = new PathPlannerTrajectoryState();
@@ -52,10 +57,12 @@ public class LockOnCommand extends Command {
   private final AlignmentVector[] reefVectorGroup;
 
   private AlignmentVector vector;
+  private double projectionScalar;
 
   /**
    * Locks onto the supplied AlignmentVector.
    * @param drive
+   * @param LED led (not required, scheduled)
    * @param vectorSupplier Method that returns the best vector to lock on to.
    * @param xSupplier X input supplier (%)
    * @param ySupplier Y input supplier (%)
@@ -63,6 +70,7 @@ public class LockOnCommand extends Command {
    */
   public LockOnCommand(
     SwerveDrive drive, 
+    LED led,
     Supplier<Double> xSupplier,
     Supplier<Double> ySupplier,
     BiConsumer<RumbleType, Double> rumbleConsumers,
@@ -73,6 +81,8 @@ public class LockOnCommand extends Command {
     this.ySupplier = ySupplier;
     this.rumbleConsumer = rumbleConsumers;
     this.group = group;
+
+    flashLEDCommand = new FlashLEDCommand(led, LEDColors.GREEN, 4);
 
     // Get vectors for the reef
     reefVectorGroup = switch (group) {
@@ -88,14 +98,14 @@ public class LockOnCommand extends Command {
   @Override
   public void initialize() {
     // Determine which vector to use
+    Pose2d currentPose = drive.getPosition(false);
+
     vector = null;
     TargetType type = LockOnTargetChooserCommand.getTargetType();
 
     if (type == TargetType.REEF) {
       // Scoring on reef
       // Determine which side of the reef the robot is on
-      Pose2d currentPose = drive.getPosition(false);
-
       for (int i = 0; i < LockOnAlignments.REEF_ZONES.length; i++) {
         if (LockOnAlignments.REEF_ZONES[i].containsPoint(currentPose.getTranslation())) {
           // We are in this zone
@@ -111,8 +121,16 @@ public class LockOnCommand extends Command {
       }
     } else {
       // TODO alignment for cage, loading, and algae
+    }
+
+    // Ensure vector is not null
+    if (vector == null) {
+      ConsoleLogger.reportError("Unable to find a vector!");
       vector = reefVectorGroup[0];
     }
+
+    // Init projection
+    projectionScalar = vector.getPointProjectionScalar(currentPose.getTranslation());
 
     // Update Limelight filters
     drive.setLimelightTagFilter(vector.getAprilTags());
@@ -130,19 +148,15 @@ public class LockOnCommand extends Command {
     
     // Get user input (note y and x are swapped here, because forward (y+) should be a vector of 0 degrees)
     Translation2d speed = new Translation2d(
-      ySupplier.get() * SwerveConstants.FAST_TRANSLATIONAL_SPEED,
-      xSupplier.get() * SwerveConstants.FAST_TRANSLATIONAL_SPEED
+      ySupplier.get() * SwerveConstants.SLOW_TRANSLATIONAL_SPEED,
+      xSupplier.get() * SwerveConstants.SLOW_TRANSLATIONAL_SPEED
     );
 
     double projectedSpeedMagnitude = vector.getProjectedVectorMagnitude(speed);
 
-    System.out.printf("Speed is %.3f/%.3f\n", projectedSpeedMagnitude, SwerveConstants.FAST_TRANSLATIONAL_SPEED);
-
     // Determine target position
-    Translation2d projection = vector.projectPoint(
-      currentPose.getTranslation(), 
-      projectedSpeedMagnitude * TimedRobot.kDefaultPeriod // Position offset = requested velocity * time
-    );
+    projectionScalar += (projectedSpeedMagnitude * TimedRobot.kDefaultPeriod); // Position offset = requested velocity * time
+    Translation2d projection = vector.getPointOnVectorFromScalar(projectionScalar);
 
     // Get drive base speed
     targetState.pose = new Pose2d(projection, vector.getDirection());
@@ -160,10 +174,15 @@ public class LockOnCommand extends Command {
     // Feedback
     double dist = currentPose.getTranslation().getDistance(vector.getTarget());
 
-    double rumble = (Math.abs(dist) <= BuildConstants.EPSILON) ? 1.0 : Math.min(0.007 / dist, 1.0);
+    double rumble = (dist <= BuildConstants.EPSILON) ? 1.0 : Math.min(0.007 / dist, 1.0);
     rumbleConsumer.accept(RumbleType.kRightRumble, rumble);
 
     distPub.set(dist);
+
+    // Run LEDs
+    if (dist < 0.005) {
+      flashLEDCommand.schedule();
+    }
 
     if (BuildConstants.PUBLISH_EVERYTHING) {
       setpointPub.set(targetState.pose);
