@@ -86,5 +86,5 @@ if __name__ == "__main__":
   generate(
     sys.argv[1], # AprilTag .json file
     0.329 / 2.0, # offset of each reef pole from the center of that face of the reef (meters)
-    [0, 0.0762] # x/y offset to add to every single position to fix constant error (meters)
+    [0, 0.0635] # x/y offset to add to every single position to fix constant error (meters)
   )

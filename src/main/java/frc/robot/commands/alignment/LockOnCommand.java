@@ -111,6 +111,7 @@ public class LockOnCommand extends Command {
       }
     } else {
       // TODO alignment for cage, loading, and algae
+      vector = reefVectorGroup[0];
     }
 
     // Update Limelight filters

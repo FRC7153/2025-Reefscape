@@ -164,7 +164,7 @@ public final class RobotContainer {
       .onTrue(new AlgaeCommand(elevator,manipulator, ElevatorPositions.ALGAE_LOW));
 
     // Processor algae position (arms POV left)
-    armsController.povLeft()
+    armsController.povLeft().or(armsController.povUpLeft()).or(armsController.povDownLeft())
       .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.PROCESSOR).repeatedly());
 
     // Algae outtake (arms left trigger)
