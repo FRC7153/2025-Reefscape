@@ -2,6 +2,11 @@ package frc.robot.util.dashboard;
 
 import java.util.function.Supplier;
 
+import com.pathplanner.lib.util.FlippingUtil;
+
+import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -10,29 +15,28 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.autos.AutoCommandHandler;
-import frc.robot.autos.BackAndForthTestAuto;
-import frc.robot.autos.SimpleDriveTestAuto;
-import frc.robot.autos.SinglePieceAuto;
-import frc.robot.commands.sysid.ElevatorSysIdCommand;
-import frc.robot.commands.sysid.ManipulatorPivotSysIdCommand;
-import frc.robot.commands.sysid.SysIdCharacterizationCommand;
+import frc.robot.autos.SinglePieceCenterAuto;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.swerve.SwerveDrive;
-import frc.robot.subsystems.swerve.SwervePaths;
-import frc.robot.subsystems.swerve.SwerveSysId;
+import frc.robot.util.Util;
 
 public final class AutoChooser {
   private static final Command noOpCommand = new PrintCommand("No-op auto selected.");
 
-  private final SendableChooser<Supplier<Command>> chooser = new SendableChooser<>();
+  private final SendableChooser<Pair<Pose2d, Supplier<Command>>> chooser = new SendableChooser<>();
   private Command currentLoadedCommand = null;
+
+  private final SwerveDrive drive;
 
   private final Alert noAutoLoadedAlert = new Alert("No auto loaded yet (run pregame)", AlertType.kInfo);
 
-  public AutoChooser(SwerveDrive drive, Elevator elevator, Climber climber) {
+  public AutoChooser(SwerveDrive drive, Elevator elevator, Climber climber, Manipulator manipulator) {
+    this.drive = drive;
+
     // On change
-    chooser.onChange((Supplier<Command> newAuto) -> {
+    chooser.onChange((Pair<Pose2d, Supplier<Command>> newAuto) -> {
       currentLoadedCommand = null;
       noAutoLoadedAlert.set(true);
     });
@@ -41,12 +45,16 @@ public final class AutoChooser {
     AutoCommandHandler.initNamedCommands(elevator);
 
     // Add default option
-    chooser.setDefaultOption("No-op", () -> noOpCommand); // TODO set starting pose here
+    //chooser.setDefaultOption("No-op", () -> noOpCommand); // TODO set starting pose here
+
+    // Center autos
+    chooser.addOption("CENTER Single Piece", 
+      Pair.of(new Pose2d(7.071, 4.031, Rotation2d.k180deg), () -> new SinglePieceCenterAuto(drive, elevator, manipulator))
+    );
 
     // Autos that are used for testing
     if (BuildConstants.INCLUDE_TEST_AUTOS) {
-      chooser.addOption("Test Auto 1", () -> new SinglePieceAuto(drive, elevator));
-
+      /*
       // Add Swerve SysId drive autos
       chooser.addOption("SYSID Swerve Drive Q+", 
         () -> new SysIdCharacterizationCommand(SwerveSysId.getModuleDriveRoutine(drive), true, true));
@@ -114,6 +122,7 @@ public final class AutoChooser {
         () -> new SysIdCharacterizationCommand(climber.getClimberPivotRoutine(), false, true));
       chooser.addOption("SYSID Climber Pivot D-", 
         () -> new SysIdCharacterizationCommand(climber.getClimberPivotRoutine(), false, false));
+         */
     }
 
     // Add to dashboard
@@ -125,9 +134,14 @@ public final class AutoChooser {
    * Loads the currently selected command.
    */
   public void loadAutoCommand() {
-    currentLoadedCommand = chooser.getSelected().get();
+    Pair<Pose2d, Supplier<Command>> selected = chooser.getSelected();
+    currentLoadedCommand = selected.getSecond().get();
     System.out.printf("New auto loaded: %s\n", currentLoadedCommand.getName());
     noAutoLoadedAlert.set(false);
+
+    // Reset position
+    Pose2d startPose = (Util.isRedAlliance()) ? FlippingUtil.flipFieldPose(selected.getFirst()) : selected.getFirst();
+    drive.resetOdometry(startPose);
   }
 
   /**

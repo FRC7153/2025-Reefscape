@@ -54,7 +54,9 @@ def generate(aprilTagFile, reefCenterOffsets, overallReefOffset):
     alignmentTags = [reefTags[i], redReefTags[i]]
 
     # Add offset
-    pose = (pose[0] + overallReefOffset[0], pose[1] + overallReefOffset[1])
+    #pose = (pose[0] + overallReefOffset[0], pose[1] + overallReefOffset[1])
+    pose = offsetPosition(pose, overallReefOffset[0], angle)
+    pose = offsetPosition(pose, overallReefOffset[1], angle + 90)
 
     # Create center vector
     centerVectors.append(formatVector(f"REEF_{i+1}", pose, angle, alignmentTags))

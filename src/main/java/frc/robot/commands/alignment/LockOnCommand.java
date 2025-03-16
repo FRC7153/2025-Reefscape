@@ -1,6 +1,7 @@
 package frc.robot.commands.alignment;
 
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
@@ -16,9 +17,7 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.BuildConstants;
-import frc.robot.Constants.LEDColors;
 import frc.robot.commands.alignment.LockOnTargetChooserCommand.TargetType;
-import frc.robot.commands.led.FlashLEDCommand;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveDrive;
@@ -49,7 +48,7 @@ public class LockOnCommand extends Command {
 
   private final SwerveDrive drive;
   private final Command flashLEDCommand;
-  private final Supplier<Double> xSupplier, ySupplier;
+  private final BiFunction<AlignmentVector, Double, Double> velocityFunction;
   private final BiConsumer<RumbleType, Double> rumbleConsumer;
   private final PathPlannerTrajectoryState targetState = new PathPlannerTrajectoryState();
 
@@ -63,26 +62,24 @@ public class LockOnCommand extends Command {
    * Locks onto the supplied AlignmentVector.
    * @param drive
    * @param LED led (not required, scheduled)
-   * @param vectorSupplier Method that returns the best vector to lock on to.
-   * @param xSupplier X input supplier (%)
-   * @param ySupplier Y input supplier (%)
+   * @param velocityFunction Function that takes the current vector and the distance along that
+   * vector and returns the current velocity along that vector.
    * @param rumbleConsumers Consumers for haptic feedback
+   * @param group Which group of targets (Left, Center, Right) to use
    */
   public LockOnCommand(
     SwerveDrive drive, 
     LED led,
-    Supplier<Double> xSupplier,
-    Supplier<Double> ySupplier,
+    BiFunction<AlignmentVector, Double, Double> velocityFunction,
     BiConsumer<RumbleType, Double> rumbleConsumers,
     TargetGroup group
   ) {
     this.drive = drive;
-    this.xSupplier = xSupplier;
-    this.ySupplier = ySupplier;
+    this.velocityFunction = velocityFunction;
     this.rumbleConsumer = rumbleConsumers;
     this.group = group;
 
-    flashLEDCommand = new FlashLEDCommand(led, LEDColors.GREEN, 4);
+    flashLEDCommand = led.flashGreenThreeTimes;
 
     // Get vectors for the reef
     reefVectorGroup = switch (group) {
@@ -92,6 +89,40 @@ public class LockOnCommand extends Command {
     };
 
     addRequirements(drive);
+  }
+
+  /**
+   * Locks onto the supplied AlignmentVector.
+   * @param drive
+   * @param LED led (not required, scheduled)
+   * @param velocityFunction Function that takes the current vector and the distance along that
+   * vector and returns the current velocity along that vector.
+   * @param rumbleConsumers Consumers for haptic feedback
+   * @param group Which group of targets (Left, Center, Right) to use
+   */
+  public LockOnCommand(
+    SwerveDrive drive,
+    LED led,
+    Supplier<Double> xSupplier,
+    Supplier<Double> ySupplier,
+    BiConsumer<RumbleType, Double> rumbleConsumer,
+    TargetGroup group
+  ) {
+    this(
+      drive, 
+      led, 
+      (AlignmentVector currentVector, Double position) -> {
+        // Get user input (note y and x are swapped here, because forward (y+) should be a vector of 0 degrees)
+        Translation2d speed = new Translation2d(
+          ySupplier.get() * SwerveConstants.SLOW_TRANSLATIONAL_SPEED,
+          xSupplier.get() * SwerveConstants.SLOW_TRANSLATIONAL_SPEED
+        );
+
+        return currentVector.getProjectedVectorMagnitude(speed);
+      },
+      rumbleConsumer, 
+      group
+    );
   }
 
   // MARK: Target initialization
@@ -146,13 +177,8 @@ public class LockOnCommand extends Command {
     // Get current pose
     Pose2d currentPose = drive.getPosition(false);
     
-    // Get user input (note y and x are swapped here, because forward (y+) should be a vector of 0 degrees)
-    Translation2d speed = new Translation2d(
-      ySupplier.get() * SwerveConstants.SLOW_TRANSLATIONAL_SPEED,
-      xSupplier.get() * SwerveConstants.SLOW_TRANSLATIONAL_SPEED
-    );
-
-    double projectedSpeedMagnitude = vector.getProjectedVectorMagnitude(speed);
+    // Get velocity input
+    double projectedSpeedMagnitude = velocityFunction.apply(vector, projectionScalar);
 
     // Determine target position
     projectionScalar += (projectedSpeedMagnitude * TimedRobot.kDefaultPeriod); // Position offset = requested velocity * time
@@ -180,7 +206,7 @@ public class LockOnCommand extends Command {
     distPub.set(dist);
 
     // Run LEDs
-    if (dist < 0.005) {
+    if (dist < 0.7) {
       flashLEDCommand.schedule();
     }
 

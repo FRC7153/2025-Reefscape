@@ -100,7 +100,8 @@ public final class SwerveDrive implements Subsystem {
   private final BiConsumer<RumbleType, Double> hapticFeedbackAcceptor;
 
   private final Limelight[] limelights = {
-    new Limelight("limelight-front", Version.LIMELIGHT_4, odometry)
+    new Limelight("limelight-front", Version.LIMELIGHT_4, odometry),
+    new Limelight("limelight-top", Version.LIMELIGHT_3G, odometry),
   };
 
   // Autonomous
@@ -284,7 +285,7 @@ public final class SwerveDrive implements Subsystem {
     }
 
     // Update limelights
-    refreshLimelightOrientations(true);
+    refreshLimelightOrientations(false);
 
     // Calculate haptic feedback (on a 500 m/s^3 to 1750 m/s^3)
     double jerk = odometry.getJerk();

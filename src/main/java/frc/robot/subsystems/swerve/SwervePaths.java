@@ -50,6 +50,7 @@ public class SwervePaths {
       if (Util.isRedAlliance()) {
         // Red alliance, need to flip path
         path = path.flipPath();
+        System.out.println("Flipped path due to red alliance");
       }
       
       // Create path follow command

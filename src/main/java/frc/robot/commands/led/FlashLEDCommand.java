@@ -1,6 +1,6 @@
 package frc.robot.commands.led;
 
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WrapperCommand;
@@ -8,7 +8,7 @@ import frc.robot.Constants.LEDColors;
 import frc.robot.subsystems.LED;
 
 public class FlashLEDCommand extends WrapperCommand {
-  private static final double FLASH_TIME = 0.25;
+  private static final double FLASH_TIME = 0.08;
 
   private final String name;
 
@@ -30,7 +30,7 @@ public class FlashLEDCommand extends WrapperCommand {
         new FlashLEDCommand(led, color, numFlashes-1)
       ) : 
       // Just do nothing if flashes <= 0
-      Commands.idle()
+      new PrintCommand("LED finished flashing")
     );
 
     this.name = String.format("FlashLEDCommand(%.3f, %d)", color, numFlashes);

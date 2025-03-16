@@ -269,7 +269,7 @@ public class Limelight {
 
     orientationPub.set(orientation);
 
-    if (version.integratedIMU) imuModePub.set(2.0);
+    //if (version.integratedIMU) imuModePub.set(2.0);
   }
 
   /**

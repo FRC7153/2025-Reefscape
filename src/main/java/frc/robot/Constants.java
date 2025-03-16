@@ -31,7 +31,7 @@ public final class Constants {
     public static final double EPSILON = 1E-6;
 
     public static final boolean PUBLISH_EVERYTHING = true;
-    public static final boolean INCLUDE_TEST_AUTOS = true;
+    public static final boolean INCLUDE_TEST_AUTOS = false;
 
     public static final AprilTagFieldLayout FIELD = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark); // See TU-12
   }
@@ -81,8 +81,8 @@ public final class Constants {
       .withKG(0.5609).withGravityType(GravityTypeValue.Elevator_Static);
 
     private static final MotionMagicConfigs ELEVATOR_MM_CONFIGS = new MotionMagicConfigs()
-      .withMotionMagicCruiseVelocity(3.0) // 4.5
-      .withMotionMagicAcceleration(5.5); // 9.5
+      .withMotionMagicCruiseVelocity(3.5) // 4.5
+      .withMotionMagicAcceleration(6.0); // 9.5
 
     private static final Slot0Configs MANIPULATOR_PIVOT_GAINS = new Slot0Configs()
       .withKP(57.811).withKI(0.0).withKD(6.2107)
@@ -151,8 +151,9 @@ public final class Constants {
 
   public static final class ElevatorPositions {
     public static final ElevatorState STOW = new ElevatorState(0.15, 0.4);
-    public static final ElevatorState INTAKE = new ElevatorState(1.0, 0.3);
-    public static final ElevatorState PROCESSOR = new ElevatorState(0.1, 0.2);
+    public static final ElevatorState INTAKE = new ElevatorState(0.97, 0.3);
+    public static final ElevatorState PROCESSOR = new ElevatorState(0.1, 0.25);
+    public static final ElevatorState BARGE = new ElevatorState(4.5, 0.25);
 
     public static final ElevatorState L1 = new ElevatorState(0.05, 0.255);
     public static final ElevatorState L2 = new ElevatorState(1.4, 0.11); 
@@ -166,7 +167,7 @@ public final class Constants {
   public static final class LEDColors {
     public static final double RED = 0.61;
     public static final double BLUE = 0.87;
-    public static final double GREEN = 0.71;
+    public static final double GREEN = 0.75;
     public static final double YELLOW = 0.69;
     public static final double BLACK = 0.99;
   }

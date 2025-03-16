@@ -60,7 +60,7 @@ public class GoToPointCommand extends Command {
     ChassisSpeeds speeds = SwerveConstants.AUTO_CONTROLLER.calculateRobotRelativeSpeeds(currentPose, targetState);
 
     // Apply deadbands
-    Util.deadbandChassisSpeeds(speeds, 0.1, 0.02);
+    Util.deadbandChassisSpeeds(speeds, 0.05, 0.01);
 
     drive.drive(speeds, true);
   }

@@ -34,10 +34,10 @@ public final class SwerveConstants {
 
   // Max drive speeds
   public static final double FAST_TRANSLATIONAL_SPEED = 5.0; // m/s
-  public static final double FAST_ROTATIONAL_SPEED = 12.438; // rad/s
+  public static final double FAST_ROTATIONAL_SPEED = 8.75; // rad/s
 
   public static final double SLOW_TRANSLATIONAL_SPEED = FAST_TRANSLATIONAL_SPEED * 0.5;
-  public static final double SLOW_ROTATIONAL_SPEED = FAST_TRANSLATIONAL_SPEED * 0.5;
+  public static final double SLOW_ROTATIONAL_SPEED = FAST_TRANSLATIONAL_SPEED;
 
   // CANCoder magnet offsets (in rotations, CCW+, -0.5 to 0.5 range)
   public static final double FL_CANCODER_OFFSET = (0.36938 * -1.0);

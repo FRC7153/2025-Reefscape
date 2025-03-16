@@ -17,6 +17,7 @@ public class AlignmentVector {
   private final Rotation2d direction;
   private final Vector<N2> unitDirectionVector;
 
+  private final Pose2d targetAsPose2d;
   private final double[] aprilTags;
 
   /**
@@ -32,6 +33,8 @@ public class AlignmentVector {
     this.direction = direction;
     unitDirection = new Translation2d(1.0, direction);
     unitDirectionVector = unitDirection.toVector();
+
+    this.targetAsPose2d = new Pose2d(target, direction);
 
     // Copy ints into a double array for publishing
     double[] aprilTagDoubleArray = new double[aprilTags.length];
@@ -111,6 +114,10 @@ public class AlignmentVector {
 
   public Translation2d getTarget() {
     return target;
+  }
+
+  public Pose2d getTargetAsPose2d() {
+    return targetAsPose2d;
   }
 
   public Rotation2d getDirection() {

@@ -53,7 +53,7 @@ public final class RobotContainer {
   private final LED led = Util.timeInstantiation(LED::new);
 
   // Dashboard
-  private final AutoChooser auto = new AutoChooser(base, elevator, climber);
+  private final AutoChooser auto = new AutoChooser(base, elevator, climber, manipulator);
   private final Dashboard dashboard = new Dashboard(baseController, armsController);
   private final Command pregameCommand = new PregameCommand(base, elevator, climber, dashboard, auto);
 
@@ -77,7 +77,7 @@ public final class RobotContainer {
 
     // SwerveDrive default command (teleop driving)
     base.setDefaultCommand(
-      new TeleopDriveCommand(base, baseLeftX, baseLeftY, baseRightX, baseController.leftTrigger())
+      new TeleopDriveCommand(base, baseLeftX, baseLeftY, baseRightX, baseController.leftStick())
     );
     
     // Manipulator default command (not spinning, unless angled down)
@@ -97,7 +97,7 @@ public final class RobotContainer {
 
     // LED default command (alliance color)
     led.setDefaultCommand(
-      new SetLEDColorCommand(led, () -> Util.isRedAlliance() ? LEDColors.RED : LEDColors.BLUE).repeatedly()
+      new SetLEDColorCommand(led, () -> Util.isRedAlliance() ? LEDColors.RED : LEDColors.BLUE)
     );
 
     // Stow elevator when roll limit exceeded
@@ -167,15 +167,19 @@ public final class RobotContainer {
 
     // High Algae Intake (arms POV up)
     armsController.povUp()
-      .onTrue(new AlgaeCommand(elevator, manipulator, ElevatorPositions.ALGAE_HIGH));
+      .onTrue(new AlgaeCommand(elevator, manipulator, led, ElevatorPositions.ALGAE_HIGH));
 
     // Low algae Intake (arms POV down)
     armsController.povDown()
-      .onTrue(new AlgaeCommand(elevator,manipulator, ElevatorPositions.ALGAE_LOW));
+      .onTrue(new AlgaeCommand(elevator,manipulator, led, ElevatorPositions.ALGAE_LOW));
 
     // Processor algae position (arms POV left)
     armsController.povLeft().or(armsController.povUpLeft()).or(armsController.povDownLeft())
       .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.PROCESSOR).repeatedly());
+
+    // Barge algae position (arms POV right)
+    armsController.povRight().or(armsController.povUpRight()).or(armsController.povDownRight())
+      .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.BARGE).repeatedly());
 
     // Algae outtake (arms left trigger)
     armsController.leftTrigger()
@@ -187,7 +191,8 @@ public final class RobotContainer {
 
     // Climber deploy (arms left stick press)
     armsController.leftStick()
-      .onTrue(new RetractClimberCommand(climber));
+      .whileTrue(new RetractClimberCommand(climber, led))
+      .onFalse(new InstantCommand(climber::stopClimber, climber));
     
     // Match timer start/stop
     isEnabledTrigger
