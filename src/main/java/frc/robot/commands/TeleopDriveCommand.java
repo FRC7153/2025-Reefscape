@@ -11,7 +11,7 @@ import frc.robot.subsystems.swerve.SwerveDrive;
 public class TeleopDriveCommand extends Command {
   private final SwerveDrive drive;
   private final Supplier<Double> ySupplier, xSupplier, thetaSupplier;
-  private final BooleanSupplier fastMode;
+  private final BooleanSupplier fastMode, robotOrientedSupplier;
 
   /**
    * @param drive
@@ -25,13 +25,15 @@ public class TeleopDriveCommand extends Command {
     Supplier<Double> ySupplier, 
     Supplier<Double> xSupplier, 
     Supplier<Double> thetaSupplier,
-    BooleanSupplier fastMode
+    BooleanSupplier fastMode,
+    BooleanSupplier robotOrientedSupplier
   ) {
     this.drive = drive;
     this.ySupplier = ySupplier;
     this.xSupplier = xSupplier;
     this.thetaSupplier = thetaSupplier;
     this.fastMode = fastMode;
+    this.robotOrientedSupplier = robotOrientedSupplier;
 
     addRequirements(drive);
   }
@@ -58,7 +60,7 @@ public class TeleopDriveCommand extends Command {
       x * (fastMode.getAsBoolean() ? SwerveConstants.FAST_TRANSLATIONAL_SPEED : SwerveConstants.SLOW_TRANSLATIONAL_SPEED), 
       theta * (fastMode.getAsBoolean() ? SwerveConstants.FAST_ROTATIONAL_SPEED : SwerveConstants.SLOW_ROTATIONAL_SPEED), 
       false, 
-      true
+      !robotOrientedSupplier.getAsBoolean()
     );
   }
 

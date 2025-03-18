@@ -244,7 +244,7 @@ public final class Elevator implements Subsystem {
     );
     System.out.printf("Homed manipulator pivot from %f -> %f\n", currentPos, ElevatorConstants.MANIPULATOR_PIVOT_DEFAULT_POS);
 
-    boolean success = resp.equals(StatusCode.OK) && absPos != 0.0;
+    boolean success = resp.equals(StatusCode.OK) && absPos > 0.2;
     manipulatorNotHomedAlert.set(!success);
     hasManipulatorHomed = success;
   }

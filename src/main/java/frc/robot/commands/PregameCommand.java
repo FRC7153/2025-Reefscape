@@ -33,7 +33,6 @@ public class PregameCommand extends InstantCommand {
 
       // Reset encoders
       elevator.resetElevatorEncoder();
-      climber.homeClimberToBottom();
 
       dashboard.stopWebServerIfFMS();
 

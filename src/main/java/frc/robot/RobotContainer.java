@@ -46,11 +46,11 @@ public final class RobotContainer {
   private final CommandXboxController armsController = new CommandXboxController(1);
 
   // Subsystems
+  private final LED led = Util.timeInstantiation(LED::new);
   private final SwerveDrive base = Util.timeInstantiation(() -> new SwerveDrive(baseController::setRumble));
   private final Elevator elevator = Util.timeInstantiation(Elevator::new);
   private final Manipulator manipulator = Util.timeInstantiation(() -> new Manipulator(elevator::getManipulatorAngle));
   private final Climber climber = Util.timeInstantiation(Climber::new);
-  private final LED led = Util.timeInstantiation(LED::new);
 
   // Dashboard
   private final AutoChooser auto = new AutoChooser(base, elevator, climber, manipulator);
@@ -77,7 +77,7 @@ public final class RobotContainer {
 
     // SwerveDrive default command (teleop driving)
     base.setDefaultCommand(
-      new TeleopDriveCommand(base, baseLeftX, baseLeftY, baseRightX, baseController.leftStick())
+      new TeleopDriveCommand(base, baseLeftX, baseLeftY, baseRightX, baseController.leftStick(), baseController.leftTrigger())
     );
     
     // Manipulator default command (not spinning, unless angled down)

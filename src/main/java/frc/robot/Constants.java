@@ -44,6 +44,9 @@ public final class Constants {
   public static final class ClimberConstants {
     public static final double CLIMBER_RATIO = 125.0; 
 
+    public static final boolean CLIMBER_PIVOT_ABS_ENC_INVERTED = false;
+    public static final double CLIMBER_PIVOT_ABS_ENC_ZERO_OFFSET = 0.0; // rotations
+
     public static final ClosedLoopConfig CLIMBER_PIVOT_MOTOR_GAINS = new ClosedLoopConfig()
       .pid(0.0, 0.0, 0.0, ClosedLoopSlot.kSlot0)
       .feedbackSensor(FeedbackSensor.kPrimaryEncoder);
@@ -197,6 +200,7 @@ public final class Constants {
     // Climber Hardware
     public static final int CLIMBER_WINCH = 18;
     public static final int CLIMBER_PIVOT = 17;
+    public static final int CLIMBER_PIVOT_ENCODER_DUTY_CYCLE_DIO = 9;
 
     // Manipulator Hardware 
     public static final int MANIPULATOR_CAN = 19;

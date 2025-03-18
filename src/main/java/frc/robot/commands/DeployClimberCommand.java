@@ -14,7 +14,8 @@ public class DeployClimberCommand extends SequentialCommandGroup {
     super(
       new InstantCommand(() -> climber.runClimberPivot(0.75), climber),
       new WaitUntilCommand(() -> climber.getPivotPosition() >= 47), // 47 rotations to out
-      new InstantCommand(climber::stopClimber, climber)
+      new InstantCommand(climber::stopClimber, climber),
+      new InstantCommand(climber::setClimberHasDeployedFlag)
     );
   }
 }
