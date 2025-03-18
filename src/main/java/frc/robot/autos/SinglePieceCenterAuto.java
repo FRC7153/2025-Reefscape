@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ElevatorPositions;
+import frc.robot.autos.commands.StallSubsystemsCommand;
 import frc.robot.commands.ElevatorToStateCommand;
 import frc.robot.commands.ManipulatorCommand;
 import frc.robot.commands.util.ForTimeCommand;
@@ -16,7 +17,10 @@ import frc.robot.subsystems.swerve.SwervePaths;
 public class SinglePieceCenterAuto extends SequentialCommandGroup {
   public SinglePieceCenterAuto(SwerveDrive drive, Elevator elevator, Manipulator manipulator) {
     super(
-      SwervePaths.getFollowPathCommand(drive, "CenterStartToReef4", false),
+      // Begin stalling subsystems
+      StallSubsystemsCommand.scheduleInstantly(elevator, manipulator),
+      // Drive near reef H position
+      SwervePaths.getFollowPathCommand(drive, "CenterStartToReefH"),
       new ParallelCommandGroup(
         new ProxyCommand(new ForTimeCommand(new ElevatorToStateCommand(elevator, ElevatorPositions.L4).repeatedly(), 4.0)),
         new SequentialCommandGroup(

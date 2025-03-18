@@ -9,6 +9,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.util.logging.ConsoleLogger;
 import libs.Elastic;
@@ -105,6 +106,15 @@ public class Util {
     System.out.printf(
       "%s took %.4f seconds to instantiate\n", obj.getClass().getSimpleName(), elapsed);
     return obj;
+  }
+
+  /**
+   * @param command The command that may be repeated.
+   * @param repeated Whether the command is repeated.
+   * @return command.repeatedly if repeated, else just command.
+   */
+  public static Command possiblyRepeatedCommand(Command command, boolean repeated) {
+    return repeated ? command.repeatedly() : command;
   }
 
   /** Prevent instantiation */

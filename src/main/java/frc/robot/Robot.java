@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.commands.PregameCommand;
+import frc.robot.commands.util.NotRequiredWrapperCommand;
 import frc.robot.util.Util;
 import frc.robot.util.logging.CANLogger;
 import frc.robot.util.logging.ConsoleLogger;
@@ -87,15 +88,19 @@ public final class Robot extends TimedRobot {
   public void autonomousPeriodic() {}
 
   @Override
-  public void autonomousExit() {}
-
-  @Override
-  public void teleopInit() {
+  public void autonomousExit() {
     // Cancel auto
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
+      m_autonomousCommand = null;
     }
 
+    // Stop any commands Auto may have started
+    NotRequiredWrapperCommand.stopAllWrapperCommands();
+  }
+
+  @Override
+  public void teleopInit() {
     // Check pregame
     if (!PregameCommand.getHasPregamed()) {
       ConsoleLogger.reportError("No pregame before teleopInit()!");
