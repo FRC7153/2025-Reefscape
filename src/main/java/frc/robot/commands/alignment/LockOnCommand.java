@@ -1,7 +1,6 @@
 package frc.robot.commands.alignment;
 
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
@@ -45,10 +44,10 @@ public class LockOnCommand extends Command {
     NetworkTableInstance.getDefault().getTable("Swerve/LockOn").getStructTopic("Setpoint", Pose2d.struct).publish() : 
     null;
 
-
+  // Instance members
   private final SwerveDrive drive;
   private final Command flashLEDCommand;
-  private final BiFunction<AlignmentVector, Double, Double> velocityFunction;
+  private final Supplier<Double> xSupplier, ySupplier;
   private final BiConsumer<RumbleType, Double> rumbleConsumer;
   private final PathPlannerTrajectoryState targetState = new PathPlannerTrajectoryState();
 
@@ -62,20 +61,22 @@ public class LockOnCommand extends Command {
    * Locks onto the supplied AlignmentVector.
    * @param drive
    * @param LED led (not required, scheduled)
-   * @param velocityFunction Function that takes the current vector and the distance along that
-   * vector and returns the current velocity along that vector.
+   * @param xSupplier Operator x input %
+   * @param ySupplier Operator y input %
    * @param rumbleConsumers Consumers for haptic feedback
    * @param group Which group of targets (Left, Center, Right) to use
    */
   public LockOnCommand(
     SwerveDrive drive, 
     LED led,
-    BiFunction<AlignmentVector, Double, Double> velocityFunction,
+    Supplier<Double> xSupplier,
+    Supplier<Double> ySupplier,
     BiConsumer<RumbleType, Double> rumbleConsumers,
     TargetGroup group
   ) {
     this.drive = drive;
-    this.velocityFunction = velocityFunction;
+    this.xSupplier = xSupplier;
+    this.ySupplier = ySupplier;
     this.rumbleConsumer = rumbleConsumers;
     this.group = group;
 
@@ -89,40 +90,6 @@ public class LockOnCommand extends Command {
     };
 
     addRequirements(drive);
-  }
-
-  /**
-   * Locks onto the supplied AlignmentVector.
-   * @param drive
-   * @param LED led (not required, scheduled)
-   * @param velocityFunction Function that takes the current vector and the distance along that
-   * vector and returns the current velocity along that vector.
-   * @param rumbleConsumers Consumers for haptic feedback
-   * @param group Which group of targets (Left, Center, Right) to use
-   */
-  public LockOnCommand(
-    SwerveDrive drive,
-    LED led,
-    Supplier<Double> xSupplier,
-    Supplier<Double> ySupplier,
-    BiConsumer<RumbleType, Double> rumbleConsumer,
-    TargetGroup group
-  ) {
-    this(
-      drive, 
-      led, 
-      (AlignmentVector currentVector, Double position) -> {
-        // Get user input (note y and x are swapped here, because forward (y+) should be a vector of 0 degrees)
-        Translation2d speed = new Translation2d(
-          ySupplier.get() * SwerveConstants.SLOW_TRANSLATIONAL_SPEED,
-          xSupplier.get() * SwerveConstants.SLOW_TRANSLATIONAL_SPEED
-        );
-
-        return currentVector.getProjectedVectorMagnitude(speed);
-      },
-      rumbleConsumer, 
-      group
-    );
   }
 
   // MARK: Target initialization
@@ -178,7 +145,12 @@ public class LockOnCommand extends Command {
     Pose2d currentPose = drive.getPosition(false);
     
     // Get velocity input
-    double projectedSpeedMagnitude = velocityFunction.apply(vector, projectionScalar);
+    Translation2d speed = new Translation2d(
+      ySupplier.get() * SwerveConstants.SLOW_TRANSLATIONAL_SPEED,
+      xSupplier.get() * SwerveConstants.SLOW_TRANSLATIONAL_SPEED
+    );
+
+    double projectedSpeedMagnitude = vector.getProjectedVectorMagnitude(speed);
 
     // Determine target position
     projectionScalar += (projectedSpeedMagnitude * TimedRobot.kDefaultPeriod); // Position offset = requested velocity * time

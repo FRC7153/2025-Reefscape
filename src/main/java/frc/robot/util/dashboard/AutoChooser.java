@@ -18,7 +18,6 @@ import frc.robot.Constants.BuildConstants;
 import frc.robot.autos.BackAndForthTestAuto;
 import frc.robot.autos.SimpleDriveTestAuto;
 import frc.robot.autos.SinglePieceCenterAuto;
-import frc.robot.autos.commands.AutoCommandHandler;
 import frc.robot.commands.sysid.ElevatorSysIdCommand;
 import frc.robot.commands.sysid.ManipulatorPivotSysIdCommand;
 import frc.robot.commands.sysid.SysIdCharacterizationCommand;
@@ -49,9 +48,6 @@ public final class AutoChooser {
       currentLoadedCommand = null;
       noAutoLoadedAlert.set(true);
     });
-
-    // Init Named Commands
-    AutoCommandHandler.initNamedCommands(elevator);
 
     // Starting positions
     Pose2d startingCenter = new Pose2d(7.071, 4.031, Rotation2d.k180deg);

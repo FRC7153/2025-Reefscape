@@ -2,11 +2,28 @@ package frc.robot.commands.led;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.LED;
 
 public class SetLEDColorCommand extends RepeatCommand {
+  /**
+   * Sets the LED to a certain color for a certain amount of time.
+   * @param led
+   * @param color
+   * @param time Time to set for, in seconds
+   * @return The command to run
+   */
+    public static Command forTime(LED led, double color, double time) {
+      return new ParallelRaceGroup(
+        new SetLEDColorCommand(led, color),
+        new WaitCommand(time)
+      ).withName(String.format("SetLEDColorCommand(%.3f, timed %.3f)", color, time));
+    }
+
     private final String name;
 
     /**

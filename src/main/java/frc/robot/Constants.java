@@ -84,8 +84,8 @@ public final class Constants {
       .withKG(0.5609).withGravityType(GravityTypeValue.Elevator_Static);
 
     private static final MotionMagicConfigs ELEVATOR_MM_CONFIGS = new MotionMagicConfigs()
-      .withMotionMagicCruiseVelocity(3.5) // 4.5
-      .withMotionMagicAcceleration(6.0); // 9.5
+      .withMotionMagicCruiseVelocity(3.75) // 4.5
+      .withMotionMagicAcceleration(7.5); // 9.5
 
     private static final Slot0Configs MANIPULATOR_PIVOT_GAINS = new Slot0Configs()
       .withKP(57.811).withKI(0.0).withKD(6.2107)

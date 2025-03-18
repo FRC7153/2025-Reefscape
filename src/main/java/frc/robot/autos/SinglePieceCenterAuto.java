@@ -1,48 +1,41 @@
 package frc.robot.autos;
 
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ProxyCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ElevatorPositions;
-import frc.robot.autos.commands.StallSubsystemsCommand;
 import frc.robot.commands.ElevatorToStateCommand;
-import frc.robot.commands.ManipulatorCommand;
-import frc.robot.commands.util.ForTimeCommand;
+import frc.robot.commands.alignment.AutoLockOnCommand;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.swerve.SwervePaths;
+import frc.robot.util.math.LockOnAlignments;
 
 public class SinglePieceCenterAuto extends SequentialCommandGroup {
   public SinglePieceCenterAuto(SwerveDrive drive, Elevator elevator, Manipulator manipulator) {
     super(
-      // Begin stalling subsystems
-      StallSubsystemsCommand.scheduleInstantly(elevator, manipulator),
       // Drive near reef H position
       SwervePaths.getFollowPathCommand(drive, "CenterStartToReefH"),
-      new ParallelCommandGroup(
-        new ProxyCommand(new ForTimeCommand(new ElevatorToStateCommand(elevator, ElevatorPositions.L4).repeatedly(), 4.0)),
-        new SequentialCommandGroup(
-          new WaitCommand(1.75),
-          new ProxyCommand(new ForTimeCommand(new ManipulatorCommand(manipulator, 0.1), 0.5))
-        )
-      )
-      
-      /*,
-      new ParallelCommandGroup(
-        new SequentialCommandGroup(
-          new ElevatorToStateCommand(elevator, ElevatorPositions.L4).forSeconds(1.25)
-        ),
-        new ParallelRaceGroup(
-          new SequentialCommandGroup(
-            new WaitCommand(0.5),
-            new GoToPointCommand(drive, LockOnAlignments.REEF_RIGHT_VECTORS[3].getTargetAsPose2d())
-          ),
-          new WaitCommand(1.0)
-        )
-      ),
-      SwervePaths.getFollowPathCommand(drive, "Reef4ToBack", false)*/
+      // Put elevator up
+      new InstantCommand(() -> manipulator.setManipulatorVelocity(-1.0), manipulator),
+      new ElevatorToStateCommand(elevator, ElevatorPositions.L4, true, false),
+      new WaitCommand(4),
+      // Lock onto reef
+      new AutoLockOnCommand(drive, LockOnAlignments.REEF_RIGHT_VECTORS[3], 1.25, 0.5, 2.5),
+      // Drop coral
+      new InstantCommand(() -> manipulator.setManipulatorVelocity(0.1), manipulator),
+      new WaitCommand(0.75),
+      new InstantCommand(() -> manipulator.setManipulatorVelocity(0.0), manipulator),
+      // Lower elevator and back away from reef
+      new ElevatorToStateCommand(elevator, ElevatorPositions.STOW),
+      new AutoLockOnCommand(drive, LockOnAlignments.REEF_RIGHT_VECTORS[3], -1.25, -1.0, 0.75),
+      // TODO more...
+      new PrintCommand("SinglePieceCenterAuto finished!")
     );
+
+    // Make sure everything is required
+    addRequirements(drive, elevator, manipulator);
   }
 }

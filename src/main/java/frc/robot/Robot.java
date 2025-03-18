@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.commands.PregameCommand;
-import frc.robot.commands.util.NotRequiredWrapperCommand;
 import frc.robot.util.Util;
 import frc.robot.util.logging.CANLogger;
 import frc.robot.util.logging.ConsoleLogger;
@@ -94,9 +93,6 @@ public final class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
       m_autonomousCommand = null;
     }
-
-    // Stop any commands Auto may have started
-    NotRequiredWrapperCommand.stopAllWrapperCommands();
   }
 
   @Override

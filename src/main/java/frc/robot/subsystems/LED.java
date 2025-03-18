@@ -9,7 +9,6 @@ import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.LEDColors;
 import frc.robot.commands.led.FlashLEDCommand;
 import frc.robot.commands.led.SetLEDColorCommand;
-import frc.robot.commands.util.ForTimeCommand;
 
 public class LED extends SubsystemBase {
   private final Spark ledController = new Spark(HardwareConstants.LED_PWM_PORT);
@@ -17,7 +16,7 @@ public class LED extends SubsystemBase {
 
   // Constant Commands
   public final Command flashGreenThreeTimes = new FlashLEDCommand(this, LEDColors.GREEN, 3);
-  public final Command solidYellowTwoSeconds = new ForTimeCommand(new SetLEDColorCommand(this, LEDColors.YELLOW), 2);
+  public final Command solidYellowTwoSeconds = SetLEDColorCommand.forTime(this, LEDColors.YELLOW, 2);
 
   /**
    * Creates a new ledController.
