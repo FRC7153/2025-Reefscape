@@ -31,7 +31,6 @@ public final class Climber implements Subsystem {
   private final SparkFlex climberPivot = new SparkFlex(HardwareConstants.CLIMBER_PIVOT, MotorType.kBrushless);
   private final SparkFlex climberWinch = new SparkFlex(HardwareConstants.CLIMBER_WINCH, MotorType.kBrushless);
 
-  private final RelativeEncoder climberPivotEncoder = climberPivot.getEncoder();
   private final DutyCycleEncoder climberPivotAbsEncoder = new DutyCycleEncoder(HardwareConstants.CLIMBER_PIVOT_ENCODER_DUTY_CYCLE_DIO);
   private final RelativeEncoder climberWinchEncoder = climberWinch.getEncoder();
 
@@ -140,17 +139,18 @@ public final class Climber implements Subsystem {
   }
  
   /**
-   * @return Pivot position (in rots, no gear ratio)
+   * @return Pivot position (in rots, absolute on shaft)
    */
   public double getPivotPosition() {
-    return climberPivotEncoder.getPosition();
+    return (climberPivotAbsEncoder.get() + ClimberConstants.CLIMBER_PIVOT_ABS_ENC_ZERO_OFFSET) % 1.0;
+
   }
 
   /**
-   * @return Winch position (in rots, absolute on shaft)
+   * @return Winch position (in rots, no gear ratio)
    */
   public double getWinchPosition() {
-    return (climberPivotAbsEncoder.get() + ClimberConstants.CLIMBER_PIVOT_ABS_ENC_ZERO_OFFSET) % 1.0;
+    return climberWinchEncoder.getPosition();
   }
 
   public void stopClimber(){
