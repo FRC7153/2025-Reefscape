@@ -17,12 +17,13 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.autos.BackAndForthTestAuto;
 import frc.robot.autos.SimpleDriveTestAuto;
-import frc.robot.autos.SinglePieceCenterAuto;
+import frc.robot.autos.SinglePieceRearCenterAuto;
 import frc.robot.commands.sysid.ElevatorSysIdCommand;
 import frc.robot.commands.sysid.ManipulatorPivotSysIdCommand;
 import frc.robot.commands.sysid.SysIdCharacterizationCommand;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.swerve.SwervePaths;
@@ -40,7 +41,7 @@ public final class AutoChooser {
 
   private final Alert noAutoLoadedAlert = new Alert("No auto loaded yet (run pregame)", AlertType.kInfo);
 
-  public AutoChooser(SwerveDrive drive, Elevator elevator, Climber climber, Manipulator manipulator) {
+  public AutoChooser(SwerveDrive drive, Elevator elevator, Climber climber, Manipulator manipulator, LED led) {
     this.drive = drive;
 
     // On change
@@ -59,9 +60,13 @@ public final class AutoChooser {
     chooser.addOption("LEFT No-op", Pair.of(startingLeft, () -> noOpCommand));
     chooser.addOption("RIGHT No-op", Pair.of(startingRight, () -> noOpCommand));
 
-    // Center autos
+    // Center reef autos
     chooser.addOption("CENTER Single Piece", 
-      Pair.of(startingCenter, () -> new SinglePieceCenterAuto(drive, elevator, manipulator))
+      Pair.of(startingCenter, () -> new SinglePieceRearCenterAuto(drive, elevator, manipulator, led, "CenterStartToReefH"))
+    );
+
+    chooser.addOption("RIGHT Single Piece", 
+      Pair.of(startingRight, () -> new SinglePieceRearCenterAuto(drive, elevator, manipulator, led, "RightStartToReefH"))
     );
 
     // Autos that are used for testing

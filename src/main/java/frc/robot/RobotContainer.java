@@ -53,7 +53,7 @@ public final class RobotContainer {
   private final Climber climber = Util.timeInstantiation(Climber::new);
 
   // Dashboard
-  private final AutoChooser auto = new AutoChooser(base, elevator, climber, manipulator);
+  private final AutoChooser auto = new AutoChooser(base, elevator, climber, manipulator, led);
   private final Dashboard dashboard = new Dashboard(baseController, armsController);
   private final Command pregameCommand = new PregameCommand(base, elevator, climber, dashboard, auto);
 
@@ -175,6 +175,7 @@ public final class RobotContainer {
 
     // Processor algae position (arms POV left)
     armsController.povLeft().or(armsController.povUpLeft()).or(armsController.povDownLeft())
+      .and(isEnabledTrigger) // So the driver can hold it down between auto and teleop period
       .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.PROCESSOR).repeatedly());
 
     // Barge algae position (arms POV right)

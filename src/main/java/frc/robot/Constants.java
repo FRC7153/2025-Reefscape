@@ -44,8 +44,8 @@ public final class Constants {
   public static final class ClimberConstants {
     public static final double CLIMBER_RATIO = 125.0; 
 
-    public static final boolean CLIMBER_PIVOT_ABS_ENC_INVERTED = false;
-    public static final double CLIMBER_PIVOT_ABS_ENC_ZERO_OFFSET = 0.0; // rotations
+    public static final boolean CLIMBER_PIVOT_ABS_ENC_INVERTED = true;
+    public static final double CLIMBER_PIVOT_ABS_ENC_ZERO_OFFSET = -0.73; // rotations
 
     public static final ClosedLoopConfig CLIMBER_PIVOT_MOTOR_GAINS = new ClosedLoopConfig()
       .pid(0.0, 0.0, 0.0, ClosedLoopSlot.kSlot0)

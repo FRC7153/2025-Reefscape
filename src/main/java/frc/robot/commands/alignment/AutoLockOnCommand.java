@@ -12,6 +12,9 @@ import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.util.Util;
 import frc.robot.util.math.AlignmentVector;
+import libs.Elastic;
+import libs.Elastic.Notification;
+import libs.Elastic.Notification.NotificationLevel;
 
 /**
  * Extend this class to lock on to different AligmentVectors.
@@ -23,32 +26,36 @@ public class AutoLockOnCommand extends Command {
   // Instance members
   private final SwerveDrive drive;
   private final AlignmentVector vector;
-  private final double velocity, threshold, timeout;
+  private final double velocity, translationThreshold, rotationThreshold, timeout;
   private final PathPlannerTrajectoryState targetState = new PathPlannerTrajectoryState();
 
   private double projectionScalar;
   private double mostRecentDistance;
+  private double mostRecentAngleDiff;
   private double startTime;
 
   /**
-   * Locks onto the supplied AlignmentVector.
+   * Locks onto the AlignmentVector.
    * @param drive
    * @param vector Vector to follow;
    * @param velocity Velocity along vector, m/s
    * @param threshold Meters from target before this command is terminated.
+   * @param rotationThreshold Degrees from target before this command is terminated.
    * @param timeout Max number of seconds this command can run
    */
   public AutoLockOnCommand(
     SwerveDrive drive, 
     AlignmentVector vector,
     double velocity,
-    double threshold,
+    double translationThreshold,
+    double rotationThreshold,
     double timeout
   ) {
     this.drive = drive;
     this.vector = vector;
     this.velocity = velocity;
-    this.threshold = threshold;
+    this.translationThreshold = translationThreshold;
+    this.rotationThreshold = rotationThreshold;
     this.timeout = timeout;
 
     // Init target state
@@ -56,6 +63,22 @@ public class AutoLockOnCommand extends Command {
     targetState.linearVelocity = velocity;
 
     addRequirements(drive);
+  }
+
+  /**
+   * Locks onto the AlignmentVector for a certain amount of time.
+   * @param drive
+   * @param vector Vector to follow
+   * @param velocity Velocity, along vector, m/s
+   * @param forTime Amount of seconds to run for.
+   */
+  public AutoLockOnCommand(
+    SwerveDrive drive,
+    AlignmentVector vector,
+    double velocity,
+    double forTime
+  ) {
+    this(drive, vector, velocity, -1.0, -1.0, forTime);
   }
 
   // MARK: Target initialization
@@ -66,6 +89,7 @@ public class AutoLockOnCommand extends Command {
     projectionScalar = vector.getPointProjectionScalar(currentPose.getTranslation());
 
     mostRecentDistance = currentPose.getTranslation().getDistance(vector.getTarget());
+    mostRecentAngleDiff = Math.abs(vector.getDirection().getDegrees() - currentPose.getRotation().getDegrees());
     startTime = Timer.getFPGATimestamp();
 
     // Update Limelight filters
@@ -81,8 +105,11 @@ public class AutoLockOnCommand extends Command {
     // Get current pose
     Pose2d currentPose = drive.getPosition(false);
     
-    // Determine target position
-    projectionScalar += (velocity * TimedRobot.kDefaultPeriod); // Position offset = requested velocity * time
+    // Determine target position, only if not within target
+    if (mostRecentDistance > translationThreshold) {
+      projectionScalar += (velocity * TimedRobot.kDefaultPeriod); // Position offset = requested velocity * time
+    }
+
     Translation2d projection = vector.getPointOnVectorFromScalar(projectionScalar);
 
     // Get drive base speed
@@ -98,6 +125,7 @@ public class AutoLockOnCommand extends Command {
 
     // Update distance
     mostRecentDistance = currentPose.getTranslation().getDistance(vector.getTarget());
+    mostRecentAngleDiff = Math.abs(vector.getDirection().getDegrees() - currentPose.getRotation().getDegrees());
   }
 
   // MARK: End
@@ -109,7 +137,28 @@ public class AutoLockOnCommand extends Command {
 
   @Override
   public boolean isFinished() {
-    return mostRecentDistance <= threshold || (Timer.getFPGATimestamp() - startTime) >= timeout;
+    if (mostRecentDistance <= translationThreshold && mostRecentAngleDiff <= rotationThreshold) {
+      // Has reached translation and rotation target thresholds
+      return true;
+    } else if ((Timer.getFPGATimestamp() - startTime) >= timeout) {
+      // Has timed out
+      if (translationThreshold != -1.0 && rotationThreshold != -1.0) {
+        // Alert if it hasn't reached thresholds
+        Elastic.sendNotification(
+          new Notification(
+            NotificationLevel.INFO, 
+            "AutoLockOnCommand expired", 
+            String.format("Timed out %.3f meters and %.3f degrees from target", mostRecentDistance, mostRecentAngleDiff), 
+            1200
+          )
+        );
+      }
+      
+      return true;
+    }
+
+    // Has not reached any threshold
+    return false;
   }
 
   @Override

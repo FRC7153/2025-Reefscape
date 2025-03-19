@@ -5,11 +5,10 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.LED;
 
-public class SetLEDColorCommand extends RepeatCommand {
+public class SetLEDColorCommand extends InstantCommand {
   /**
    * Sets the LED to a certain color for a certain amount of time.
    * @param led
@@ -19,7 +18,7 @@ public class SetLEDColorCommand extends RepeatCommand {
    */
     public static Command forTime(LED led, double color, double time) {
       return new ParallelRaceGroup(
-        new SetLEDColorCommand(led, color),
+        new SetLEDColorCommand(led, color).repeatedly(),
         new WaitCommand(time)
       ).withName(String.format("SetLEDColorCommand(%.3f, timed %.3f)", color, time));
     }
@@ -32,7 +31,7 @@ public class SetLEDColorCommand extends RepeatCommand {
      * @param colorSupplier
      */
     public SetLEDColorCommand(LED led, Supplier<Double> colorSupplier) {
-        super(new InstantCommand(() -> led.setColor(colorSupplier.get()), led));
+        super(() -> led.setColor(colorSupplier.get()), led);
 
         name = "SetLEDColorCommand(dynamic)";
     }
@@ -43,7 +42,7 @@ public class SetLEDColorCommand extends RepeatCommand {
      * @param color
      */
     public SetLEDColorCommand(LED led, double color) {
-        super(new InstantCommand(() -> led.setColor(color), led));
+        super(() -> led.setColor(color), led);
 
         name = String.format("SetLEDColorCommand(%.3f)", color);
     }
