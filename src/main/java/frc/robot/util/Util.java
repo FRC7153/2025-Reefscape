@@ -32,21 +32,24 @@ public class Util {
   }
 
   /**
+   * @param warnIfFails If a warning should be printed if this fails.
    * @return If the current alliance is red alliance
    */
-  public static boolean isRedAlliance() {
+  public static boolean isRedAlliance(boolean warnIfFails) {
     Optional<Alliance> alliance = DriverStation.getAlliance();
 
     if (alliance.isEmpty()) {
-      // Attempted to check Alliance before it was received!
-      String trace = getCurrentStackTrace();
-      ConsoleLogger.reportError("Invalid alliance received in " + trace);
-      
-      Elastic.sendNotification(new Notification(
-        NotificationLevel.WARNING,
-        "Invalid alliance received from FMS",
-        trace
-      ));
+      if (warnIfFails) {
+        // Attempted to check Alliance before it was received!
+        String trace = getCurrentStackTrace();
+        ConsoleLogger.reportError("Invalid alliance received in " + trace);
+        
+        Elastic.sendNotification(new Notification(
+          NotificationLevel.WARNING,
+          "Invalid alliance received from FMS",
+          trace
+        ));
+      }
     } else if (alliance.get().equals(Alliance.Red)) {
       // Red alliance confirmed
       return true;
@@ -54,6 +57,13 @@ public class Util {
 
     // Either blue alliance or default
     return false;
+  }
+
+  /**
+   * @return If the current alliance is red alliance
+   */
+  public static boolean isRedAlliance() {
+    return isRedAlliance(true);
   }
 
   /**

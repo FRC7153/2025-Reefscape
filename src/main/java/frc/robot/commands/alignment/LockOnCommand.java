@@ -51,8 +51,11 @@ public class LockOnCommand extends Command {
   private final BiConsumer<RumbleType, Double> rumbleConsumer;
   private final PathPlannerTrajectoryState targetState = new PathPlannerTrajectoryState();
 
+  // Target group info (ie: left, center, right)
   private final TargetGroup group;
   private final AlignmentVector[] reefVectorGroup;
+  private final AlignmentVector cageVector;
+  private final AlignmentVector[] coralStationVectorGroup;
 
   private AlignmentVector vector;
   private double projectionScalar;
@@ -89,6 +92,20 @@ public class LockOnCommand extends Command {
       case CENTER -> LockOnAlignments.REEF_CENTER_VECTORS;
     };
 
+    // Get vectors for the cage
+    cageVector = switch (group) {
+      case LEFT -> LockOnAlignments.CAGE_VECTORS[0];
+      case CENTER -> LockOnAlignments.CAGE_VECTORS[1];
+      case RIGHT -> LockOnAlignments.CAGE_VECTORS[2];
+    };
+
+    // Get vectors for coral station
+    coralStationVectorGroup = switch (group) {
+      case LEFT -> LockOnAlignments.LEFT_CORAL_STATION_VECTORS;
+      case CENTER -> LockOnAlignments.CENTER_CORAL_STATION_VECTORS;
+      case RIGHT -> LockOnAlignments.RIGHT_CORAL_STATION_VECTORS;
+    };
+
     addRequirements(drive);
   }
 
@@ -97,35 +114,33 @@ public class LockOnCommand extends Command {
   public void initialize() {
     // Determine which vector to use
     Pose2d currentPose = drive.getPosition(false);
-
-    vector = null;
     TargetType type = LockOnTargetChooserCommand.getTargetType();
 
-    if (type == TargetType.REEF) {
+    vector = switch (type) {
       // Scoring on reef
-      // Determine which side of the reef the robot is on
-      for (int i = 0; i < LockOnAlignments.REEF_ZONES.length; i++) {
-        if (LockOnAlignments.REEF_ZONES[i].containsPoint(currentPose.getTranslation())) {
-          // We are in this zone
-          vector = reefVectorGroup[i];
-          break;
+      case REEF -> {
+        // Determine which side of the reef the robot is on
+        for (int i = 0; i < LockOnAlignments.REEF_ZONES.length; i++) {
+          if (LockOnAlignments.REEF_ZONES[i].containsPoint(currentPose.getTranslation())) {
+            // We are in this zone
+            yield reefVectorGroup[i];
+          }
         }
-      }
-      
-      if (vector == null) {
+        
         // We are in no zones?
         ConsoleLogger.reportError("Robot position is not in any reef zone!");
-        vector = reefVectorGroup[0];
+        yield reefVectorGroup[0];
       }
-    } else {
-      // TODO alignment for cage, loading, and algae
-    }
-
-    // Ensure vector is not null
-    if (vector == null) {
-      ConsoleLogger.reportError("Unable to find a vector!");
-      vector = reefVectorGroup[0];
-    }
+      // Aligning with cage
+      case CAGE -> cageVector;
+      // Aligning with coral station
+      case CORAL_STATION -> {
+        // Just use the reef center as the center of the field to determine left/right station
+        yield coralStationVectorGroup[currentPose.getY() > LockOnAlignments.REEF_CENTER.getX() ? 0 : 1];
+      }
+      // Aligning with processor
+      case ALGAE_SCORING -> LockOnAlignments.PROCESSOR_VECTOR;
+    };
 
     // Init projection
     projectionScalar = vector.getPointProjectionScalar(currentPose.getTranslation());

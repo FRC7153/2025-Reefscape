@@ -7,6 +7,7 @@ package frc.robot;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -37,8 +38,6 @@ import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.util.Util;
 import frc.robot.util.dashboard.AutoChooser;
 import frc.robot.util.dashboard.Dashboard;
-import frc.robot.util.dashboard.NotificationCommand;
-import libs.Elastic.Notification.NotificationLevel;
 
 public final class RobotContainer {
   // Controllers
@@ -55,7 +54,7 @@ public final class RobotContainer {
   // Dashboard
   private final AutoChooser auto = new AutoChooser(base, elevator, climber, manipulator, led);
   private final Dashboard dashboard = new Dashboard(baseController, armsController);
-  private final Command pregameCommand = new PregameCommand(base, elevator, climber, dashboard, auto);
+  private final Command pregameCommand = new PregameCommand(base, elevator, climber, auto);
 
   public RobotContainer() {
     // Add Pregame command to the dashboard
@@ -74,6 +73,8 @@ public final class RobotContainer {
     final Supplier<Double> baseLeftX = () -> -baseController.getLeftX();
     final Supplier<Double> baseLeftY = () -> -baseController.getLeftY();
     final Supplier<Double> baseRightX = () -> -baseController.getRightX();
+
+    // MARK: Default commands
 
     // SwerveDrive default command (teleop driving)
     base.setDefaultCommand(
@@ -97,35 +98,39 @@ public final class RobotContainer {
 
     // LED default command (alliance color)
     led.setDefaultCommand(
-      new SetLEDColorCommand(led, () -> Util.isRedAlliance() ? LEDColors.RED : LEDColors.BLUE)
+      new SetLEDColorCommand(led, () -> Util.isRedAlliance(false) ? LEDColors.RED : LEDColors.BLUE)
     );
 
     // Stow elevator when roll limit exceeded
     isRollLimitExceededTrigger
       //.onTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.STOW))
-      .onTrue(new NotificationCommand("Robot roll limit exceeded", "", NotificationLevel.WARNING));
+      //.onTrue(new NotificationCommand("Robot roll limit exceeded", "", NotificationLevel.WARNING));
+      .onTrue(led.flashWhiteFiveTimes);
 
-    // Lock in to reef targets (base POV down)
+    // MARK: Driving alignment
+
+    // Lock in to reef targets (base POV down, arms left stick down)
     baseController.povDown()
+      .or(armsController.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.8))
       .onTrue(new LockOnTargetChooserCommand(TargetType.REEF));
 
-    // Lock in to coral station targets (base POV left)
+    // Lock in to coral station targets (base POV left, arms left stick left)
     baseController.povLeft()
+      .or(armsController.axisLessThan(XboxController.Axis.kLeftX.value, -0.8))
       .onTrue(new LockOnTargetChooserCommand(TargetType.CORAL_STATION));
 
-    // Lock in to cage targets (base POV up)
+    // Lock in to cage targets (base POV up, arms left stick up)
     baseController.povUp()
+      .or(armsController.axisLessThan(XboxController.Axis.kLeftY.value, -0.8))
       .onTrue(new LockOnTargetChooserCommand(TargetType.CAGE));
 
-    // Lock in to reef targets (base POV right)
+    // Lock in to algae targets (base POV right, arms left stick right)
     baseController.povRight()
+      .or(armsController.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.8))
       .onTrue(new LockOnTargetChooserCommand(TargetType.ALGAE_SCORING));
 
     // Line up with left targets (base X)
     baseController.x()
-      /*.whileTrue(new SelectCommand<>(Map.of(
-        TargetType.REEF, new LockOnReefCommand(base, baseLeftX, baseLeftY, dashboard::setAllRumble, ReefSetpoint.LEFT)
-      ), LockOnTargetChooserCommand::getTargetType))*/
       .whileTrue(new LockOnCommand(base, led, baseLeftX, baseLeftY, dashboard::setAllRumble, TargetGroup.LEFT));
 
     // Line up with center targets (base A)
@@ -141,13 +146,15 @@ public final class RobotContainer {
       .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.INTAKE).repeatedly())
       .whileTrue(new ManipulatorCommand(manipulator, -0.1));
 
+    // MARK: Arms scoring
+
     // Reverse Intake (arms right bumper)  
     armsController.rightBumper()
       .whileTrue(new ManipulatorCommand(manipulator, -0.1));
 
     // Coral Outtake (arms right trigger)
     armsController.rightTrigger()
-      .whileTrue(new ManipulatorCommand(manipulator, 0.25, 0.1, armsController.a())); // .25 .1
+      .whileTrue(new ManipulatorCommand(manipulator, 0.25, 0.1, armsController.a()));
 
     // L1 (arms A)
     armsController.a()
@@ -186,6 +193,8 @@ public final class RobotContainer {
     armsController.leftTrigger()
       .whileTrue(new ManipulatorCommand(manipulator, -0.3));
 
+    // MARK: Climbing
+
     // Climber deploy (arms right stick press)
     armsController.rightStick()
       .onTrue(new DeployClimberCommand(climber));
@@ -195,6 +204,8 @@ public final class RobotContainer {
       .whileTrue(new RetractClimberCommand(climber, led))
       .onFalse(new InstantCommand(climber::stopClimber, climber));
     
+    // MARK: Game mode triggers
+
     // Match timer start/stop
     isEnabledTrigger
       .onTrue(dashboard.getRestartTimerCommand())

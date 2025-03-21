@@ -102,6 +102,7 @@ public final class SwerveDrive implements Subsystem {
   private final Limelight[] limelights = {
     new Limelight("limelight-front", Version.LIMELIGHT_4, odometry),
     //new Limelight("limelight-top", Version.LIMELIGHT_3G, odometry),
+    new Limelight("limelight-cage", Version.LIMELIGHT_2PLUS, odometry)
   };
 
   // Autonomous
@@ -308,10 +309,10 @@ public final class SwerveDrive implements Subsystem {
   }
 
   /**
-   * @return Whether the roll limit (+/- 20 degrees) has been exceeded.
+   * @return Whether the roll limit (+/- 25 degrees) has been exceeded.
    */
   public boolean getRollLimitExceeded() {
-    return Math.abs(odometry.getRoll()) > 20.0;
+    return Math.abs(odometry.getRoll()) > 25.0;
   }
 
   /** Homes all swerve modules and caches alliance color for odometry. Run in pregame. */

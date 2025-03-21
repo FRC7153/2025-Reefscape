@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
+import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.DashboardConstants;
 
 /**
@@ -40,23 +41,20 @@ public class Dashboard {
     }
 
     // Host Elastic configuration file
-    WebServer.start(DashboardConstants.ELASTIC_SERVER_PORT, Filesystem.getDeployDirectory().toPath().resolve("Elastic").toString());
-
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      WebServer.start(DashboardConstants.ELASTIC_SERVER_PORT, Filesystem.getDeployDirectory().toPath().resolve("Elastic").toString());
+      System.out.println("Began hosting Elastic's web server");
+    } else {
+      System.out.println("Did NOT host Elastic's web server");
+    }
+    
     // Stop the timer (the robot is disabled by default)
     matchTimer.stop();
     matchTimer.reset();
 
     // Begin hosting CommandScheduler for debugging
-    SmartDashboard.putData("Commands", CommandScheduler.getInstance());
-  }
-
-  /**
-   * Stops the WebServer hosting Elastic's configuration file if the FMS is attached.
-   */
-  public void stopWebServerIfFMS() {
-    if (DriverStation.isFMSAttached()) {
-      System.out.println("Stopped Elastic's WebServer because FMS is attached");
-      WebServer.stop(DashboardConstants.ELASTIC_SERVER_PORT);
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      SmartDashboard.putData("Commands", CommandScheduler.getInstance());
     }
   }
 

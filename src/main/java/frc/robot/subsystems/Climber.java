@@ -10,6 +10,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -142,8 +143,10 @@ public final class Climber implements Subsystem {
    * @return Pivot position (in rots, absolute on shaft)
    */
   public double getPivotPosition() {
-    return (climberPivotAbsEncoder.get() + ClimberConstants.CLIMBER_PIVOT_ABS_ENC_ZERO_OFFSET) % 1.0;
-
+    return MathUtil.inputModulus(
+      climberPivotAbsEncoder.get() + ClimberConstants.CLIMBER_PIVOT_ABS_ENC_OFFSET, 
+      0.0, 
+      1.0);
   }
 
   /**

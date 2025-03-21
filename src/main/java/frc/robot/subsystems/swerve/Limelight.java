@@ -168,6 +168,7 @@ public class Limelight {
     } else {
       seenTagsPub = null;
       positionPub = null;
+      isMegaTag2Pub = null;
     }
 
     // Limelight MegaTag2 pose listener

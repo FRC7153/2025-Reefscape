@@ -8,7 +8,6 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.util.dashboard.AutoChooser;
-import frc.robot.util.dashboard.Dashboard;
 
 /**
  * Runs all actions that should be run after the robot successfully boots/initializes/connects,
@@ -25,7 +24,7 @@ public class PregameCommand extends InstantCommand {
 
   public static boolean getHasPregamed() { return hasPregamed;  }
 
-  public PregameCommand(SwerveDrive drive, Elevator elevator, Climber climber, Dashboard dashboard, AutoChooser chooser) {
+  public PregameCommand(SwerveDrive drive, Elevator elevator, Climber climber, AutoChooser chooser) {
     super(() -> {
       // Run pregame actions:
       drive.pregame();
@@ -33,8 +32,6 @@ public class PregameCommand extends InstantCommand {
 
       // Reset encoders
       elevator.resetElevatorEncoder();
-
-      dashboard.stopWebServerIfFMS();
 
       // Only run auto pregame actions if we are not already in teleop
       if (!DriverStation.isTeleopEnabled()) {

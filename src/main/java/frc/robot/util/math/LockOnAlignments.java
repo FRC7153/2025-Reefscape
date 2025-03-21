@@ -3,27 +3,28 @@ package frc.robot.util.math;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
+/** Alignment vectors used for automating lining up with various targets. */
 public class LockOnAlignments {
   // MARK: Reef Scoring
 
   /** Alignment vectors for REEF LEFT scoring */
   public static final AlignmentVector[] REEF_LEFT_VECTORS = {
     new AlignmentVector("REEF_A", new Translation2d(3.658, 4.249), Rotation2d.fromDegrees(0), 18, 7),
-new AlignmentVector("REEF_C", new Translation2d(3.876, 3.415), Rotation2d.fromDegrees(60), 17, 8),
-new AlignmentVector("REEF_E", new Translation2d(4.707, 3.187), Rotation2d.fromDegrees(120), 22, 9),
-new AlignmentVector("REEF_G", new Translation2d(5.321, 3.793), Rotation2d.fromDegrees(180), 21, 10),
-new AlignmentVector("REEF_I", new Translation2d(5.102, 4.626), Rotation2d.fromDegrees(240), 20, 11),
-new AlignmentVector("REEF_K", new Translation2d(4.271, 4.854), Rotation2d.fromDegrees(300), 19, 6)
+    new AlignmentVector("REEF_C", new Translation2d(3.876, 3.415), Rotation2d.fromDegrees(60), 17, 8),
+    new AlignmentVector("REEF_E", new Translation2d(4.707, 3.187), Rotation2d.fromDegrees(120), 22, 9),
+    new AlignmentVector("REEF_G", new Translation2d(5.321, 3.793), Rotation2d.fromDegrees(180), 21, 10),
+    new AlignmentVector("REEF_I", new Translation2d(5.102, 4.626), Rotation2d.fromDegrees(240), 20, 11),
+    new AlignmentVector("REEF_K", new Translation2d(4.271, 4.854), Rotation2d.fromDegrees(300), 19, 6)
   };
 
   /** Alignment vectors for REEF CENTER scoring */
   public static final AlignmentVector[] REEF_CENTER_VECTORS = {
     new AlignmentVector("REEF_1", new Translation2d(3.658, 4.084), Rotation2d.fromDegrees(0), 18, 7),
-new AlignmentVector("REEF_2", new Translation2d(4.019, 3.333), Rotation2d.fromDegrees(60), 17, 8),
-new AlignmentVector("REEF_3", new Translation2d(4.85, 3.269), Rotation2d.fromDegrees(120), 22, 9),
-new AlignmentVector("REEF_4", new Translation2d(5.321, 3.957), Rotation2d.fromDegrees(180), 21, 10),
-new AlignmentVector("REEF_5", new Translation2d(4.96, 4.709), Rotation2d.fromDegrees(240), 20, 11),
-new AlignmentVector("REEF_6", new Translation2d(4.129, 4.772), Rotation2d.fromDegrees(300), 19, 6)
+    new AlignmentVector("REEF_2", new Translation2d(4.019, 3.333), Rotation2d.fromDegrees(60), 17, 8),
+    new AlignmentVector("REEF_3", new Translation2d(4.85, 3.269), Rotation2d.fromDegrees(120), 22, 9),
+    new AlignmentVector("REEF_4", new Translation2d(5.321, 3.957), Rotation2d.fromDegrees(180), 21, 10),
+    new AlignmentVector("REEF_5", new Translation2d(4.96, 4.709), Rotation2d.fromDegrees(240), 20, 11),
+    new AlignmentVector("REEF_6", new Translation2d(4.129, 4.772), Rotation2d.fromDegrees(300), 19, 6)
   };
 
   /** Alignment vectors for REEF RIGHT scoring */
@@ -58,4 +59,42 @@ new AlignmentVector("REEF_6", new Translation2d(4.129, 4.772), Rotation2d.fromDe
     new Triangle2d(REEF_CENTER, REEF_CORNERS_EXPANDED[4], REEF_CORNERS_EXPANDED[5]), // I/J
     new Triangle2d(REEF_CENTER, REEF_CORNERS_EXPANDED[5], REEF_CORNERS_EXPANDED[0]), // K/L
   };
+
+  // MARK: Climbing
+
+  /** Alignment vectors for CAGE, in LEFT, CENTER, RIGHT order */
+  public static final AlignmentVector[] CAGE_VECTORS = {
+    new AlignmentVector("CAGE_LEFT", new Translation2d(8.272, 7.225), Rotation2d.fromDegrees(180), 14, 15, 4, 5),
+    new AlignmentVector("CAGE_CENTER", new Translation2d(8.272, 6.133), Rotation2d.fromDegrees(180), 14, 15, 4, 5),
+    new AlignmentVector("CAGE_RIGHT", new Translation2d(8.272, 5.04), Rotation2d.fromDegrees(180), 14, 15, 4, 5)
+  };
+
+  // MARK: ALGAE SCORING
+
+  /** Alignment vector for the PROCESSOR */
+  public static final AlignmentVector PROCESSOR_VECTOR = 
+    new AlignmentVector("PROCESSOR", new Translation2d(6.058, 0.011), Rotation2d.fromDegrees(270), 16, 3);
+
+  // MARK: CORAL STATIONS
+
+  /** Leftward alignment vectors for CORAL STATION in LEFT STATION, RIGHT STATION */
+  public static final AlignmentVector[] LEFT_CORAL_STATION_VECTORS = {
+    new AlignmentVector("LEFT_CORAL_LEFT", new Translation2d(0.463, 7.125), Rotation2d.fromDegrees(306), 13, 12, 2, 1),
+    new AlignmentVector("RIGHT_CORAL_LEFT", new Translation2d(1.26, 0.339), Rotation2d.fromDegrees(54), 13, 12, 2, 1)
+  };
+
+  /** Center alignment vectors for CORAL STATION in LEFT STATION, RIGHT STATION */
+  public static final AlignmentVector[] CENTER_CORAL_STATION_VECTORS = {
+    new AlignmentVector("LEFT_CORAL_CENTER", new Translation2d(0.956, 7.483), Rotation2d.fromDegrees(306), 13, 12, 2, 1),
+    new AlignmentVector("RIGHT_CORAL_CENTER", new Translation2d(0.766, 0.697), Rotation2d.fromDegrees(54), 13, 12, 2, 1)
+  };
+
+  /** Rightward alignment vectors for CORAL STATION in LEFT STATION, RIGHT STATION */
+  public static final AlignmentVector[] RIGHT_CORAL_STATION_VECTORS = {
+    new AlignmentVector("LEFT_CORAL_RIGHT", new Translation2d(1.285, 7.722), Rotation2d.fromDegrees(306), 13, 12, 2, 1),
+    new AlignmentVector("RIGHT_CORAL_RIGHT", new Translation2d(0.438, 0.936), Rotation2d.fromDegrees(54), 13, 12, 2, 1)
+  };
+
+  /** Utility class, prevent instantiation. */
+  private LockOnAlignments() {}
 }

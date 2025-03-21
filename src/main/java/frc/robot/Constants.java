@@ -30,7 +30,7 @@ public final class Constants {
   public static final class BuildConstants {
     public static final double EPSILON = 1E-6;
 
-    public static final boolean PUBLISH_EVERYTHING = true;
+    public static final boolean PUBLISH_EVERYTHING = false;
     public static final boolean INCLUDE_TEST_AUTOS = false;
 
     public static final AprilTagFieldLayout FIELD = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark); // See TU-12
@@ -45,7 +45,7 @@ public final class Constants {
     public static final double CLIMBER_RATIO = 125.0; 
 
     public static final boolean CLIMBER_PIVOT_ABS_ENC_INVERTED = true;
-    public static final double CLIMBER_PIVOT_ABS_ENC_ZERO_OFFSET = -0.73; // rotations
+    public static final double CLIMBER_PIVOT_ABS_ENC_OFFSET = -0.73; // rots
 
     public static final ClosedLoopConfig CLIMBER_PIVOT_MOTOR_GAINS = new ClosedLoopConfig()
       .pid(0.0, 0.0, 0.0, ClosedLoopSlot.kSlot0)
@@ -168,11 +168,14 @@ public final class Constants {
   }
 
   public static final class LEDColors {
+    // See https://www.revrobotics.com/content/docs/REV-11-1105-UM.pdf 
+
     public static final double RED = 0.61;
     public static final double BLUE = 0.87;
     public static final double GREEN = 0.75;
     public static final double YELLOW = 0.69;
     public static final double BLACK = 0.99;
+    public static final double WHITE = 0.93;
   }
 
   public static final class HardwareConstants {
@@ -216,9 +219,5 @@ public final class Constants {
 
     // LED
     public static final int LED_PWM_PORT = 9;
-  }
-
-  public static final class LEDConstants {
-    public static double LED_COLOR = 0.0; 
   }
 }

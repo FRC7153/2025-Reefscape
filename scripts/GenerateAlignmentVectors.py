@@ -32,10 +32,7 @@ def getTagPose(tagJson, tagId):
   return None
 
 # See AlignmentVector.java
-def generate(aprilTagFile, reefCenterOffsets, overallReefOffset):
-  with open(aprilTagFile, "r") as f:
-    tags = json.load(f)
-
+def generateReefVectors(tags, reefCenterOffsets, overallReefOffset):
   # Init output
   leftVectors = []
   centerVectors = []
@@ -71,22 +68,118 @@ def generate(aprilTagFile, reefCenterOffsets, overallReefOffset):
 
     rightVectors.append(formatVector(f"REEF_{reefNames[i*2 + 1]}", right, angle, alignmentTags))
 
-  # TODO generate intake vectors
-
   # Output all vectors
-  print("LEFT VECTORS:")
+  print("REEF LEFT VECTORS:")
   print(",\n".join(leftVectors))
 
-  print("CENTER VECTORS:")
+  print("REEF CENTER VECTORS:")
   print(",\n".join(centerVectors))
 
-  print("RIGHT VECTORS:")
+  print("REEF RIGHT VECTORS:")
+  print(",\n".join(rightVectors))
+
+def generateCageVectors(tags, cageCenterOffsets):
+  bargeTags = [14, 15, 4, 5]
+
+  centerPose = getTagPose(tags, 14)
+  centerPose = (centerPose["translation"]["x"], centerPose["translation"]["y"])
+
+  # Create center cage
+  print("CAGE CENTER:")
+  print(formatVector("CAGE_CENTER", centerPose, 180, bargeTags))
+
+  # Create left cage
+  left = offsetPosition(centerPose, cageCenterOffsets, 90)
+
+  print("CAGE LEFT:")
+  print(formatVector("CAGE_LEFT", left, 180, bargeTags))
+
+  # Create right cage
+  right = offsetPosition(centerPose, cageCenterOffsets, -90)
+
+  print("CAGE RIGHT:")
+  print(formatVector("CAGE_RIGHT", right, 180, bargeTags))
+
+def generateAlgaeVectors(tags):
+  processorTags = [16, 3]
+
+  processor = getTagPose(tags, 16)
+  processor = (processor["translation"]["x"], processor["translation"]["y"])
+
+  # Create processor vector
+  print("PROCESSOR:")
+  print(formatVector("PROCESSOR", processor, 270, processorTags))
+
+def generateCoralStationVectors(tags, centerOffset, distanceCenterToLeft, distanceCenterToRight):
+  coralStationTags = [13, 12, 2, 1]
+
+  leftVectors = []
+  centerVectors = []
+  rightVectors = []
+
+  # Create left/right station vectors
+  for i, side in enumerate(["LEFT", "RIGHT"]):
+    center = getTagPose(tags, coralStationTags[i])
+    center = (center["translation"]["x"], center["translation"]["y"])
+    angle = 306 - (252 * i) # left is 306 degrees, right is 54 degrees
+
+    center = offsetPosition(center, centerOffset, angle+90)
+
+    # Left side
+    leftVectors.append(formatVector(
+      f"{side}_CORAL_LEFT",
+      offsetPosition(center, distanceCenterToLeft, angle-90),
+      angle,
+      coralStationTags
+    ))
+
+    # Center
+    centerVectors.append(formatVector(f"{side}_CORAL_CENTER", center, angle, coralStationTags))
+
+    # Right side
+    rightVectors.append(formatVector(
+      f"{side}_CORAL_RIGHT",
+      offsetPosition(center, distanceCenterToRight, angle+90),
+      angle,
+      coralStationTags
+    ))
+
+  # Output
+  print("LEFT CORAL STATION VECTORS (L, R):")
+  print(",\n".join(leftVectors))
+
+  print("CENTER CORAL STATION VECTORS (L, R):")
+  print(",\n".join(centerVectors))
+
+  print("RIGHT CORAL STATION VECTORS (L, R):")
   print(",\n".join(rightVectors))
 
 # Run
 if __name__ == "__main__":
-  generate(
-    sys.argv[1], # AprilTag .json file
+  # Open april tag file
+  with open(sys.argv[1], "r") as f:
+    tags = json.load(f)
+
+  # Generate reef vectors
+  generateReefVectors(
+    tags,
     0.329 / 2.0, # offset of each reef pole from the center of that face of the reef (meters)
     [0, 0.0635] # x/y offset to add to every single position to fix constant error (meters)
+  )
+
+  # Generate cage vectors
+  generateCageVectors(
+    tags,
+    1.0922 # offset from left/right cage to center cage (meters)
+  )
+
+  # Generate algae vectors
+  generateAlgaeVectors(tags)
+
+  # Generate coral station vectors
+  generateCoralStationVectors(
+    tags,
+    0.117475, # offset between tag and center position (meters)
+    0.61, # offset between center and left position (meters)
+    0.406 # offset between center and right position (meters)
   )

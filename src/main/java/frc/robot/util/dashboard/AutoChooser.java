@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.autos.BackAndForthTestAuto;
 import frc.robot.autos.SimpleDriveTestAuto;
-import frc.robot.autos.SinglePieceRearCenterAuto;
+import frc.robot.autos.SingleCoralAndAlgaeAuto;
 import frc.robot.commands.sysid.ElevatorSysIdCommand;
 import frc.robot.commands.sysid.ManipulatorPivotSysIdCommand;
 import frc.robot.commands.sysid.SysIdCharacterizationCommand;
@@ -29,6 +29,7 @@ import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.swerve.SwervePaths;
 import frc.robot.subsystems.swerve.SwerveSysId;
 import frc.robot.util.Util;
+import frc.robot.util.logging.ConsoleLogger;
 
 public final class AutoChooser {
   private static final Command noOpCommand = new PrintCommand("No-op auto selected.");
@@ -60,13 +61,27 @@ public final class AutoChooser {
     chooser.addOption("LEFT No-op", Pair.of(startingLeft, () -> noOpCommand));
     chooser.addOption("RIGHT No-op", Pair.of(startingRight, () -> noOpCommand));
 
-    // Center reef autos
-    chooser.addOption("CENTER Single Piece", 
-      Pair.of(startingCenter, () -> new SinglePieceRearCenterAuto(drive, elevator, manipulator, led, "CenterStartToReefH"))
+    // Rear center reef single coral single algae autos
+    chooser.addOption("CENTER CENTER Single Piece", 
+      Pair.of(startingCenter, () -> new SingleCoralAndAlgaeAuto(drive, elevator, manipulator, led, "CenterStartToReefH", 3, false))
     );
 
-    chooser.addOption("RIGHT Single Piece", 
-      Pair.of(startingRight, () -> new SinglePieceRearCenterAuto(drive, elevator, manipulator, led, "RightStartToReefH"))
+    chooser.addOption("RIGHT CENTER Single Piece", 
+      Pair.of(startingRight, () -> new SingleCoralAndAlgaeAuto(drive, elevator, manipulator, led, "RightStartToReefH", 3, false))
+    );
+
+    chooser.addOption("LEFT CENTER Single Piece", 
+      Pair.of(startingLeft, () -> new SingleCoralAndAlgaeAuto(drive, elevator, manipulator, led, "LeftStartToReefH", 3, false))
+    );
+
+    // Left left reef single coral single algae auto
+    chooser.addOption("LEFT LEFT Single Piece", 
+      Pair.of(startingLeft, () -> new SingleCoralAndAlgaeAuto(drive, elevator, manipulator, led, "LeftStartToReefI", 4, true))
+    );
+
+    // Right right reef single coral single algae auto
+    chooser.addOption("RIGHT RIGHT Single Piece", 
+      Pair.of(startingRight, () -> new SingleCoralAndAlgaeAuto(drive, elevator, manipulator, led, "RightStartToReefF", 2, true))
     );
 
     // Autos that are used for testing
@@ -156,6 +171,8 @@ public final class AutoChooser {
     if (DriverStation.isDisabled() && selected.getFirst() != null) {
       Pose2d startPose = (Util.isRedAlliance()) ? FlippingUtil.flipFieldPose(selected.getFirst()) : selected.getFirst();
       drive.resetOdometry(startPose);
+    } else if (selected.getFirst() == null) {
+      ConsoleLogger.reportWarning("Loaded auto does not specify a starting configuration.");
     }
   }
 

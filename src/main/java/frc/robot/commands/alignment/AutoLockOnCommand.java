@@ -60,7 +60,6 @@ public class AutoLockOnCommand extends Command {
 
     // Init target state
     targetState.heading = vector.getDirection();
-    targetState.linearVelocity = velocity;
 
     addRequirements(drive);
   }
@@ -108,6 +107,9 @@ public class AutoLockOnCommand extends Command {
     // Determine target position, only if not within target
     if (mostRecentDistance > translationThreshold) {
       projectionScalar += (velocity * TimedRobot.kDefaultPeriod); // Position offset = requested velocity * time
+      targetState.linearVelocity = velocity;
+    } else {
+      targetState.linearVelocity = 0;
     }
 
     Translation2d projection = vector.getPointOnVectorFromScalar(projectionScalar);
