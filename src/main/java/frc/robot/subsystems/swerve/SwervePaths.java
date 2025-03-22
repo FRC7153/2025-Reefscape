@@ -1,7 +1,6 @@
 package frc.robot.subsystems.swerve;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
-import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 
@@ -20,8 +19,6 @@ import libs.Elastic.Notification.NotificationLevel;
  * Utility class for making Paths.
  */
 public class SwervePaths {
-  private static final PathConstraints UnlimitedConstraints = PathConstraints.unlimitedConstraints(12);
-
   /**
    * @param drive
    * @param pathName Name of path to follow.
