@@ -32,7 +32,7 @@ public class SingleCoralAndAlgaeAuto extends SequentialCommandGroup {
   public SingleCoralAndAlgaeAuto(SwerveDrive drive, Elevator elevator, Manipulator manipulator, LED led, String pathName, int reefSide, boolean highAlgae) {
     super(
       // Drive near reef position
-      SwervePaths.getFollowPathCommand(drive, pathName),
+      SwervePaths.getFollowPathCommand(drive, pathName, true),
       // Put elevator up
       new InstantCommand(() -> manipulator.setManipulatorVelocity(-0.8), manipulator),
       new ElevatorToStateCommand(elevator, ElevatorPositions.L4, true, false),

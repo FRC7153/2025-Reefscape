@@ -72,7 +72,7 @@ public final class SwerveOdometry {
       SwerveConstants.GYRO_PITCH,
       SwerveConstants.GYRO_ROLL,
       Port.kOnboardCS0,
-      CalibrationTime._4s);
+      CalibrationTime._8s);
 
     // Get status signal and positions
     allSignals = new BaseStatusSignal[4*2];

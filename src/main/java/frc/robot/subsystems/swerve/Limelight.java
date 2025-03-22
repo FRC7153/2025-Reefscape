@@ -248,7 +248,10 @@ public class Limelight {
 
     odometry.addVisionMeasurement(receivedPose, timestamp, stdDevs);
     frameCount++;
-    positionPub.set(receivedPose);
+
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      positionPub.set(receivedPose);
+    }
 
     // Update seen tags array
     int numTags = (int)data[7];
