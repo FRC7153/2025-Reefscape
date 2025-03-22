@@ -83,7 +83,7 @@ public final class RobotContainer {
     
     // Manipulator default command (not spinning, unless angled down)
     manipulator.setDefaultCommand(
-      new ManipulatorCommand(manipulator, -1.0, 0.0, () -> elevator.getManipulatorAngle() < 0.1)
+      new ManipulatorCommand(manipulator, -1.0, 0.0, () -> elevator.getManipulatorAngle() <= 0.1)
     );
 
     // Elevator default command (stowed)
