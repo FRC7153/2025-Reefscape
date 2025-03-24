@@ -55,7 +55,7 @@ def generate(aprilTagFile, extension=15):
     angle = i * 60
     zoneEdges.append(formatTranslation(offsetPosition(center, extension, angle + 150)))
 
-  # Output all vectors
+  # Output all positions
   print("CENTER:")
   print(formatTranslation(center))
 

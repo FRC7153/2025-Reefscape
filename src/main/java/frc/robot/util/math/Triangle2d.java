@@ -1,7 +1,6 @@
 package frc.robot.util.math;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.Constants.BuildConstants;
 
 public class Triangle2d {
   private final Translation2d a, b, c;
@@ -26,7 +25,7 @@ public class Triangle2d {
       calculateTriangularArea(a, c, pt) +
       calculateTriangularArea(b, c, pt);
 
-    return Math.abs(subTriangleArea - area) <= BuildConstants.EPSILON;
+    return Math.abs(subTriangleArea - area) <= 1e-3;
   }
 
   /**

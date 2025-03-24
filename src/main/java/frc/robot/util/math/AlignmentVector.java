@@ -17,6 +17,7 @@ public class AlignmentVector {
   private final Rotation2d direction;
   private final Vector<N2> unitDirectionVector;
 
+  private final Pose2d targetAsPose2d;
   private final double[] aprilTags;
 
   /**
@@ -32,6 +33,8 @@ public class AlignmentVector {
     this.direction = direction;
     unitDirection = new Translation2d(1.0, direction);
     unitDirectionVector = unitDirection.toVector();
+
+    this.targetAsPose2d = new Pose2d(target, direction);
 
     // Copy ints into a double array for publishing
     double[] aprilTagDoubleArray = new double[aprilTags.length];
@@ -61,17 +64,33 @@ public class AlignmentVector {
   }
 
   /**
+   * Gets the scalar distance of the nearest point on a vector to a point outside the vector.
+   * @param point The point to project
+   * @return The scalar value to use for projection
+   */
+  public double getPointProjectionScalar(Translation2d point) {
+    Translation2d delta = point.minus(target);
+    return delta.toVector().dot(unitDirectionVector);
+  }
+
+  /**
+   * Gets the point along a vector at the scalar distance.
+   * @param scalar Distance along vector
+   * @return
+   */
+  public Translation2d getPointOnVectorFromScalar(double scalar) {
+    return target.plus(unitDirection.times(scalar));
+  }
+
+  /**
    * Projects a 2d position onto this vector, with a specified offset.
    * @param point The point to project.
    * @param scalarOffset A distance added to the vector scalar.
    * @return The projected point.
    */
   public Translation2d projectPoint(Translation2d point, double scalarOffset) {
-    Translation2d delta = point.minus(target);
-
-    double scalar = delta.toVector().dot(unitDirectionVector);
-    scalar += scalarOffset;
-    return target.plus(unitDirection.times(scalar));
+    double scalar = getPointProjectionScalar(point) + scalarOffset;
+    return getPointOnVectorFromScalar(scalar);
   }
 
   /**
@@ -84,19 +103,21 @@ public class AlignmentVector {
   }
 
   /**
-   * Projects a vector onto this vector.
+   * Projects a vector onto this vector and returns the magnitude.
    * @param vector The vector to project.
-   * @return The projected vector.
+   * @return The projected vector's magnitude (may be negative).
    */
-  public Translation2d projectVector(Translation2d vector) {
-    double scalar = vector.toVector().dot(unitDirectionVector);
+  public double getProjectedVectorMagnitude(Translation2d vector) {
     // Unit direction vector magnitude is always 1, so we can ignore it
-
-    return vector.times(scalar);
+    return vector.toVector().dot(unitDirectionVector);
   }
 
   public Translation2d getTarget() {
     return target;
+  }
+
+  public Pose2d getTargetAsPose2d() {
+    return targetAsPose2d;
   }
 
   public Rotation2d getDirection() {

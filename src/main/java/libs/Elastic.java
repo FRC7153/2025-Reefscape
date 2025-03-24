@@ -38,6 +38,10 @@ public final class Elastic {
     } catch (JsonProcessingException e) {
       e.printStackTrace();
     }
+
+    // Log
+    System.out.printf(
+      "[Notification, %s] %s: %s\n", notification.level.name(), notification.title, notification.description);
   }
 
   /**

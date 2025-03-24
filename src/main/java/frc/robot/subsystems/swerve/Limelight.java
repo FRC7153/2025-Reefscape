@@ -49,7 +49,7 @@ public class Limelight {
   }
 
   // Distance (m) to switch from MT2 to MT1
-  private static final double MT2_MIN_DISTANCE = 1.5;
+  private static final double MT2_MIN_DISTANCE = -1.0; // 1.5, -1 to disable MT1
 
   // Shared orientation array for MegaTag2
   private static final double[] orientation = new double[6];
@@ -168,6 +168,7 @@ public class Limelight {
     } else {
       seenTagsPub = null;
       positionPub = null;
+      isMegaTag2Pub = null;
     }
 
     // Limelight MegaTag2 pose listener
@@ -247,7 +248,10 @@ public class Limelight {
 
     odometry.addVisionMeasurement(receivedPose, timestamp, stdDevs);
     frameCount++;
-    positionPub.set(receivedPose);
+
+    if (BuildConstants.PUBLISH_EVERYTHING) {
+      positionPub.set(receivedPose);
+    }
 
     // Update seen tags array
     int numTags = (int)data[7];
@@ -269,7 +273,7 @@ public class Limelight {
 
     orientationPub.set(orientation);
 
-    if (version.integratedIMU) imuModePub.set(2.0);
+    //if (version.integratedIMU) imuModePub.set(2.0);
   }
 
   /**

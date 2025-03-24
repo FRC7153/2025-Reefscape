@@ -51,6 +51,8 @@ public final class Robot extends TimedRobot {
     // Add logging periodic
     addPeriodic(m_robotContainer::log, 0.1, 0.001); // every 100 ms
     addPeriodic(m_robotContainer::checkHardware, 0.5, 0.001); // every 500 ms
+
+    System.out.println("Robot constructor finished");
   }
 
   @Override
@@ -59,7 +61,9 @@ public final class Robot extends TimedRobot {
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    System.out.println("DISABLED mode set");
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -69,6 +73,8 @@ public final class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    System.out.println("AUTONOMOUS mode set");
+
     // Check pregame
     if (!PregameCommand.getHasPregamed()) {
       ConsoleLogger.reportError("No pregame before autonomousInit()!");
@@ -87,14 +93,17 @@ public final class Robot extends TimedRobot {
   public void autonomousPeriodic() {}
 
   @Override
-  public void autonomousExit() {}
-
-  @Override
-  public void teleopInit() {
+  public void autonomousExit() {
     // Cancel auto
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
+      m_autonomousCommand = null;
     }
+  }
+
+  @Override
+  public void teleopInit() {
+    System.out.println("TELEOP mode set");
 
     // Check pregame
     if (!PregameCommand.getHasPregamed()) {

@@ -10,6 +10,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -20,6 +21,7 @@ import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.BuildConstants;
@@ -30,8 +32,11 @@ public final class Climber implements Subsystem {
   private final SparkFlex climberPivot = new SparkFlex(HardwareConstants.CLIMBER_PIVOT, MotorType.kBrushless);
   private final SparkFlex climberWinch = new SparkFlex(HardwareConstants.CLIMBER_WINCH, MotorType.kBrushless);
 
-  private final RelativeEncoder climberPivotEncoder = climberPivot.getEncoder();
+  private final DutyCycleEncoder climberPivotAbsEncoder = new DutyCycleEncoder(HardwareConstants.CLIMBER_PIVOT_ENCODER_DUTY_CYCLE_DIO);
   private final RelativeEncoder climberWinchEncoder = climberWinch.getEncoder();
+
+  // State
+  private boolean hasDeployed = false;
 
   //Alert Output
   private final Alert climberPivotAlert = new Alert("Climber Pivot Motor Alert", AlertType.kError);
@@ -72,6 +77,8 @@ public final class Climber implements Subsystem {
       PersistMode.kPersistParameters
     );
 
+    climberPivotAbsEncoder.setInverted(ClimberConstants.CLIMBER_PIVOT_ABS_ENC_INVERTED);
+
     // Init NT
     if (BuildConstants.PUBLISH_EVERYTHING) {
       NetworkTable nt = NetworkTableInstance.getDefault().getTable("Climber");
@@ -81,9 +88,6 @@ public final class Climber implements Subsystem {
       pivotPositionPub = null;
       winchPositionPub = null;
     }
-
-    // Reset encoder
-    homeClimberToBottom();
 
     setBrakeMode(true);
   }
@@ -136,10 +140,13 @@ public final class Climber implements Subsystem {
   }
  
   /**
-   * @return Pivot position (in rots, no gear ratio)
+   * @return Pivot position (in rots, absolute on shaft)
    */
   public double getPivotPosition() {
-    return climberPivotEncoder.getPosition();
+    return MathUtil.inputModulus(
+      climberPivotAbsEncoder.get() + ClimberConstants.CLIMBER_PIVOT_ABS_ENC_OFFSET, 
+      0.0, 
+      1.0);
   }
 
   /**
@@ -154,12 +161,19 @@ public final class Climber implements Subsystem {
     runClimberWinch(0.0);
   }
 
-  public void homeClimberToBottom() {
-    System.out.printf("Homed climber pivot from %f -> 0.1\n", climberPivotEncoder.getPosition());
-    System.out.printf("Homed climber winch from %f -> 0.0\n", climberWinchEncoder.getPosition());
+  /**
+   * Sets the has deployed flag to true.
+   */
+  public void setClimberHasDeployedFlag() {
+    hasDeployed = true;
+    System.out.println("ClimberHasDeployed flag has been set to true.");
+  }
 
-    climberPivotEncoder.setPosition(0.1);
-    climberWinchEncoder.setPosition(0.0);
+  /**
+   * @return True, if the has deployed flag has been set to true
+   */
+  public boolean getClimberHasDeployedFlag() {
+    return hasDeployed;
   }
   
   /**

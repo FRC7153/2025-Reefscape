@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -21,6 +23,9 @@ import frc.robot.Constants.ManipulatorConstants;
 public class Manipulator implements Subsystem{
   private final SparkFlex manipulator = new SparkFlex(HardwareConstants.MANIPULATOR_CAN, MotorType.kBrushless);
   private final RelativeEncoder manipulatorEncoder = manipulator.getEncoder();
+  private double velocityRequest;
+
+  private final Supplier<Double> manipulatorAngleSupplier;
 
   //Alert System
   private final Alert manipulatorAlert = new Alert("Manipulator Motor Error", AlertType.kError);
@@ -34,7 +39,9 @@ public class Manipulator implements Subsystem{
   private final DoubleLogEntry manipulatorPercentageLog = 
     new DoubleLogEntry(DataLogManager.getLog(), "manipulator/Percentage", "%");
   
-  public Manipulator() {
+  public Manipulator(Supplier<Double> manipulatorAngleSupplier) {
+    this.manipulatorAngleSupplier = manipulatorAngleSupplier;
+
     manipulator.configure(ManipulatorConstants.MANIPULATOR_CONFIG,
     ResetMode.kResetSafeParameters,
     PersistMode.kPersistParameters);
@@ -52,8 +59,21 @@ public class Manipulator implements Subsystem{
    * @param velocity sets velo (in %) 
    */
   public void setManipulatorVelocity(double velocity) {
-    manipulator.set(velocity);
+    velocityRequest = velocity;
+    //manipulator.set(velocity); // This is done in periodic()
     manipulatorPercentageLog.append(velocity);
+  }
+
+  @Override
+  public void periodic() {
+    // Safety disable manipulator
+    if (manipulatorAngleSupplier.get() >= 0.35) {
+      // Do not run manipulator
+      manipulator.stopMotor();
+    } else {
+      // Run manipulator
+      manipulator.set(velocityRequest);
+    }
   }
 
   public void log(){

@@ -34,16 +34,17 @@ public final class SwerveConstants {
 
   // Max drive speeds
   public static final double FAST_TRANSLATIONAL_SPEED = 5.0; // m/s
-  public static final double FAST_ROTATIONAL_SPEED = 12.438; // rad/s
+  public static final double FAST_ROTATIONAL_SPEED = 8.75; // rad/s
 
-  public static final double SLOW_TRANSLATIONAL_SPEED = FAST_TRANSLATIONAL_SPEED * 0.5;
-  public static final double SLOW_ROTATIONAL_SPEED = FAST_TRANSLATIONAL_SPEED * 0.5;
+  public static final double SLOW_TRANSLATIONAL_SPEED = FAST_TRANSLATIONAL_SPEED * 0.325;
+  public static final double SLOW_ROTATIONAL_SPEED = FAST_TRANSLATIONAL_SPEED;
 
   // CANCoder magnet offsets (in rotations, CCW+, -0.5 to 0.5 range)
-  public static final double FL_CANCODER_OFFSET = (0.36938 * -1.0);                //(0.12769 + 0.25) * -1.0;
-  public static final double FR_CANCODER_OFFSET = (0.38672 * -1.0);              //(-0.36523 - 0.25) * -1.0;
-  public static final double RL_CANCODER_OFFSET = (0.149902 * -1.0);          //(-0.358107 + 0.5) * -1.0;
-  public static final double RR_CANCODER_OFFSET = ((0.40378 + 0.25) * -1.0);               //(-0.140625 - 0.25 + 0.026) * -1.0;
+  public static final double FL_CANCODER_OFFSET = (0.36938 * -1.0);
+  public static final double FR_CANCODER_OFFSET = (0.38672 * -1.0);
+  //public static final double RL_CANCODER_OFFSET = (0.149902 * -1.0);
+  public static final double RL_CANCODER_OFFSET = (0.0015 * -1.0);
+  public static final double RR_CANCODER_OFFSET = ((0.38378 + 0.25) * -1.0);
 
   public static final double CANCODER_RANGE = 0.5;
   public static final SensorDirectionValue CANCODER_DIRECTION = 
@@ -94,7 +95,7 @@ public final class SwerveConstants {
   public static final IMUAxis GYRO_ROLL = IMUAxis.kX;
 
   // Odometry
-  public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(0.3, 0.3, 0.1);
+  public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(0.4, 0.4, 0.01);
 
   // Base size
   public static final Translation2d BASE_DIMENSIONS = 
@@ -119,7 +120,7 @@ public final class SwerveConstants {
   public static final PPHolonomicDriveController AUTO_CONTROLLER = 
     new PPHolonomicDriveController(
       //new PIDConstants(19.303, 0.0, 1.3841), // Translational
-      new PIDConstants(3.5, 0.0, 0.0), // Translational
+      new PIDConstants(3.0, 0.0, 0.0), // Translational
       new PIDConstants(9.0, 0.0, 0.0) // Rotational
     );
 

@@ -89,6 +89,8 @@ public final class SwerveDrive implements Subsystem {
     new DoubleLogEntry(DataLogManager.getLog(), "Swerve/Odometry_Freq");
   private final DoubleLogEntry rollLogger = 
     new DoubleLogEntry(DataLogManager.getLog(), "Swerve/Roll");
+  private final DoubleLogEntry rollRateLogger =
+    new DoubleLogEntry(DataLogManager.getLog(), "Swerve/RollRate");
 
   private final SwerveModuleState[] currentStates = {
     modules[0].state, modules[1].state, modules[2].state, modules[3].state
@@ -100,7 +102,9 @@ public final class SwerveDrive implements Subsystem {
   private final BiConsumer<RumbleType, Double> hapticFeedbackAcceptor;
 
   private final Limelight[] limelights = {
-    new Limelight("limelight-front", Version.LIMELIGHT_4, odometry)
+    new Limelight("limelight-front", Version.LIMELIGHT_4, odometry),
+    //new Limelight("limelight-top", Version.LIMELIGHT_3G, odometry),
+    new Limelight("limelight-cage", Version.LIMELIGHT_2PLUS, odometry)
   };
 
   // Autonomous
@@ -235,6 +239,12 @@ public final class SwerveDrive implements Subsystem {
     drive(new ChassisSpeeds(), false);
   }
 
+  public void runAllSwervesDutyCycle(double dutyCycle) {
+    for (SwerveModule m : modules) {
+      m.runAllAtDutyCycle(dutyCycle);
+    }
+  }
+
   /** Gets robot-relative chassis speeds */
   protected ChassisSpeeds getCurrentChassisSpeeds() {
     // currentStates is updated in place periodically
@@ -284,7 +294,7 @@ public final class SwerveDrive implements Subsystem {
     }
 
     // Update limelights
-    refreshLimelightOrientations(true);
+    refreshLimelightOrientations(false);
 
     // Calculate haptic feedback (on a 500 m/s^3 to 1750 m/s^3)
     double jerk = odometry.getJerk();
@@ -307,7 +317,7 @@ public final class SwerveDrive implements Subsystem {
   }
 
   /**
-   * @return Whether the roll limit (+/- 20 degrees) has been exceeded.
+   * @return Whether the roll limit has been exceeded.
    */
   public boolean getRollLimitExceeded() {
     return Math.abs(odometry.getRoll()) > 20.0;
@@ -334,6 +344,7 @@ public final class SwerveDrive implements Subsystem {
     failedDAQLogger.append(odometry.getFailedDAQs());
     odometryFreqLogger.append(odometry.getFrequency());
     rollLogger.append(odometry.getRoll());
+    rollRateLogger.append(odometry.getRollRate());
 
     // Update field2d
     fieldPublisher.getRobotObject().setPose(pose);

@@ -31,7 +31,7 @@ public final class Constants {
     public static final double EPSILON = 1E-6;
 
     public static final boolean PUBLISH_EVERYTHING = true;
-    public static final boolean INCLUDE_TEST_AUTOS = true;
+    public static final boolean INCLUDE_TEST_AUTOS = false;
 
     public static final AprilTagFieldLayout FIELD = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark); // See TU-12
   }
@@ -43,6 +43,9 @@ public final class Constants {
 
   public static final class ClimberConstants {
     public static final double CLIMBER_RATIO = 125.0; 
+
+    public static final boolean CLIMBER_PIVOT_ABS_ENC_INVERTED = true;
+    public static final double CLIMBER_PIVOT_ABS_ENC_OFFSET = -0.73; // rots
 
     public static final ClosedLoopConfig CLIMBER_PIVOT_MOTOR_GAINS = new ClosedLoopConfig()
       .pid(0.0, 0.0, 0.0, ClosedLoopSlot.kSlot0)
@@ -73,7 +76,7 @@ public final class Constants {
     public static final double ELEVATOR_RATIO = 7.75;
     public static final double MANIPULATOR_PIVOT_RATIO = 25.0;
     public static final double MANIPULATOR_PIVOT_OFFSET = (0.776622 + .25) % 1.0;
-    public static final double MANIPULATOR_PIVOT_DEFAULT_POS = 0.397217;
+    public static final double MANIPULATOR_PIVOT_DEFAULT_POS = 0.38452148;
 
     private static final Slot0Configs ELEVATOR_MOTOR_GAINS = new Slot0Configs()
       .withKP(3.596).withKI(0.0).withKD(0.0)
@@ -81,8 +84,8 @@ public final class Constants {
       .withKG(0.5609).withGravityType(GravityTypeValue.Elevator_Static);
 
     private static final MotionMagicConfigs ELEVATOR_MM_CONFIGS = new MotionMagicConfigs()
-      .withMotionMagicCruiseVelocity(3.0) // 4.5
-      .withMotionMagicAcceleration(5.5); // 9.5
+      .withMotionMagicCruiseVelocity(3.75) // 4.5
+      .withMotionMagicAcceleration(7.5); // 9.5
 
     private static final Slot0Configs MANIPULATOR_PIVOT_GAINS = new Slot0Configs()
       .withKP(57.811).withKI(0.0).withKD(6.2107)
@@ -150,17 +153,31 @@ public final class Constants {
   }
 
   public static final class ElevatorPositions {
-    public static final ElevatorState STOW = new ElevatorState(0.15, 0.4); // 0.15 original height
-    public static final ElevatorState INTAKE = new ElevatorState(1.0, 0.3);
-    public static final ElevatorState PROCESSOR = new ElevatorState(0.1, 0.2);
+    // 1 rotation of elevator height = 2 * pi * 3 = 18.9 in
+
+    public static final ElevatorState STOW = new ElevatorState(0.15, 0.4);
+    public static final ElevatorState INTAKE = new ElevatorState(1.07, 0.26); // h-0.97 a-0.3 
+    public static final ElevatorState PROCESSOR = new ElevatorState(0.1, 0.25);
+    public static final ElevatorState BARGE = new ElevatorState(4.5, 0.25);
 
     public static final ElevatorState L1 = new ElevatorState(0.05, 0.255);
-    public static final ElevatorState L2 = new ElevatorState(1.4, 0.11); 
+    public static final ElevatorState L2 = new ElevatorState(1.385, 0.11); // 1.4, 0.11
     public static final ElevatorState L3 = new ElevatorState(2.6, 0.06);
     public static final ElevatorState L4 = new ElevatorState(4.45, -0.02);
 
-    public static final ElevatorState ALGAE_LOW = new ElevatorState(0.55, 0.2);
-    public static final ElevatorState ALGAE_HIGH = new ElevatorState(1.65, 0.2);
+    public static final ElevatorState ALGAE_LOW = new ElevatorState(0.584, 0.2); // 0.55, 0.2
+    public static final ElevatorState ALGAE_HIGH = new ElevatorState(1.55, 0.2);
+  }
+
+  public static final class LEDColors {
+    // See https://www.revrobotics.com/content/docs/REV-11-1105-UM.pdf 
+
+    public static final double RED = 0.61;
+    public static final double BLUE = 0.87;
+    public static final double GREEN = 0.75;
+    public static final double YELLOW = 0.69;
+    public static final double BLACK = 0.99;
+    public static final double WHITE = 0.93;
   }
 
   public static final class HardwareConstants {
@@ -188,6 +205,7 @@ public final class Constants {
     // Climber Hardware
     public static final int CLIMBER_WINCH = 18;
     public static final int CLIMBER_PIVOT = 17;
+    public static final int CLIMBER_PIVOT_ENCODER_DUTY_CYCLE_DIO = 9;
 
     // Manipulator Hardware 
     public static final int MANIPULATOR_CAN = 19;
@@ -200,5 +218,8 @@ public final class Constants {
     // CTRE Specific
     public static final AudioConfigs TALON_AUDIO_CONFIG = new AudioConfigs()
       .withBeepOnBoot(false).withBeepOnConfig(true);
+
+    // LED
+    public static final int LED_PWM_PORT = 9;
   }
 }
