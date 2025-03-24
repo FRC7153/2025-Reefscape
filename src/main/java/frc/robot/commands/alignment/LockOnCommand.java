@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.BuildConstants;
-import frc.robot.commands.alignment.LockOnTargetChooserCommand.TargetType;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveDrive;
@@ -51,11 +50,9 @@ public class LockOnCommand extends Command {
   private final BiConsumer<RumbleType, Double> rumbleConsumer;
   private final PathPlannerTrajectoryState targetState = new PathPlannerTrajectoryState();
 
-  // Target group info (ie: left, center, right)
+  // Target group (ie: left, center, right)
   private final TargetGroup group;
   private final AlignmentVector[] reefVectorGroup;
-  private final AlignmentVector cageVector;
-  private final AlignmentVector[] coralStationVectorGroup;
 
   private AlignmentVector vector;
   private double projectionScalar;
@@ -92,56 +89,29 @@ public class LockOnCommand extends Command {
       case CENTER -> LockOnAlignments.REEF_CENTER_VECTORS;
     };
 
-    // Get vectors for the cage
-    cageVector = switch (group) {
-      case LEFT -> LockOnAlignments.CAGE_VECTORS[0];
-      case CENTER -> LockOnAlignments.CAGE_VECTORS[1];
-      case RIGHT -> LockOnAlignments.CAGE_VECTORS[2];
-    };
-
-    // Get vectors for coral station
-    coralStationVectorGroup = switch (group) {
-      case LEFT -> LockOnAlignments.LEFT_CORAL_STATION_VECTORS;
-      case CENTER -> LockOnAlignments.CENTER_CORAL_STATION_VECTORS;
-      case RIGHT -> LockOnAlignments.RIGHT_CORAL_STATION_VECTORS;
-    };
-
     addRequirements(drive);
   }
 
   // MARK: Target initialization
   @Override
   public void initialize() {
-    // Determine which vector to use
+    // Determine which reef vector to use
     Pose2d currentPose = drive.getPosition(false);
-    //TargetType type = LockOnTargetChooserCommand.getTargetType();
-    TargetType type = TargetType.REEF; // TODO force reef here, ignore input
-
-    vector = switch (type) {
-      // Scoring on reef
-      case REEF -> {
-        // Determine which side of the reef the robot is on
-        for (int i = 0; i < LockOnAlignments.REEF_ZONES.length; i++) {
-          if (LockOnAlignments.REEF_ZONES[i].containsPoint(currentPose.getTranslation())) {
-            // We are in this zone
-            yield reefVectorGroup[i];
-          }
-        }
-        
-        // We are in no zones?
-        ConsoleLogger.reportError("Robot position is not in any reef zone!");
-        yield reefVectorGroup[0];
+    vector = null;
+    
+    // Determine which side of the reef the robot is on
+    for (int i = 0; i < LockOnAlignments.REEF_ZONES.length; i++) {
+      if (LockOnAlignments.REEF_ZONES[i].containsPoint(currentPose.getTranslation())) {
+        // We are in this zone
+        vector = reefVectorGroup[i];
       }
-      // Aligning with cage
-      case CAGE -> cageVector;
-      // Aligning with coral station
-      case CORAL_STATION -> {
-        // Just use the reef center as the center of the field to determine left/right station
-        yield coralStationVectorGroup[currentPose.getY() > LockOnAlignments.REEF_CENTER.getX() ? 0 : 1];
-      }
-      // Aligning with processor
-      case ALGAE_SCORING -> LockOnAlignments.PROCESSOR_VECTOR;
-    };
+    }
+    
+    if (vector == null) {
+      // We are in no zones?
+      ConsoleLogger.reportError("Robot position is not in any reef zone!");
+      vector = reefVectorGroup[0];
+    }
 
     // Init projection
     projectionScalar = vector.getPointProjectionScalar(currentPose.getTranslation());

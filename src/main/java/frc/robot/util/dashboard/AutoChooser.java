@@ -91,7 +91,7 @@ public final class AutoChooser {
       Pair.of(startingCenter, () -> new SingleCoralAndSpitAlgaeAuto(drive, elevator, manipulator, led, "CenterStartToReefH", 3, false))
     );
 
-    // Clean
+    // Clean swerves
     chooser.addOption("DANGER CLEAN SWERVES", 
       Pair.of(null, () -> new CleanSwervesAuto(drive))
     );
@@ -184,7 +184,7 @@ public final class AutoChooser {
       Pose2d startPose = (Util.isRedAlliance()) ? FlippingUtil.flipFieldPose(selected.getFirst()) : selected.getFirst();
       drive.resetOdometry(startPose);
     } else if (selected.getFirst() == null) {
-      ConsoleLogger.reportWarning("Loaded auto does not specify a starting configuration.");
+      ConsoleLogger.reportWarning("Loaded auto does not specify a starting position.");
     }
   }
 

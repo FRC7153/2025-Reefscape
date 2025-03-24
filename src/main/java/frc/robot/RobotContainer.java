@@ -7,7 +7,6 @@ package frc.robot;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -27,8 +26,6 @@ import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.commands.TestCommand;
 import frc.robot.commands.alignment.LockOnCommand;
 import frc.robot.commands.alignment.LockOnCommand.TargetGroup;
-import frc.robot.commands.alignment.LockOnTargetChooserCommand;
-import frc.robot.commands.alignment.LockOnTargetChooserCommand.TargetType;
 import frc.robot.commands.led.SetLEDColorCommand;
 import frc.robot.commands.led.SetLEDEnabledCommand;
 import frc.robot.subsystems.Climber;
@@ -121,27 +118,6 @@ public final class RobotContainer {
       .onTrue(new PrintCommand("MARK"));
 
     // MARK: Driving alignment
-
-    // Lock in to reef targets (base POV down, arms left stick down)
-    baseController.povDown()
-      .or(armsController.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.8))
-      .onTrue(new LockOnTargetChooserCommand(TargetType.REEF));
-
-    // All others are disabled
-    // Lock in to coral station targets (base POV left, arms left stick left)
-    /*baseController.povLeft()
-      .or(armsController.axisLessThan(XboxController.Axis.kLeftX.value, -0.8))
-      .onTrue(new LockOnTargetChooserCommand(TargetType.CORAL_STATION));
-
-    // Lock in to cage targets (base POV up, arms left stick up)
-    baseController.povUp()
-      .or(armsController.axisLessThan(XboxController.Axis.kLeftY.value, -0.8))
-      .onTrue(new LockOnTargetChooserCommand(TargetType.CAGE));
-
-    // Lock in to algae targets (base POV right, arms left stick right)
-    baseController.povRight()
-      .or(armsController.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.8))
-      .onTrue(new LockOnTargetChooserCommand(TargetType.ALGAE_SCORING));*/
 
     // Line up with left targets (base X)
     baseController.x()

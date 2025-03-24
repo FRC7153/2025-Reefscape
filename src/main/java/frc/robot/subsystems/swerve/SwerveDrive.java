@@ -239,6 +239,10 @@ public final class SwerveDrive implements Subsystem {
     drive(new ChassisSpeeds(), false);
   }
 
+  /**
+   * Runs both motors of all swerve modules at a certain duty cycle
+   * @param dutyCycle (%)
+   */
   public void runAllSwervesDutyCycle(double dutyCycle) {
     for (SwerveModule m : modules) {
       m.runAllAtDutyCycle(dutyCycle);

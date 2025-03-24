@@ -3,6 +3,7 @@ package frc.robot.commands.alignment;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -88,7 +89,7 @@ public class AutoLockOnCommand extends Command {
     projectionScalar = vector.getPointProjectionScalar(currentPose.getTranslation());
 
     mostRecentDistance = currentPose.getTranslation().getDistance(vector.getTarget());
-    mostRecentAngleDiff = Math.abs(vector.getDirection().getDegrees() - currentPose.getRotation().getDegrees());
+    mostRecentAngleDiff = getAngleDifferenceDegrees(vector.getDirection(), currentPose.getRotation());
     startTime = Timer.getFPGATimestamp();
 
     // Update Limelight filters
@@ -127,7 +128,7 @@ public class AutoLockOnCommand extends Command {
 
     // Update distance
     mostRecentDistance = currentPose.getTranslation().getDistance(vector.getTarget());
-    mostRecentAngleDiff = Math.abs(vector.getDirection().getDegrees() - currentPose.getRotation().getDegrees());
+    mostRecentAngleDiff = getAngleDifferenceDegrees(vector.getDirection(), currentPose.getRotation());
   }
 
   // MARK: End
@@ -173,7 +174,8 @@ public class AutoLockOnCommand extends Command {
    * @param b
    * @return Minimum difference between a and b, in degrees.
    */
-  //private double getAngleDifferenceDegrees(Rotation2d a, Rotation2d b) {
-
-  //}
+  private static double getAngleDifferenceDegrees(Rotation2d a, Rotation2d b) {
+    double diff = Math.abs(a.getDegrees() - b.getDegrees());
+    return (diff < 180.0) ? diff : 360.0 - diff;
+  }
 }

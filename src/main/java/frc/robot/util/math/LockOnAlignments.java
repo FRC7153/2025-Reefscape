@@ -60,41 +60,6 @@ public class LockOnAlignments {
     new Triangle2d(REEF_CENTER, REEF_CORNERS_EXPANDED[5], REEF_CORNERS_EXPANDED[0]), // K/L
   };
 
-  // MARK: Climbing
-
-  /** Alignment vectors for CAGE, in LEFT, CENTER, RIGHT order */
-  public static final AlignmentVector[] CAGE_VECTORS = {
-    new AlignmentVector("CAGE_LEFT", new Translation2d(8.272, 7.225), Rotation2d.fromDegrees(180), 14, 15, 4, 5),
-    new AlignmentVector("CAGE_CENTER", new Translation2d(8.272, 6.133), Rotation2d.fromDegrees(180), 14, 15, 4, 5),
-    new AlignmentVector("CAGE_RIGHT", new Translation2d(8.272, 5.04), Rotation2d.fromDegrees(180), 14, 15, 4, 5)
-  };
-
-  // MARK: ALGAE SCORING
-
-  /** Alignment vector for the PROCESSOR */
-  public static final AlignmentVector PROCESSOR_VECTOR = 
-    new AlignmentVector("PROCESSOR", new Translation2d(6.058, 0.011), Rotation2d.fromDegrees(270), 16, 3);
-
-  // MARK: CORAL STATIONS
-
-  /** Leftward alignment vectors for CORAL STATION in LEFT STATION, RIGHT STATION */
-  public static final AlignmentVector[] LEFT_CORAL_STATION_VECTORS = {
-    new AlignmentVector("LEFT_CORAL_LEFT", new Translation2d(0.463, 7.125), Rotation2d.fromDegrees(306), 13, 12, 2, 1),
-    new AlignmentVector("RIGHT_CORAL_LEFT", new Translation2d(1.26, 0.339), Rotation2d.fromDegrees(54), 13, 12, 2, 1)
-  };
-
-  /** Center alignment vectors for CORAL STATION in LEFT STATION, RIGHT STATION */
-  public static final AlignmentVector[] CENTER_CORAL_STATION_VECTORS = {
-    new AlignmentVector("LEFT_CORAL_CENTER", new Translation2d(0.956, 7.483), Rotation2d.fromDegrees(306), 13, 12, 2, 1),
-    new AlignmentVector("RIGHT_CORAL_CENTER", new Translation2d(0.766, 0.697), Rotation2d.fromDegrees(54), 13, 12, 2, 1)
-  };
-
-  /** Rightward alignment vectors for CORAL STATION in LEFT STATION, RIGHT STATION */
-  public static final AlignmentVector[] RIGHT_CORAL_STATION_VECTORS = {
-    new AlignmentVector("LEFT_CORAL_RIGHT", new Translation2d(1.285, 7.722), Rotation2d.fromDegrees(306), 13, 12, 2, 1),
-    new AlignmentVector("RIGHT_CORAL_RIGHT", new Translation2d(0.438, 0.936), Rotation2d.fromDegrees(54), 13, 12, 2, 1)
-  };
-
   /** Utility class, prevent instantiation. */
   private LockOnAlignments() {}
 }

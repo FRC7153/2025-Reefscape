@@ -223,6 +223,10 @@ public final class SwerveModule {
     driveMotor.setControl(driveVoltageRequest.withOutput(voltage));
   }
 
+  /**
+   * Runs both motors at a certain duty cycle.
+   * @param duty -1.0 to 1.0 (%)
+   */
   public void runAllAtDutyCycle(double duty) {
     driveMotor.set(duty);
     steerMotor.set(duty);
