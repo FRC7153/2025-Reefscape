@@ -222,6 +222,12 @@ public final class SwerveModule {
     steerPID.setReference(0.0, ControlType.kPosition);
     driveMotor.setControl(driveVoltageRequest.withOutput(voltage));
   }
+
+  public void runAllAtDutyCycle(double duty) {
+    driveMotor.set(duty);
+    steerMotor.set(duty);
+  }
+
   /**
    * Drive Motors will stop
    */

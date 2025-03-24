@@ -21,14 +21,13 @@ public class Util {
    * @return The current stack trace, as a String.
    */
   public static String getCurrentStackTrace() {
-    StringBuilder trace = new StringBuilder();
+    StackTraceElement[] stack = Thread.currentThread().getStackTrace();
 
-    for (StackTraceElement s : Thread.currentThread().getStackTrace()) {
-      trace.append(s.toString());
-      trace.append(", ");
+    if (stack.length > 4) {
+      return stack[4].toString();
+    } else {
+      return stack[stack.length-1].toString();
     }
-
-    return trace.toString();
   }
 
   /**

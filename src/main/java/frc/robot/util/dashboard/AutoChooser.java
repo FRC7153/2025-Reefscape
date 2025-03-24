@@ -16,8 +16,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.autos.BackAndForthTestAuto;
+import frc.robot.autos.CleanSwervesAuto;
 import frc.robot.autos.SimpleDriveTestAuto;
 import frc.robot.autos.SingleCoralAndAlgaeAuto;
+import frc.robot.autos.SingleCoralAndSpitAlgaeAuto;
 import frc.robot.commands.sysid.ElevatorSysIdCommand;
 import frc.robot.commands.sysid.ManipulatorPivotSysIdCommand;
 import frc.robot.commands.sysid.SysIdCharacterizationCommand;
@@ -82,6 +84,16 @@ public final class AutoChooser {
     // Right right reef single coral single algae auto
     chooser.addOption("RIGHT RIGHT Single Piece", 
       Pair.of(startingRight, () -> new SingleCoralAndAlgaeAuto(drive, elevator, manipulator, led, "RightStartToReefF", 2, true))
+    );
+
+    // Rear center reef single coral spit algae autos
+    chooser.addOption("CENTER CENTER Single Piece & Spit", 
+      Pair.of(startingCenter, () -> new SingleCoralAndSpitAlgaeAuto(drive, elevator, manipulator, led, "CenterStartToReefH", 3, false))
+    );
+
+    // Clean
+    chooser.addOption("DANGER CLEAN SWERVES", 
+      Pair.of(null, () -> new CleanSwervesAuto(drive))
     );
 
     // Autos that are used for testing

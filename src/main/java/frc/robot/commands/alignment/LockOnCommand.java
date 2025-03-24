@@ -114,7 +114,8 @@ public class LockOnCommand extends Command {
   public void initialize() {
     // Determine which vector to use
     Pose2d currentPose = drive.getPosition(false);
-    TargetType type = LockOnTargetChooserCommand.getTargetType();
+    //TargetType type = LockOnTargetChooserCommand.getTargetType();
+    TargetType type = TargetType.REEF; // TODO force reef here, ignore input
 
     vector = switch (type) {
       // Scoring on reef

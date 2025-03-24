@@ -29,6 +29,7 @@ public class LED extends SubsystemBase {
 
   public void enableLED(boolean enabled){
     pdh.setSwitchableChannel(enabled);
+    System.out.printf("LED PDH slot enabled set to %b\n", enabled);
   }
 
   public void setColor(double color) {

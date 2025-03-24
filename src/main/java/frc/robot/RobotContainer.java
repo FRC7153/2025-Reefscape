@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ElevatorPositions;
@@ -38,6 +39,8 @@ import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.util.Util;
 import frc.robot.util.dashboard.AutoChooser;
 import frc.robot.util.dashboard.Dashboard;
+import frc.robot.util.dashboard.NotificationCommand;
+import libs.Elastic.Notification.NotificationLevel;
 
 public final class RobotContainer {
   // Controllers
@@ -78,7 +81,13 @@ public final class RobotContainer {
 
     // SwerveDrive default command (teleop driving)
     base.setDefaultCommand(
-      new TeleopDriveCommand(base, baseLeftX, baseLeftY, baseRightX, baseController.leftStick(), baseController.leftTrigger())
+      new TeleopDriveCommand(
+        base, 
+        baseLeftX, 
+        baseLeftY, 
+        baseRightX, 
+        baseController.leftStick().or(baseController.leftTrigger()), 
+        baseController.leftBumper())
     );
     
     // Manipulator default command (not spinning, unless angled down)
@@ -104,8 +113,12 @@ public final class RobotContainer {
     // Stow elevator when roll limit exceeded
     isRollLimitExceededTrigger
       //.onTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.STOW))
-      //.onTrue(new NotificationCommand("Robot roll limit exceeded", "", NotificationLevel.WARNING));
-      .onTrue(led.flashWhiteFiveTimes);
+      .onTrue(new NotificationCommand("Robot roll limit exceeded", "", NotificationLevel.WARNING))
+      .whileTrue(led.flashWhiteFiveTimes.repeatedly());
+
+    // Log file mark (drive Y)
+    baseController.y()
+      .onTrue(new PrintCommand("MARK"));
 
     // MARK: Driving alignment
 
@@ -114,8 +127,9 @@ public final class RobotContainer {
       .or(armsController.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.8))
       .onTrue(new LockOnTargetChooserCommand(TargetType.REEF));
 
+    // All others are disabled
     // Lock in to coral station targets (base POV left, arms left stick left)
-    baseController.povLeft()
+    /*baseController.povLeft()
       .or(armsController.axisLessThan(XboxController.Axis.kLeftX.value, -0.8))
       .onTrue(new LockOnTargetChooserCommand(TargetType.CORAL_STATION));
 
@@ -127,7 +141,7 @@ public final class RobotContainer {
     // Lock in to algae targets (base POV right, arms left stick right)
     baseController.povRight()
       .or(armsController.axisGreaterThan(XboxController.Axis.kLeftX.value, 0.8))
-      .onTrue(new LockOnTargetChooserCommand(TargetType.ALGAE_SCORING));
+      .onTrue(new LockOnTargetChooserCommand(TargetType.ALGAE_SCORING));*/
 
     // Line up with left targets (base X)
     baseController.x()

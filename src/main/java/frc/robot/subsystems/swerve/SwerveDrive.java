@@ -89,6 +89,8 @@ public final class SwerveDrive implements Subsystem {
     new DoubleLogEntry(DataLogManager.getLog(), "Swerve/Odometry_Freq");
   private final DoubleLogEntry rollLogger = 
     new DoubleLogEntry(DataLogManager.getLog(), "Swerve/Roll");
+  private final DoubleLogEntry rollRateLogger =
+    new DoubleLogEntry(DataLogManager.getLog(), "Swerve/RollRate");
 
   private final SwerveModuleState[] currentStates = {
     modules[0].state, modules[1].state, modules[2].state, modules[3].state
@@ -237,6 +239,12 @@ public final class SwerveDrive implements Subsystem {
     drive(new ChassisSpeeds(), false);
   }
 
+  public void runAllSwervesDutyCycle(double dutyCycle) {
+    for (SwerveModule m : modules) {
+      m.runAllAtDutyCycle(dutyCycle);
+    }
+  }
+
   /** Gets robot-relative chassis speeds */
   protected ChassisSpeeds getCurrentChassisSpeeds() {
     // currentStates is updated in place periodically
@@ -336,6 +344,7 @@ public final class SwerveDrive implements Subsystem {
     failedDAQLogger.append(odometry.getFailedDAQs());
     odometryFreqLogger.append(odometry.getFrequency());
     rollLogger.append(odometry.getRoll());
+    rollRateLogger.append(odometry.getRollRate());
 
     // Update field2d
     fieldPublisher.getRobotObject().setPose(pose);

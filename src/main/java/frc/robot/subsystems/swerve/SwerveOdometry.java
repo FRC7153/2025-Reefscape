@@ -307,4 +307,11 @@ public final class SwerveOdometry {
   public double getRoll() {
     return imu.getAngle(IMUAxis.kRoll);
   }
+
+  /**
+   * @return Roll, CCW+, in deg/sec
+   */
+  public double getRollRate() {
+    return imu.getRate(IMUAxis.kRoll);
+  }
 }

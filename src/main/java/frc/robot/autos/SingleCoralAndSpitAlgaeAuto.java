@@ -1,5 +1,8 @@
 package frc.robot.autos;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
@@ -17,8 +20,17 @@ import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.swerve.SwervePaths;
 import frc.robot.util.math.LockOnAlignments;
 
-public class SingleCoralAndAlgaeAuto extends SequentialCommandGroup {
+public class SingleCoralAndSpitAlgaeAuto extends SequentialCommandGroup {
   private final String name;
+
+  /**
+   * @param angle Non-field oriented robot angle.
+   * @return Whether that angle is looking at the opponent's cages.
+   */
+  private static boolean isLookingAtOpponentCages(Rotation2d angle) {
+    double deg = Units.radiansToDegrees(MathUtil.angleModulus(angle.getRadians()));
+    return (deg >= -40 && deg <= 0);
+  }
 
   /**
    * 
@@ -30,7 +42,7 @@ public class SingleCoralAndAlgaeAuto extends SequentialCommandGroup {
    * @param reefSide Side of reef to use (index in LockOnAlignments).
    * @param highAlgae Whether to use high algae or low algae intake.
    */
-  public SingleCoralAndAlgaeAuto(SwerveDrive drive, Elevator elevator, Manipulator manipulator, LED led, String pathName, int reefSide, boolean highAlgae) {
+  public SingleCoralAndSpitAlgaeAuto(SwerveDrive drive, Elevator elevator, Manipulator manipulator, LED led, String pathName, int reefSide, boolean highAlgae) {
     super(
       // Drive near reef position
       SwervePaths.getFollowPathCommand(drive, pathName, true),
@@ -62,8 +74,19 @@ public class SingleCoralAndAlgaeAuto extends SequentialCommandGroup {
         )
       ),
       // Hold algae
-      new PrintCommand("SinglePieceCenterAuto finished!"),
-      new ElevatorToStateCommand(elevator, ElevatorPositions.PROCESSOR).repeatedly()
+      new ElevatorToStateCommand(elevator, ElevatorPositions.PROCESSOR),
+      new WaitCommand(0.35),
+      // Spin slowly towards cage
+      new InstantCommand(() -> drive.drive(0.0, 0.0, 1.4, true, false), drive),
+      new WaitUntilCommand(() -> isLookingAtOpponentCages(drive.getPosition(false).getRotation())),
+      new InstantCommand(drive::stop, drive),
+      // Spit
+      new InstantCommand(() -> manipulator.setManipulatorVelocity(-0.4), manipulator),
+      new WaitCommand(0.6),
+      new InstantCommand(() -> manipulator.setManipulatorVelocity(0.0), manipulator),
+      // Stow arm
+      new PrintCommand("SingleCoralAndSpitAlgaeAuto finished!"),
+      new ElevatorToStateCommand(elevator, ElevatorPositions.STOW).repeatedly()
     );
 
     // Make sure everything is required

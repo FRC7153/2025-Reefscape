@@ -235,12 +235,12 @@ public final class Elevator implements Subsystem {
     manipulatorPosition.refresh();
     double currentPos = manipulatorPosition.getValueAsDouble();
 
-    // If the absolute position is exactly 0.0, the sensor is likely disconnected. Use the default
+    // If below 0.2, the sensor is likely disconnected. Use the default
     // position instead.
     double absPos = manipulatorAbsEncoder.getPosition();
 
     StatusCode resp = manipulatorPivot.setPosition(
-      absPos != 0.0 ? absPos : ElevatorConstants.MANIPULATOR_PIVOT_DEFAULT_POS
+      absPos > 0.2 ? absPos : ElevatorConstants.MANIPULATOR_PIVOT_DEFAULT_POS
     );
     System.out.printf("Homed manipulator pivot from %f -> %f\n", currentPos, ElevatorConstants.MANIPULATOR_PIVOT_DEFAULT_POS);
 

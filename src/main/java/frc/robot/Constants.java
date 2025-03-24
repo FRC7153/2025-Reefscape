@@ -76,7 +76,7 @@ public final class Constants {
     public static final double ELEVATOR_RATIO = 7.75;
     public static final double MANIPULATOR_PIVOT_RATIO = 25.0;
     public static final double MANIPULATOR_PIVOT_OFFSET = (0.776622 + .25) % 1.0;
-    public static final double MANIPULATOR_PIVOT_DEFAULT_POS = 0.397217;
+    public static final double MANIPULATOR_PIVOT_DEFAULT_POS = 0.38452148;
 
     private static final Slot0Configs ELEVATOR_MOTOR_GAINS = new Slot0Configs()
       .withKP(3.596).withKI(0.0).withKD(0.0)
@@ -153,17 +153,19 @@ public final class Constants {
   }
 
   public static final class ElevatorPositions {
+    // 1 rotation of elevator height = 2 * pi * 3 = 18.9 in
+
     public static final ElevatorState STOW = new ElevatorState(0.15, 0.4);
-    public static final ElevatorState INTAKE = new ElevatorState(0.97, 0.3);
+    public static final ElevatorState INTAKE = new ElevatorState(1.07, 0.26); // h-0.97 a-0.3 
     public static final ElevatorState PROCESSOR = new ElevatorState(0.1, 0.25);
     public static final ElevatorState BARGE = new ElevatorState(4.5, 0.25);
 
     public static final ElevatorState L1 = new ElevatorState(0.05, 0.255);
-    public static final ElevatorState L2 = new ElevatorState(1.4, 0.11); 
+    public static final ElevatorState L2 = new ElevatorState(1.385, 0.11); // 1.4, 0.11
     public static final ElevatorState L3 = new ElevatorState(2.6, 0.06);
     public static final ElevatorState L4 = new ElevatorState(4.45, -0.02);
 
-    public static final ElevatorState ALGAE_LOW = new ElevatorState(0.55, 0.2);
+    public static final ElevatorState ALGAE_LOW = new ElevatorState(0.584, 0.2); // 0.55, 0.2
     public static final ElevatorState ALGAE_HIGH = new ElevatorState(1.55, 0.2);
   }
 

@@ -167,4 +167,13 @@ public class AutoLockOnCommand extends Command {
   public String getName() {
     return String.format("AutoLockOnCommand(%s)", vector.getName());
   }
+
+  /**
+   * @param a
+   * @param b
+   * @return Minimum difference between a and b, in degrees.
+   */
+  //private double getAngleDifferenceDegrees(Rotation2d a, Rotation2d b) {
+
+  //}
 }
