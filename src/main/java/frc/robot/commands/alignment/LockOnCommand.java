@@ -109,6 +109,7 @@ public class LockOnCommand extends Command {
       if (LockOnAlignments.REEF_ZONES[i].containsPoint(currentPose.getTranslation())) {
         // We are in this zone
         vector = reefVectorGroup[i];
+        break;
       }
     }
     
