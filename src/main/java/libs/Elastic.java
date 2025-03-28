@@ -55,6 +55,9 @@ public final class Elastic {
    */
   public static void selectTab(String tabName) {
     selectedTabPublisher.set(tabName);
+
+    // Log
+    System.out.printf("Switched Elastic tab to %s\n", tabName);
   }
 
   /**
@@ -65,6 +68,9 @@ public final class Elastic {
    */
   public static void selectTab(int tabIndex) {
     selectTab(Integer.toString(tabIndex));
+
+    // Log
+    System.out.printf("Switched Elastic tab to index %d\n", tabIndex);
   }
 
   /**

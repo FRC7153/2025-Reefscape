@@ -39,6 +39,14 @@ public final class Constants {
   public static final class DashboardConstants {
     public static final int ELASTIC_SERVER_PORT = 5800;
     public static final String ELASTIC_DRIVE_TAB = "Drive";
+    public static final String ELASTIC_CLIMB_TAB = "Climb";
+  }
+
+  public static final class LimelightConstants {
+    // Number of frames to skip in each mode
+    public static final int DISABLED_THROTTLE = 60;
+    public static final int ENABLED_THROTTLE = 8;
+    public static final int TARGETING_THROTTLE = 0;
   }
 
   public static final class ClimberConstants {
@@ -84,8 +92,8 @@ public final class Constants {
       .withKG(0.5609).withGravityType(GravityTypeValue.Elevator_Static);
 
     private static final MotionMagicConfigs ELEVATOR_MM_CONFIGS = new MotionMagicConfigs()
-      .withMotionMagicCruiseVelocity(3.75) // 4.5
-      .withMotionMagicAcceleration(7.5); // 9.5
+      .withMotionMagicCruiseVelocity(5.0) // 3.75
+      .withMotionMagicAcceleration(9.5); // 7.5
 
     private static final Slot0Configs MANIPULATOR_PIVOT_GAINS = new Slot0Configs()
       .withKP(57.811).withKI(0.0).withKD(6.2107)

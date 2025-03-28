@@ -6,9 +6,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.LimelightConstants;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.util.Util;
@@ -84,6 +86,9 @@ public class AutoLockOnCommand extends Command {
   // MARK: Target initialization
   @Override
   public void initialize() {
+    // Set limelight throttle
+    drive.setLimelightThrottle(LimelightConstants.TARGETING_THROTTLE);
+
     // Init projection
     Pose2d currentPose = drive.getPosition(false);
     projectionScalar = vector.getPointProjectionScalar(currentPose.getTranslation());
@@ -136,6 +141,9 @@ public class AutoLockOnCommand extends Command {
   public void end(boolean interrupted) {
     drive.setLimelightTagFilter(EMPTY_TAG_SET);
     drive.stop();
+
+    // Set throttle
+    drive.setLimelightThrottle(DriverStation.isEnabled() ? LimelightConstants.ENABLED_THROTTLE : LimelightConstants.DISABLED_THROTTLE);
   }
 
   @Override

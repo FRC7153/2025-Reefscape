@@ -11,7 +11,7 @@ import frc.robot.subsystems.swerve.SwerveDrive;
 public class TeleopDriveCommand extends Command {
   private final SwerveDrive drive;
   private final Supplier<Double> ySupplier, xSupplier, thetaSupplier;
-  private final BooleanSupplier fastMode, robotOrientedSupplier;
+  private final BooleanSupplier fastMode, robotOrientedSupplier, rearRobotOrientedSupplier;
 
   /**
    * @param drive
@@ -19,6 +19,8 @@ public class TeleopDriveCommand extends Command {
    * @param xSupplier Forward is +, percentage
    * @param thetaSupplier CCW+, percentage
    * @param fastMode
+   * @param robotOrientedSupplier If true, drives robot oriented. If false, drives field oriented.
+   * @param rearRobotOrientedSupplier If true, drives robot-rear oriented.
    */
   public TeleopDriveCommand(
     SwerveDrive drive, 
@@ -26,7 +28,8 @@ public class TeleopDriveCommand extends Command {
     Supplier<Double> xSupplier, 
     Supplier<Double> thetaSupplier,
     BooleanSupplier fastMode,
-    BooleanSupplier robotOrientedSupplier
+    BooleanSupplier robotOrientedSupplier,
+    BooleanSupplier rearRobotOrientedSupplier
   ) {
     this.drive = drive;
     this.ySupplier = ySupplier;
@@ -34,6 +37,7 @@ public class TeleopDriveCommand extends Command {
     this.thetaSupplier = thetaSupplier;
     this.fastMode = fastMode;
     this.robotOrientedSupplier = robotOrientedSupplier;
+    this.rearRobotOrientedSupplier = rearRobotOrientedSupplier;
 
     addRequirements(drive);
   }
@@ -55,12 +59,21 @@ public class TeleopDriveCommand extends Command {
     y = Math.abs(y) > 0.075 ? y : 0.0;
     theta = Math.abs(theta) > 0.075 ? theta : 0.0;
 
+    // Flip, if rear robot oriented
+    boolean rearOriented = rearRobotOrientedSupplier.getAsBoolean();
+
+    if (rearOriented) {
+      x = -x;
+      y = -y;
+      theta = -theta;
+    }
+
     drive.drive(
       y * (fastMode.getAsBoolean() ? SwerveConstants.FAST_TRANSLATIONAL_SPEED : SwerveConstants.SLOW_TRANSLATIONAL_SPEED), 
       x * (fastMode.getAsBoolean() ? SwerveConstants.FAST_TRANSLATIONAL_SPEED : SwerveConstants.SLOW_TRANSLATIONAL_SPEED), 
       theta * (fastMode.getAsBoolean() ? SwerveConstants.FAST_ROTATIONAL_SPEED : SwerveConstants.SLOW_ROTATIONAL_SPEED), 
       false, 
-      !robotOrientedSupplier.getAsBoolean()
+      !(robotOrientedSupplier.getAsBoolean() || rearOriented)
     );
   }
 

@@ -11,10 +11,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ElevatorPositions;
 import frc.robot.Constants.LEDColors;
+import frc.robot.Constants.LimelightConstants;
 import frc.robot.commands.AlgaeCommand;
 import frc.robot.commands.DeployClimberCommand;
 import frc.robot.commands.ElevatorToStateCommand;
@@ -84,7 +86,8 @@ public final class RobotContainer {
         baseLeftY, 
         baseRightX, 
         baseController.leftStick().or(baseController.leftTrigger()), 
-        baseController.leftBumper())
+        baseController.leftBumper(),
+        baseController.rightBumper())
     );
     
     // Manipulator default command (not spinning, unless angled down)
@@ -134,7 +137,9 @@ public final class RobotContainer {
     // Intake (driver right trigger)
     baseController.rightTrigger()
       .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.INTAKE).repeatedly())
-      .whileTrue(new ManipulatorCommand(manipulator, -0.1));
+      .whileTrue(new ManipulatorCommand(manipulator, -0.45))
+      // Continue running intake after button released
+      .onFalse(new ManipulatorCommand(manipulator, -0.45).raceWith(new WaitCommand(0.75)));
 
     // MARK: Arms scoring
 
@@ -198,10 +203,15 @@ public final class RobotContainer {
 
     // Match timer start/stop
     isEnabledTrigger
+      // Match timers
       .onTrue(dashboard.getRestartTimerCommand())
       .onFalse(dashboard.getStopTimerCommand())
+      // LEDs
       .onTrue(new SetLEDEnabledCommand(led, true))
-      .onFalse(new SetLEDEnabledCommand(led, false));
+      .onFalse(new SetLEDEnabledCommand(led, false))
+      // Limelight throttling
+      .onTrue(new InstantCommand(() -> base.setLimelightThrottle(LimelightConstants.ENABLED_THROTTLE)))
+      .onFalse(new InstantCommand(() -> base.setLimelightThrottle(LimelightConstants.DISABLED_THROTTLE)).ignoringDisable(true));
 
     // Test mode
     isTestTrigger

@@ -103,8 +103,7 @@ public final class SwerveDrive implements Subsystem {
 
   private final Limelight[] limelights = {
     new Limelight("limelight-front", Version.LIMELIGHT_4, odometry),
-    //new Limelight("limelight-top", Version.LIMELIGHT_3G, odometry),
-    new Limelight("limelight-cage", Version.LIMELIGHT_2PLUS, odometry)
+    new Limelight("limelight-cage", Version.LIMELIGHT_3G, odometry)
   };
 
   // Autonomous
@@ -268,12 +267,30 @@ public final class SwerveDrive implements Subsystem {
     }
   }
 
+  /**
+   * Sets the limelight's tag filters
+   * @param tags List of tags to filter for, or empty to use all tags.
+   */
   public void setLimelightTagFilter(double[] tags) {
     for (Limelight ll : limelights) {
       ll.setTagIdFilter(tags);
     }
 
     System.out.printf("Updated all limelights to filter for %d tags\n", tags.length);
+  }
+
+  /**
+   * Updates the throttle of the limelights that may overheat.
+   * @param throttle Number of frames to skip.
+   */
+  public void setLimelightThrottle(int throttle) {
+    for (Limelight ll : limelights) {
+      if (ll.getVersion().overheats) {
+        ll.setThrottle(throttle);
+      }
+    }
+
+    System.out.printf("Set limelight throttling to %d\n", throttle);
   }
 
   /** Resets from a FIELD RELATIVE position */

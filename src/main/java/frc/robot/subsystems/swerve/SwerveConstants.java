@@ -36,8 +36,8 @@ public final class SwerveConstants {
   public static final double FAST_TRANSLATIONAL_SPEED = 5.0; // m/s
   public static final double FAST_ROTATIONAL_SPEED = 8.75; // rad/s
 
-  public static final double SLOW_TRANSLATIONAL_SPEED = FAST_TRANSLATIONAL_SPEED * 0.325;
-  public static final double SLOW_ROTATIONAL_SPEED = FAST_TRANSLATIONAL_SPEED;
+  public static final double SLOW_TRANSLATIONAL_SPEED = FAST_TRANSLATIONAL_SPEED * 0.4;
+  public static final double SLOW_ROTATIONAL_SPEED = FAST_ROTATIONAL_SPEED;
 
   // CANCoder magnet offsets (in rotations, CCW+, -0.5 to 0.5 range)
   public static final double FL_CANCODER_OFFSET = (0.36938 * -1.0);
@@ -52,10 +52,6 @@ public final class SwerveConstants {
   // Drive Kraken X60
   public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(4.0) * Math.PI;
   public static final double DRIVE_RATIO = 6.75; // SDS Mk4i L2
-
-  /*private static final Slot0Configs DRIVE_MOTOR_GAINS = new Slot0Configs()
-    .withKP(0.96573).withKI(0.0).withKD(0.0)
-    .withKS(0.088062).withKV(0.77811).withKA(0.013299);*/
 
   private static final Slot0Configs DRIVE_MOTOR_GAINS = new Slot0Configs()
     .withKP(0.98926).withKI(0.0).withKD(0.0)

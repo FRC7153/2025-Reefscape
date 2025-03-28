@@ -14,6 +14,7 @@ import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -28,6 +29,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.BuildConstants;
+import frc.robot.Constants.LimelightConstants;
 import frc.robot.util.Util;
 import frc.robot.util.logging.ConsoleLogger;
 import libs.LimelightHelpers;
@@ -37,14 +39,18 @@ import libs.LimelightHelpers;
  */
 public class Limelight {
   public static enum Version {
-    LIMELIGHT_2PLUS(false),
-    LIMELIGHT_3G(false),
-    LIMELIGHT_4(true);
+    LIMELIGHT_2PLUS(false, false),
+    LIMELIGHT_3G(false, true),
+    LIMELIGHT_4(true, true);
 
     /** Whether this version of limelight has an integrated IMU */
     public final boolean integratedIMU;
-    private Version(boolean integratedIMU) {
+    /** Whether this limelight may overheat if not throttled */
+    public final boolean overheats;
+
+    private Version(boolean integratedIMU, boolean overheats) {
       this.integratedIMU = integratedIMU;
+      this.overheats = overheats;
     }
   }
 
@@ -77,6 +83,7 @@ public class Limelight {
   private final DoubleSubscriber heartbeatSub;
   private final DoubleArrayPublisher orientationPub, tagFilterPub;
   private final DoublePublisher imuModePub;
+  private final IntegerPublisher throttlePub;
   private final Alert notConnectedAlert;
 
   // Stats
@@ -128,6 +135,9 @@ public class Limelight {
 
     stdDevSub = cameraTable.getDoubleArrayTopic("stddevs").subscribe(new double[0]);
     orientationPub = cameraTable.getDoubleArrayTopic("robot_orientation_set").publish();
+
+    throttlePub = cameraTable.getIntegerTopic("throttle_set").publish();
+    throttlePub.set(version.overheats ? LimelightConstants.DISABLED_THROTTLE : 0);
     
     statsSub = cameraTable.getDoubleArrayTopic("hw").subscribe(new double[4]);
     heartbeatSub = cameraTable.getDoubleTopic("hb").subscribe(-1.0);
@@ -281,6 +291,13 @@ public class Limelight {
    */
   public void setTagIdFilter(double[] tags) {
     tagFilterPub.set(tags);
+  }
+
+  /**
+   * @param throttle Number of frames to skip between processed frames.
+   */
+  public void setThrottle(int throttle) {
+    throttlePub.set(throttle);
   }
 
   /**

@@ -54,7 +54,7 @@ public class SingleCoralAndAlgaeAuto extends SequentialCommandGroup {
         new AlgaeCommand(elevator, manipulator, led, highAlgae ? ElevatorPositions.ALGAE_HIGH : ElevatorPositions.ALGAE_LOW),
         new SequentialCommandGroup(
           // Get piece
-          new AutoLockOnCommand(drive, LockOnAlignments.REEF_CENTER_VECTORS[reefSide], 0.3, 0.6, 1.0, 5.0),
+          new AutoLockOnCommand(drive, LockOnAlignments.REEF_CENTER_VECTORS[reefSide], 0.3, 0.55, 1.0, 5.0),
           // Either 0.75 seconds, or until the limit switch is pressed
           new WaitCommand(0.9).raceWith(new WaitUntilCommand(elevator::getAlgaeLimitSwitch)),
           // Back up

@@ -12,10 +12,12 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.BuildConstants;
+import frc.robot.Constants.LimelightConstants;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveDrive;
@@ -95,6 +97,9 @@ public class LockOnCommand extends Command {
   // MARK: Target initialization
   @Override
   public void initialize() {
+    // Set limelight throttle
+    drive.setLimelightThrottle(LimelightConstants.TARGETING_THROTTLE);
+    
     // Determine which reef vector to use
     Pose2d currentPose = drive.getPosition(false);
     vector = null;
@@ -164,7 +169,7 @@ public class LockOnCommand extends Command {
     distPub.set(dist);
 
     // Run LEDs
-    if (dist < 0.7) {
+    if (dist < 0.675) {
       flashLEDCommand.schedule();
     }
 
@@ -182,6 +187,9 @@ public class LockOnCommand extends Command {
     drive.setLimelightTagFilter(EMPTY_TAG_SET);
 
     if (interrupted) drive.stop();
+
+    // Set throttle
+    drive.setLimelightThrottle(DriverStation.isEnabled() ? LimelightConstants.ENABLED_THROTTLE : LimelightConstants.DISABLED_THROTTLE);
   }
 
   @Override
