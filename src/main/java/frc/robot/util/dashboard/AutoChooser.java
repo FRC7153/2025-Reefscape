@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.autos.BackAndForthTestAuto;
 import frc.robot.autos.CleanSwervesAuto;
+import frc.robot.autos.DriveForwardAuto;
 import frc.robot.autos.SimpleDriveTestAuto;
 import frc.robot.autos.SingleCoralAndAlgaeAuto;
 import frc.robot.autos.SingleCoralAndSpitAlgaeAuto;
@@ -62,6 +63,15 @@ public final class AutoChooser {
     chooser.setDefaultOption("CENTER No-op", Pair.of(startingCenter, () -> noOpCommand));
     chooser.addOption("LEFT No-op", Pair.of(startingLeft, () -> noOpCommand));
     chooser.addOption("RIGHT No-op", Pair.of(startingRight, () -> noOpCommand));
+
+    // Left/right drive autos
+    chooser.addOption("RIGHT Simple Drive", 
+      Pair.of(startingRight, () -> new DriveForwardAuto(drive, startingRight))
+    );
+
+    chooser.addOption("LEFT Simple Drive", 
+      Pair.of(startingLeft, () -> new DriveForwardAuto(drive, startingLeft))
+    );
 
     // Rear center reef single coral single algae autos
     chooser.addOption("CENTER CENTER Single Piece", 

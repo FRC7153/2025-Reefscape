@@ -4,33 +4,19 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.ElevatorPositions;
-import frc.robot.commands.AlgaeCommand;
 import frc.robot.commands.ElevatorToStateCommand;
-import frc.robot.commands.alignment.AutoLockOnCommand;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.swerve.SwerveDrive;
-import frc.robot.subsystems.swerve.SwervePaths;
-import frc.robot.util.math.LockOnAlignments;
 
 public class SingleCoralAndSpitAlgaeAuto extends SequentialCommandGroup {
   private final String name;
-
-  /**
-   * @param angle Non-field oriented robot angle.
-   * @return Whether that angle is looking at the opponent's cages.
-   */
-  private static boolean isLookingAtOpponentCages(Rotation2d angle) {
-    double deg = Units.radiansToDegrees(MathUtil.angleModulus(angle.getRadians()));
-    return (deg >= -40 && deg <= 0);
-  }
 
   /**
    * 
@@ -44,37 +30,8 @@ public class SingleCoralAndSpitAlgaeAuto extends SequentialCommandGroup {
    */
   public SingleCoralAndSpitAlgaeAuto(SwerveDrive drive, Elevator elevator, Manipulator manipulator, LED led, String pathName, int reefSide, boolean highAlgae) {
     super(
-      // Drive near reef position
-      SwervePaths.getFollowPathCommand(drive, pathName, true),
-      // Put elevator up
-      new InstantCommand(() -> manipulator.setManipulatorVelocity(-0.8), manipulator),
-      new ElevatorToStateCommand(elevator, ElevatorPositions.L4, true, false),
-      new WaitCommand(0.85),
-      // Lock onto reef
-      new AutoLockOnCommand(drive, LockOnAlignments.REEF_RIGHT_VECTORS[reefSide], 0.225, 0.6, 0.8, 5.0),
-      // Drop coral
-      new InstantCommand(() -> manipulator.setManipulatorVelocity(0.1), manipulator),
-      new WaitCommand(0.75),
-      new InstantCommand(() -> manipulator.setManipulatorVelocity(0.0), manipulator),
-      // Lower elevator and back away from reef
-      new ElevatorToStateCommand(elevator, ElevatorPositions.STOW),
-      new AutoLockOnCommand(drive, LockOnAlignments.REEF_RIGHT_VECTORS[reefSide], -1.25, 0.6),
-      new WaitCommand(0.1),
-      // Go get algae
-      new ParallelRaceGroup(
-        // Run algae intake
-        new AlgaeCommand(elevator, manipulator, led, highAlgae ? ElevatorPositions.ALGAE_HIGH : ElevatorPositions.ALGAE_LOW),
-        new SequentialCommandGroup(
-          // Get piece
-          new AutoLockOnCommand(drive, LockOnAlignments.REEF_CENTER_VECTORS[reefSide], 0.3, 0.6, 1.0, 5.0),
-          // Either 0.75 seconds, or until the limit switch is pressed
-          new WaitCommand(0.9).raceWith(new WaitUntilCommand(elevator::getAlgaeLimitSwitch)),
-          // Back up
-          new AutoLockOnCommand(drive, LockOnAlignments.REEF_CENTER_VECTORS[reefSide], -1.25, 0.75)
-        )
-      ),
-      // Hold algae
-      new ElevatorToStateCommand(elevator, ElevatorPositions.PROCESSOR),
+      // Place coral, grab algae
+      new SingleCoralAndAlgaeAuto(drive, elevator, manipulator, led, pathName, reefSide, highAlgae, false),
       new WaitCommand(0.35),
       // Spin slowly towards cage
       new InstantCommand(() -> drive.drive(0.0, 0.0, 1.4, true, false), drive),
@@ -93,7 +50,7 @@ public class SingleCoralAndSpitAlgaeAuto extends SequentialCommandGroup {
     addRequirements(drive, elevator, manipulator);
 
     name = String.format(
-      "SingleCoralAndAlgaeAuto(%s, %d, %s)", 
+      "SingleCoralAndSpitAlgaeAuto(%s, %d, %s)", 
       pathName, 
       reefSide,
       highAlgae ? "HIGH" : "LOW"
@@ -103,5 +60,14 @@ public class SingleCoralAndSpitAlgaeAuto extends SequentialCommandGroup {
   @Override
   public String getName() {
     return name;
+  }
+
+  /**
+   * @param angle Non-field oriented robot angle.
+   * @return Whether that angle is looking at the opponent's cages.
+   */
+  private static boolean isLookingAtOpponentCages(Rotation2d angle) {
+    double deg = Units.radiansToDegrees(MathUtil.angleModulus(angle.getRadians()));
+    return (deg >= -40 && deg <= 0);
   }
 }

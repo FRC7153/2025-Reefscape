@@ -103,7 +103,7 @@ public final class SwerveDrive implements Subsystem {
 
   private final Limelight[] limelights = {
     new Limelight("limelight-front", Version.LIMELIGHT_4, odometry),
-    new Limelight("limelight-cage", Version.LIMELIGHT_3G, odometry)
+    //new Limelight("limelight-cage", Version.LIMELIGHT_3G, odometry)
   };
 
   // Autonomous

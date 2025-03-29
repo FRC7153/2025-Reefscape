@@ -65,7 +65,7 @@ public class TeleopDriveCommand extends Command {
     if (rearOriented) {
       x = -x;
       y = -y;
-      theta = -theta;
+      theta = theta * 0.75; // decrease rotation while rear oriented
     }
 
     drive.drive(
