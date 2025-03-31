@@ -34,7 +34,7 @@ public class SingleCoralAndSpitAlgaeAuto extends SequentialCommandGroup {
       new SingleCoralAndAlgaeAuto(drive, elevator, manipulator, led, pathName, reefSide, highAlgae, false),
       new WaitCommand(0.35),
       // Spin slowly towards cage
-      new InstantCommand(() -> drive.drive(0.0, 0.0, 1.4, true, false), drive),
+      new InstantCommand(() -> drive.drive(0.0, 0.0, 2.0, true, false), drive),
       new WaitUntilCommand(() -> isLookingAtOpponentCages(drive.getPosition(false).getRotation())),
       new InstantCommand(drive::stop, drive),
       // Spit

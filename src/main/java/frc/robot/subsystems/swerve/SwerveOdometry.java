@@ -170,7 +170,15 @@ public final class SwerveOdometry {
           Rotation2d.fromDegrees(imu.getAngle(IMUAxis.kYaw)), 
           swervePositions);
 
-        mostRecentPose = poseEstimator.getEstimatedPosition();
+        Pose2d newPose = poseEstimator.getEstimatedPosition();
+
+        if (Util.isPose2dNaN(newPose)) {
+          ConsoleLogger.reportError("Pose estimator has NaN values in it!");
+          poseEstimator.resetPose(mostRecentPose);
+          newPose = new Pose2d(mostRecentPose.getTranslation(), newPose.getRotation());
+        }
+        
+        mostRecentPose = newPose;
       } finally {
         stateLock.writeLock().unlock();
       }
@@ -281,6 +289,27 @@ public final class SwerveOdometry {
     Pose2d visionRobotPoseMeters, 
     double timestampSeconds, 
     Matrix<N3, N1> visionMeasurementStdDevs) {
+    
+    // Check for NaN
+    if (Util.isPose2dNaN(mostRecentPose)) {
+      ConsoleLogger.reportError("Vision gave NaN vision measurement!");
+      return;
+    }
+
+    if (
+      Double.isNaN(visionMeasurementStdDevs.get(0, 0)) ||
+      Double.isNaN(visionMeasurementStdDevs.get(1, 0)) ||
+      Double.isNaN(visionMeasurementStdDevs.get(2, 0))
+    ) {
+      ConsoleLogger.reportError("Vision gave NaN vision standard deviations!");
+      return;
+    }
+
+    if (Double.isNaN(timestampSeconds)) {
+      ConsoleLogger.reportError("Vision gave NaN time estimate");
+      return;
+    }
+
     try {
       stateLock.writeLock().lock();
       poseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);

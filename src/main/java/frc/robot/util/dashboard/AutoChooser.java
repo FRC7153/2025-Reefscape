@@ -21,6 +21,7 @@ import frc.robot.autos.DriveForwardAuto;
 import frc.robot.autos.SimpleDriveTestAuto;
 import frc.robot.autos.SingleCoralAndAlgaeAuto;
 import frc.robot.autos.SingleCoralAndSpitAlgaeAuto;
+import frc.robot.autos.SingleCoralAuto;
 import frc.robot.commands.sysid.ElevatorSysIdCommand;
 import frc.robot.commands.sysid.ManipulatorPivotSysIdCommand;
 import frc.robot.commands.sysid.SysIdCharacterizationCommand;
@@ -59,6 +60,9 @@ public final class AutoChooser {
     Pose2d startingLeft = new Pose2d(7.071, 6.16, Rotation2d.k180deg);
     Pose2d startingRight = new Pose2d(7.071, 1.92, Rotation2d.k180deg);
 
+    Pose2d startingLeftExtreme = new Pose2d(7.071, 7.262, Rotation2d.k180deg);
+    Pose2d startingRightExtreme = new Pose2d(7.071, 0.774, Rotation2d.k180deg);
+
     // Add no op autos option
     chooser.setDefaultOption("CENTER No-op", Pair.of(startingCenter, () -> noOpCommand));
     chooser.addOption("LEFT No-op", Pair.of(startingLeft, () -> noOpCommand));
@@ -71,6 +75,14 @@ public final class AutoChooser {
 
     chooser.addOption("LEFT Simple Drive", 
       Pair.of(startingLeft, () -> new DriveForwardAuto(drive, startingLeft))
+    );
+
+    chooser.addOption("EXTREME RIGHT Simple Drive", 
+      Pair.of(startingRightExtreme, () -> new DriveForwardAuto(drive, startingRightExtreme))
+    );
+
+    chooser.addOption("EXTREME LEFT Simple Drive", 
+      Pair.of(startingLeftExtreme, () -> new DriveForwardAuto(drive, startingLeftExtreme))
     );
 
     // Rear center reef single coral single algae autos
@@ -99,6 +111,19 @@ public final class AutoChooser {
     // Rear center reef single coral spit algae autos
     chooser.addOption("CENTER CENTER Single Piece & Spit", 
       Pair.of(startingCenter, () -> new SingleCoralAndSpitAlgaeAuto(drive, elevator, manipulator, led, "CenterStartToReefH", 3, false))
+    );
+
+    chooser.addOption("LEFT LEFT Single Piece & Spit", 
+      Pair.of(startingLeft, () -> new SingleCoralAndSpitAlgaeAuto(drive, elevator, manipulator, led, "LeftStartToReefI", 4, true))
+    );
+
+    chooser.addOption("RIGHT RIGHT Single Piece & Spit", 
+      Pair.of(startingRight, () -> new SingleCoralAndSpitAlgaeAuto(drive, elevator, manipulator, led, "RightStartToReefF", 2, true))
+    );
+
+    // Single coral and no algae auto
+    chooser.addOption("CENTER CENTER Single Coral NO ALGAE", 
+      Pair.of(startingCenter, () -> new SingleCoralAuto(drive, elevator, manipulator, led, "CenterStartToReefH", 3))
     );
 
     // Clean swerves

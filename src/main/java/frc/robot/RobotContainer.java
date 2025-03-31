@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.DashboardConstants;
 import frc.robot.Constants.ElevatorPositions;
 import frc.robot.Constants.LEDColors;
 import frc.robot.Constants.LimelightConstants;
@@ -39,6 +40,7 @@ import frc.robot.util.Util;
 import frc.robot.util.dashboard.AutoChooser;
 import frc.robot.util.dashboard.Dashboard;
 import frc.robot.util.dashboard.NotificationCommand;
+import libs.Elastic;
 import libs.Elastic.Notification.NotificationLevel;
 
 public final class RobotContainer {
@@ -69,6 +71,7 @@ public final class RobotContainer {
     // Triggers
     final Trigger isEnabledTrigger = new Trigger(DriverStation::isEnabled);
     final Trigger isTestTrigger = new Trigger(DriverStation::isTestEnabled);
+    final Trigger isTeleopTrigger = new Trigger(DriverStation::isTeleopEnabled);
     final Trigger isRollLimitExceededTrigger = new Trigger(base::getRollLimitExceeded);
 
     // Inverted inputs
@@ -212,6 +215,10 @@ public final class RobotContainer {
       // Limelight throttling
       .onTrue(new InstantCommand(() -> base.setLimelightThrottle(LimelightConstants.ENABLED_THROTTLE)))
       .onFalse(new InstantCommand(() -> base.setLimelightThrottle(LimelightConstants.DISABLED_THROTTLE)).ignoringDisable(true));
+
+    // Switch to climber on teleop
+    isTeleopTrigger
+      .onTrue(new InstantCommand(() -> Elastic.selectTab(DashboardConstants.ELASTIC_CLIMB_TAB)).ignoringDisable(true));
 
     // Test mode
     isTestTrigger

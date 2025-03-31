@@ -3,6 +3,7 @@ package frc.robot.util;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -83,6 +84,14 @@ public class Util {
     speeds.vxMetersPerSecond = applyDeadband(speeds.vxMetersPerSecond, xyMin);
     speeds.vyMetersPerSecond = applyDeadband(speeds.vyMetersPerSecond, xyMin);
     speeds.omegaRadiansPerSecond = applyDeadband(speeds.omegaRadiansPerSecond, omegaMin);
+  }
+
+  public static boolean isPose2dNaN(Pose2d pose) {
+    return (
+      Double.isNaN(pose.getX()) ||
+      Double.isNaN(pose.getY()) ||
+      Double.isNaN(pose.getRotation().getRadians())
+    );
   }
 
   /**
