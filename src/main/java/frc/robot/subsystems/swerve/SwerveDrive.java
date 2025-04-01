@@ -34,8 +34,9 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.commands.ResetOdometryToDefaultCommand;
-import frc.robot.subsystems.swerve.Limelight.Version;
 import frc.robot.util.logging.ConsoleLogger;
+import frc.robot.util.vision.AprilTagLimelight;
+import frc.robot.util.vision.Limelight.Version;
 
 public final class SwerveDrive implements Subsystem {
   // Swerve Modules
@@ -101,9 +102,8 @@ public final class SwerveDrive implements Subsystem {
   protected final SwerveOdometry odometry = new SwerveOdometry(modules, kinematics);
   private final BiConsumer<RumbleType, Double> hapticFeedbackAcceptor;
 
-  private final Limelight[] limelights = {
-    new Limelight("limelight-front", Version.LIMELIGHT_4, odometry),
-    //new Limelight("limelight-cage", Version.LIMELIGHT_3G, odometry)
+  private final AprilTagLimelight[] limelights = {
+    new AprilTagLimelight("limelight-front", Version.LIMELIGHT_4, odometry),
   };
 
   // Autonomous
@@ -259,10 +259,10 @@ public final class SwerveDrive implements Subsystem {
    * @param skipWithIMU Whether Limelights with integrated IMUs (4) should be skipped.
    */
   private void refreshLimelightOrientations(boolean skipWithIMU) {
-    Limelight.setOrientation(
+    AprilTagLimelight.setOrientation(
       odometry.getFieldRelativePosition().getRotation().getDegrees(), odometry.getYawRate());
 
-    for (Limelight ll : limelights) {
+    for (AprilTagLimelight ll : limelights) {
       if (!skipWithIMU || !ll.getVersion().integratedIMU) ll.sendOrientation();
     }
   }
@@ -272,7 +272,7 @@ public final class SwerveDrive implements Subsystem {
    * @param tags List of tags to filter for, or empty to use all tags.
    */
   public void setLimelightTagFilter(double[] tags) {
-    for (Limelight ll : limelights) {
+    for (AprilTagLimelight ll : limelights) {
       ll.setTagIdFilter(tags);
     }
 
@@ -284,8 +284,8 @@ public final class SwerveDrive implements Subsystem {
    * @param throttle Number of frames to skip.
    */
   public void setLimelightThrottle(int throttle) {
-    for (Limelight ll : limelights) {
-      if (ll.getVersion().overheats) {
+    for (AprilTagLimelight ll : limelights) {
+      if (!ll.getVersion().hasFans) {
         ll.setThrottle(throttle);
       }
     }
@@ -383,7 +383,7 @@ public final class SwerveDrive implements Subsystem {
     }
 
     // Log limelights
-    for (Limelight ll : limelights) {
+    for (AprilTagLimelight ll : limelights) {
       ll.log();
     }
 
@@ -400,7 +400,7 @@ public final class SwerveDrive implements Subsystem {
 
     odometry.checkHardware();
     
-    for (Limelight ll : limelights) {
+    for (AprilTagLimelight ll : limelights) {
       ll.checkHardware();
     }
   }

@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.Threads;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.util.Util;
+import frc.robot.util.dashboard.HardwareFaultTracker;
 import frc.robot.util.logging.ConsoleLogger;
 import frc.robot.util.math.DerivativeCalculator;
 
@@ -319,7 +320,7 @@ public final class SwerveOdometry {
   }
 
   public void checkHardware() {
-    imuHardwareAlert.set(!imu.isConnected());
+    HardwareFaultTracker.checkFault(imuHardwareAlert, !imu.isConnected());
   }
 
   /**

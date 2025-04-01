@@ -1,4 +1,4 @@
-package frc.robot.subsystems.swerve;
+package frc.robot.util.vision;
 
 import java.util.EnumSet;
 
@@ -13,7 +13,6 @@ import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEvent;
@@ -21,39 +20,19 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.IntegerLogEntry;
 import edu.wpi.first.util.datalog.StructArrayLogEntry;
-import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.LimelightConstants;
+import frc.robot.subsystems.swerve.SwerveOdometry;
 import frc.robot.util.Util;
 import frc.robot.util.logging.ConsoleLogger;
-import libs.LimelightHelpers;
 
 /**
  * @see https://docs.limelightvision.io/docs/docs-limelight/apis/complete-networktables-api
  */
-public class Limelight {
-  public static enum Version {
-    LIMELIGHT_2PLUS(false, false),
-    LIMELIGHT_3G(false, true),
-    LIMELIGHT_4(true, true);
-
-    /** Whether this version of limelight has an integrated IMU */
-    public final boolean integratedIMU;
-    /** Whether this limelight may overheat if not throttled */
-    public final boolean overheats;
-
-    private Version(boolean integratedIMU, boolean overheats) {
-      this.integratedIMU = integratedIMU;
-      this.overheats = overheats;
-    }
-  }
-
+public class AprilTagLimelight extends Limelight {
   // Distance (m) to switch from MT2 to MT1
   private static final double MT2_MIN_DISTANCE = -1.0; // 1.5, -1 to disable MT1
 
@@ -74,28 +53,20 @@ public class Limelight {
   // Shared empty translation2d array, used for logging if a limelight sees no tags
   private static final Translation2d[] EMPTY_TRANSLATION_ARRAY = new Translation2d[0];
 
-  private final String cameraName;
-  private final Version version;
   private final SwerveOdometry odometry;
 
   // Network tables
-  private final DoubleArraySubscriber mt1PoseSub, mt2PoseSub, targetPoseSub, statsSub, stdDevSub;
-  private final DoubleSubscriber heartbeatSub;
+  private final DoubleArraySubscriber mt1PoseSub, mt2PoseSub, targetPoseSub, stdDevSub;
   private final DoubleArrayPublisher orientationPub, tagFilterPub;
   private final DoublePublisher imuModePub;
   private final IntegerPublisher throttlePub;
-  private final Alert notConnectedAlert;
 
   // Stats
-  private double lastHeartbeat = -1.0;
-  private double lastHeartbeatTS = 0.0;
-  private boolean alive = false;
   private int frameCount = 0;
 
   // Logging
-  private final DoubleLogEntry fpsLog, cpuTempLog, ramLog, tempLog;
   private final IntegerLogEntry frameCountLog;
-  private final BooleanLogEntry isAliveLog, isMegaTag2Log;
+  private final BooleanLogEntry isMegaTag2Log;
   private final StructArrayLogEntry<Translation2d> seenTagsLog;
 
   // NT Logging
@@ -110,11 +81,10 @@ public class Limelight {
   /**
    * @param name Host Camera ID
    */
-  public Limelight(String name, Version version, SwerveOdometry odometry) {
-    cameraName = name;
-    this.version = version;
+  public AprilTagLimelight(String name, Version version, SwerveOdometry odometry) {
+    super(name, version);
+
     this.odometry = odometry;
-    notConnectedAlert = new Alert(String.format("Limelight %s is not alive", name), AlertType.kWarning);
 
     // Get NT topics
     NetworkTable cameraTable = NetworkTableInstance.getDefault().getTable(cameraName);
@@ -137,11 +107,8 @@ public class Limelight {
     orientationPub = cameraTable.getDoubleArrayTopic("robot_orientation_set").publish();
 
     throttlePub = cameraTable.getIntegerTopic("throttle_set").publish();
-    throttlePub.set(version.overheats ? LimelightConstants.DISABLED_THROTTLE : 0);
+    throttlePub.set(version.hasFans ? 0 : LimelightConstants.DISABLED_THROTTLE);
     
-    statsSub = cameraTable.getDoubleArrayTopic("hw").subscribe(new double[4]);
-    heartbeatSub = cameraTable.getDoubleTopic("hb").subscribe(-1.0);
-
     if (version.integratedIMU) {
       imuModePub = cameraTable.getDoubleTopic("imumode_set").publish();
       imuModePub.set(1.0);
@@ -155,11 +122,6 @@ public class Limelight {
     // Init logging
     String logName = String.format("Limelight/%s/", name);
 
-    fpsLog = new DoubleLogEntry(DataLogManager.getLog(), logName + "fps");
-    cpuTempLog = new DoubleLogEntry(DataLogManager.getLog(), logName + "cpu_temp", "f");
-    ramLog = new DoubleLogEntry(DataLogManager.getLog(), logName + "ram", "%");
-    tempLog = new DoubleLogEntry(DataLogManager.getLog(), logName + "temp", "f");
-    isAliveLog = new BooleanLogEntry(DataLogManager.getLog(), logName + "is_alive");
     frameCountLog = new IntegerLogEntry(DataLogManager.getLog(), logName + "frame_count");
     isMegaTag2Log = new BooleanLogEntry(DataLogManager.getLog(), logName + "is_megatag_2");
     
@@ -303,75 +265,14 @@ public class Limelight {
   /**
    * Logs diagnostics data
    */
+  @Override
   public void log() {
-    // Get stats
-    double[] stats = statsSub.get();
-
-    if (alive && stats.length == 4) {
-      fpsLog.append(stats[0]);
-      cpuTempLog.append(stats[1]);
-      ramLog.append(stats[2]);
-      tempLog.append(stats[3]);
-    }
+    super.log();
 
     frameCountLog.append(frameCount);
 
     // Log seen fiducial
     seenTagsLog.append(seenTags);
     if (BuildConstants.PUBLISH_EVERYTHING) seenTagsPub.set(seenTags);
-  }
-
-  /**
-   * Checks if this limelight is alive
-   */
-  public void checkHardware() {
-    // Check heartbeat
-    double newHeartbeat = heartbeatSub.get();
-
-    if (newHeartbeat == -1.0) {
-      // No heartbeat
-      alive = false;
-    } else if (newHeartbeat != lastHeartbeat) {
-      // New heartbeat
-      lastHeartbeat = newHeartbeat;
-      lastHeartbeatTS = Timer.getFPGATimestamp();
-      alive = true;
-    } else if (Timer.getFPGATimestamp() - lastHeartbeatTS > 1.5) {
-      // No recent or new heartbeats
-      alive = false;
-    }
-
-    notConnectedAlert.set(!alive);
-    isAliveLog.append(alive);
-  }
-
-  /**
-   * Takes a photo with the limelight
-   * @param snapshotName Name to save the photo.
-   */
-  public void takeSnapshot(String snapshotName) {
-    LimelightHelpers.takeSnapshot(cameraName, snapshotName).thenAccept((Boolean success) -> {
-      if (success) {
-        // Photo was successful
-        System.out.printf("Successfully snapped '%s' with limelight '%s'\n", snapshotName, cameraName);
-      } else {
-        // Photo failed
-        System.out.printf("Failed to snap '%s' with limelight '%s'\n", snapshotName, cameraName);
-      }
-    });
-  }
-
-  /**
-   * @return If the limelight is returning a heartbeat.
-   */
-  public boolean isAlive() {
-    return alive;
-  }
-
-  /**
-   * @return The version of this limelight.
-   */
-  public Version getVersion() {
-    return version;
   }
 }

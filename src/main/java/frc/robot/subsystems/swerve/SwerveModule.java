@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.HardwareConstants;
+import frc.robot.util.dashboard.HardwareFaultTracker;
 
 public final class SwerveModule {
   private final String name;
@@ -280,12 +281,12 @@ public final class SwerveModule {
    */
   public void checkHardware() {
     // Check drive motor faults
-    driveMotorAlert.set(!driveMotor.isAlive() || !driveMotor.isConnected());
+    HardwareFaultTracker.checkFault(driveMotorAlert, !driveMotor.isAlive() || !driveMotor.isConnected());
 
     // Check steer motor faults
-    steerMotorAlert.set(steerMotor.hasActiveFault() || steerMotor.hasActiveWarning());
+    HardwareFaultTracker.checkFault(steerMotorAlert, steerMotor.hasActiveFault() || steerMotor.hasActiveWarning());
 
     // Check steer encoder faults
-    steerCANCoderAlert.set(!steerCANCoder.isConnected());
+    HardwareFaultTracker.checkFault(steerCANCoderAlert, !steerCANCoder.isConnected());
   }
 }

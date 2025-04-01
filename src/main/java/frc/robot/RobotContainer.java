@@ -40,6 +40,8 @@ import frc.robot.util.Util;
 import frc.robot.util.dashboard.AutoChooser;
 import frc.robot.util.dashboard.Dashboard;
 import frc.robot.util.dashboard.NotificationCommand;
+import frc.robot.util.vision.Limelight;
+import frc.robot.util.vision.Limelight.Version;
 import libs.Elastic;
 import libs.Elastic.Notification.NotificationLevel;
 
@@ -59,6 +61,7 @@ public final class RobotContainer {
   private final AutoChooser auto = new AutoChooser(base, elevator, climber, manipulator, led);
   private final Dashboard dashboard = new Dashboard(baseController, armsController);
   private final Command pregameCommand = new PregameCommand(base, elevator, climber, auto);
+  private final Limelight cageLimelight = new Limelight("limelight-rear", Version.LIMELIGHT_3G);
 
   public RobotContainer() {
     // Add Pregame command to the dashboard
@@ -232,6 +235,8 @@ public final class RobotContainer {
     elevator.checkHardware();
     climber.checkHardware();
     dashboard.checkHardware();
+
+    cageLimelight.checkHardware();
   }
 
   /** Logs everything, called periodically */

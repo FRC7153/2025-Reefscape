@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.ManipulatorConstants;
+import frc.robot.util.dashboard.HardwareFaultTracker;
 
 public class Manipulator implements Subsystem{
   private final SparkFlex manipulator = new SparkFlex(HardwareConstants.MANIPULATOR_CAN, MotorType.kBrushless);
@@ -85,6 +86,6 @@ public class Manipulator implements Subsystem{
   }
 
   public void checkHardware(){
-    manipulatorAlert.set(manipulator.hasActiveFault() || manipulator.hasActiveWarning());
+    HardwareFaultTracker.checkFault(manipulatorAlert, manipulator.hasActiveFault() || manipulator.hasActiveWarning());
   }
 }

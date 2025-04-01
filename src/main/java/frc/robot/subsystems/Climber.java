@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.HardwareConstants;
+import frc.robot.util.dashboard.HardwareFaultTracker;
 
 public final class Climber implements Subsystem {
   private final SparkFlex climberPivot = new SparkFlex(HardwareConstants.CLIMBER_PIVOT, MotorType.kBrushless);
@@ -192,7 +193,7 @@ public final class Climber implements Subsystem {
   }
 
   public void checkHardware(){
-    climberPivotAlert.set(climberPivot.hasActiveFault() || climberPivot.hasActiveWarning());
-    climberWinchAlert.set(climberWinch.hasActiveFault() || climberWinch.hasActiveWarning());
+    HardwareFaultTracker.checkFault(climberPivotAlert, climberPivot.hasActiveFault() || climberPivot.hasActiveWarning());
+    HardwareFaultTracker.checkFault(climberWinchAlert, climberWinch.hasActiveFault() || climberWinch.hasActiveWarning());
   }
 }

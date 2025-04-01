@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.HardwareConstants;
+import frc.robot.util.dashboard.HardwareFaultTracker;
 
 public final class Elevator implements Subsystem {
   public static record ElevatorState(double height, double angle) {}
@@ -310,9 +311,9 @@ public final class Elevator implements Subsystem {
   }
 
   public void checkHardware(){
-    elevatorMainAlert.set(!elevatorMain.isAlive() || !elevatorMain.isConnected());
-    elevatorFollowerAlert.set(!elevatorFollower.isAlive() || !elevatorFollower.isConnected());
-    manipulatorAlert.set(!manipulatorPivot.isAlive() || !manipulatorPivot.isConnected());
-    manipulatorSensorsAlert.set(manipulatorSensors.getFaults().can);
+    HardwareFaultTracker.checkFault(elevatorMainAlert, !elevatorMain.isAlive() || !elevatorMain.isConnected());
+    HardwareFaultTracker.checkFault(elevatorFollowerAlert, !elevatorFollower.isAlive() || !elevatorFollower.isConnected());
+    HardwareFaultTracker.checkFault(manipulatorAlert, !manipulatorPivot.isAlive() || !manipulatorPivot.isConnected());
+    HardwareFaultTracker.checkFault(manipulatorSensorsAlert, manipulatorSensors.getFaults().can);
   }
 }

@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.commands.PregameCommand;
 import frc.robot.util.Util;
+import frc.robot.util.dashboard.HardwareFaultTracker;
 import frc.robot.util.logging.CANLogger;
 import frc.robot.util.logging.ConsoleLogger;
 
@@ -51,6 +52,9 @@ public final class Robot extends TimedRobot {
     // Add logging periodic
     addPeriodic(m_robotContainer::log, 0.1, 0.001); // every 100 ms
     addPeriodic(m_robotContainer::checkHardware, 0.5, 0.001); // every 500 ms
+
+    // Init hardware fault tracker
+    HardwareFaultTracker.robotProgramHasStarted();
 
     System.out.println("Robot constructor finished");
   }
