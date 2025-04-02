@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -29,6 +28,7 @@ import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.commands.TestCommand;
 import frc.robot.commands.alignment.LockOnCommand;
 import frc.robot.commands.alignment.LockOnCommand.TargetGroup;
+import frc.robot.commands.alignment.SnapRotationCommand;
 import frc.robot.commands.led.SetLEDColorCommand;
 import frc.robot.commands.led.SetLEDEnabledCommand;
 import frc.robot.subsystems.Climber;
@@ -40,6 +40,7 @@ import frc.robot.util.Util;
 import frc.robot.util.dashboard.AutoChooser;
 import frc.robot.util.dashboard.Dashboard;
 import frc.robot.util.dashboard.NotificationCommand;
+import frc.robot.util.math.LockOnAlignments;
 import frc.robot.util.vision.Limelight;
 import frc.robot.util.vision.Limelight.Version;
 import libs.Elastic;
@@ -77,10 +78,11 @@ public final class RobotContainer {
     final Trigger isTeleopTrigger = new Trigger(DriverStation::isTeleopEnabled);
     final Trigger isRollLimitExceededTrigger = new Trigger(base::getRollLimitExceeded);
 
-    // Inverted inputs
+    // Inverted/combined inputs
     final Supplier<Double> baseLeftX = () -> -baseController.getLeftX();
     final Supplier<Double> baseLeftY = () -> -baseController.getLeftY();
     final Supplier<Double> baseRightX = () -> -baseController.getRightX();
+    final Trigger fastModeTrigger = baseController.leftStick().or(baseController.leftTrigger());
 
     // MARK: Default commands
 
@@ -91,7 +93,7 @@ public final class RobotContainer {
         baseLeftX, 
         baseLeftY, 
         baseRightX, 
-        baseController.leftStick().or(baseController.leftTrigger()), 
+        fastModeTrigger, 
         baseController.leftBumper(),
         baseController.rightBumper())
     );
@@ -122,10 +124,6 @@ public final class RobotContainer {
       .onTrue(new NotificationCommand("Robot roll limit exceeded", "", NotificationLevel.WARNING))
       .whileTrue(led.flashWhiteFiveTimes.repeatedly());
 
-    // Log file mark (drive Y)
-    baseController.y()
-      .onTrue(new PrintCommand("MARK"));
-
     // MARK: Driving alignment
 
     // Line up with left targets (base X)
@@ -134,11 +132,22 @@ public final class RobotContainer {
 
     // Line up with center targets (base A)
     baseController.a()
-    .whileTrue(new LockOnCommand(base, led, baseLeftX, baseLeftY, dashboard::setAllRumble, TargetGroup.CENTER));
+      .whileTrue(new LockOnCommand(base, led, baseLeftX, baseLeftY, dashboard::setAllRumble, TargetGroup.CENTER));
 
     // Line up with right targets (base B)
     baseController.b()
       .whileTrue(new LockOnCommand(base, led, baseLeftX, baseLeftY, dashboard::setAllRumble, TargetGroup.RIGHT));
+
+    // Line up with coral stations or cage (base Y)
+    baseController.y()
+      .whileTrue(
+        new SnapRotationCommand(
+          base, 
+          baseLeftY, 
+          baseLeftX, 
+          fastModeTrigger, 
+          () -> LockOnAlignments.getBestRotationTarget(base.getPosition(false).getTranslation()))
+      );
 
     // Intake (driver right trigger)
     baseController.rightTrigger()

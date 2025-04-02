@@ -79,6 +79,6 @@ public class TeleopDriveCommand extends Command {
 
   @Override
   public void end(boolean terminated) {
-    drive.stop();
+    //drive.stop();
   }
 }

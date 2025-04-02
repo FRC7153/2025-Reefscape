@@ -16,6 +16,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -118,6 +119,9 @@ public final class SwerveConstants {
       new PIDConstants(3.0, 0.0, 0.0), // Translational
       new PIDConstants(9.0, 0.0, 0.0) // Rotational
     );
+
+  /** PID controller for snapping rotation. Matches the one used by AUTO_CONTROLLER. Expects radians. */
+  public static final PIDController ROTATION_CONTROLLER = new PIDController(9.0, 0.0, 0.0);
 
   // Default positions (against the front reef), if none is set by the auto program by PREGAME
   public static final Pose2d DEFAULT_BLUE_POSE = new Pose2d(3.6 - (BASE_DIMENSIONS.getX() / 2.0) - BUMPER_WIDTH, 4.026, Rotation2d.kZero);
