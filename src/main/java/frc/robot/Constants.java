@@ -175,6 +175,7 @@ public final class Constants {
 
     public static final ElevatorState ALGAE_LOW = new ElevatorState(0.584, 0.2);
     public static final ElevatorState ALGAE_HIGH = new ElevatorState(1.55, 0.2);
+    public static final ElevatorState ALGAE_SPIT = new ElevatorState(0.2, 0.1);
   }
 
   public static final class LEDColors {

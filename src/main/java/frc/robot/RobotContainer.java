@@ -203,6 +203,11 @@ public final class RobotContainer {
     armsController.leftTrigger()
       .whileTrue(new ManipulatorCommand(manipulator, -0.3));
 
+    // Algae spit (arms left bumper)
+    armsController.leftBumper()
+      .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.ALGAE_SPIT).repeatedly())
+      .whileTrue(new ManipulatorCommand(manipulator, -0.5));
+
     // MARK: Climbing
 
     // Climber deploy (arms right stick press)
