@@ -84,7 +84,7 @@ public class LockOnAlignments {
   public static Rotation2d getBestRotationTarget(Translation2d allianceRelativePosition) {
     if (allianceRelativePosition.getX() > REEF_CENTER.getX()) {
       // Lock onto cages
-      return Rotation2d.kZero;
+      return Rotation2d.k180;
     } else {
       // Lock onto a coral station
       return
