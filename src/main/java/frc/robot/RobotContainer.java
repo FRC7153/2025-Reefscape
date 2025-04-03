@@ -160,7 +160,7 @@ public final class RobotContainer {
 
     // Reverse Intake (arms right bumper)  
     armsController.rightBumper()
-      .whileTrue(new ManipulatorCommand(manipulator, -0.1));
+      .whileTrue(new ManipulatorCommand(manipulator, -0.4));
 
     // Coral Outtake (arms right trigger)
     armsController.rightTrigger()

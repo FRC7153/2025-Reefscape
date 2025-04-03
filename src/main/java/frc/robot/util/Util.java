@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -133,6 +134,16 @@ public class Util {
    */
   public static Command possiblyRepeatedCommand(Command command, boolean repeated) {
     return repeated ? command.repeatedly() : command;
+  }
+
+  /**
+   * @param a
+   * @param b
+   * @return Minimum difference between a and b, in degrees.
+   */
+  public static double getAngleDifferenceDegrees(Rotation2d a, Rotation2d b) {
+    double diff = Math.abs(a.getDegrees() - b.getDegrees());
+    return (diff < 180.0) ? diff : 360.0 - diff;
   }
 
   /** Prevent instantiation */

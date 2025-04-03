@@ -2,6 +2,7 @@ package frc.robot.util.dashboard;
 
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.Timer;
 
 /**
  * Tracks whether a hardware fault ever occurs
@@ -11,14 +12,14 @@ public class HardwareFaultTracker {
     new Alert("A hardware fault has been reported. Check logs.", AlertType.kInfo);
 
   // Don't track faults from before the robot program has started booting
-  private static boolean hasRobotProgramStarted = false;
+  private static double robotProgramStartTime = -1.0;
 
   /**
    * Starts tracking faults.
    */
   public static void robotProgramHasStarted() {
-    hasRobotProgramStarted = true;
-    System.out.println("Hardware fault tracker has started.");
+    robotProgramStartTime = Timer.getFPGATimestamp();
+    System.out.printf("Hardware fault tracker has started at %f.\n", robotProgramStartTime);
   }
 
   /**
@@ -29,7 +30,8 @@ public class HardwareFaultTracker {
   public static void checkFault(Alert alert, boolean fault) {
     alert.set(fault);
 
-    if (fault && hasRobotProgramStarted) {
+    // Only log if robot program has been running for at least 10 seconds
+    if (fault && robotProgramStartTime != -1.0 && Timer.getFPGATimestamp() - robotProgramStartTime >= 10.0) {
       hasFaultOccurredAlert.set(true);
     }
   }

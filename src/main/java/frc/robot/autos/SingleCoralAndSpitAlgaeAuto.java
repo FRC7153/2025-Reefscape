@@ -19,7 +19,7 @@ public class SingleCoralAndSpitAlgaeAuto extends SequentialCommandGroup {
   private final String name;
 
   /**
-   * 
+   * Drives, places an L4 Coral, picks up an algae, and spits it out.
    * @param drive
    * @param elevator
    * @param manipulator
@@ -38,7 +38,7 @@ public class SingleCoralAndSpitAlgaeAuto extends SequentialCommandGroup {
       new WaitUntilCommand(() -> isLookingAtOpponentCages(drive.getPosition(false).getRotation())),
       new InstantCommand(drive::stop, drive),
       // Spit
-      new InstantCommand(() -> manipulator.setManipulatorVelocity(-0.4), manipulator),
+      new InstantCommand(() -> manipulator.setManipulatorVelocity(-0.5), manipulator),
       new WaitCommand(0.6),
       new InstantCommand(() -> manipulator.setManipulatorVelocity(0.0), manipulator),
       // Stow arm

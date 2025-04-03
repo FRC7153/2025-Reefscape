@@ -8,7 +8,7 @@ public class LockOnAlignments {
   // MARK: Reef Scoring
 
   /** (Robot-oriented) alignment vectors for REEF LEFT scoring */
-  private static final AlignmentVector[] RO_REEF_LEFT_VECTORS = {
+  public static final AlignmentVector[] RO_REEF_LEFT_VECTORS = {
     new AlignmentVector("REEF_A", new Translation2d(3.658, 4.249), Rotation2d.fromDegrees(0), 18, 7),
     new AlignmentVector("REEF_C", new Translation2d(3.876, 3.415), Rotation2d.fromDegrees(60), 17, 8),
     new AlignmentVector("REEF_E", new Translation2d(4.707, 3.187), Rotation2d.fromDegrees(120), 22, 9),
@@ -28,7 +28,7 @@ public class LockOnAlignments {
   };
 
   /** (Robot-oriented) Alignment vectors for REEF RIGHT scoring */
-  private static final AlignmentVector[] RO_REEF_RIGHT_VECTORS = {
+  public static final AlignmentVector[] RO_REEF_RIGHT_VECTORS = {
     new AlignmentVector("REEF_B", new Translation2d(3.658, 3.92), Rotation2d.fromDegrees(0), 18, 7),
     new AlignmentVector("REEF_D", new Translation2d(4.161, 3.251), Rotation2d.fromDegrees(60), 17, 8),
     new AlignmentVector("REEF_F", new Translation2d(4.992, 3.352), Rotation2d.fromDegrees(120), 22, 9),
