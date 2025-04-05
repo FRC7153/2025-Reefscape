@@ -131,13 +131,26 @@
           {
             "title": "Alerts",
             "x": 0.0,
-            "y": 0.0,
+            "y": 128.0,
             "width": 256.0,
-            "height": 384.0,
+            "height": 256.0,
             "type": "Alerts",
             "properties": {
               "topic": "/SmartDashboard/Alerts",
               "period": 0.06
+            }
+          },
+          {
+            "title": "Pregame",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Pregame",
+              "period": 0.06,
+              "show_type": true
             }
           }
         ]

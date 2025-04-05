@@ -14,6 +14,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.swerve.SwerveDrive;
+import frc.robot.util.math.LockOnAlignments;
 
 public class SingleCoralAndSpitAlgaeAuto extends SequentialCommandGroup {
   private final String name;
@@ -25,13 +26,14 @@ public class SingleCoralAndSpitAlgaeAuto extends SequentialCommandGroup {
    * @param manipulator
    * @param led
    * @param pathName Name of initial path to follow from PathPlanner (starting point to reef side).
-   * @param reefSide Side of reef to use (index in LockOnAlignments).
+   * @param reefCoralVector Index of alignment vector for scoring the coral.
+   * @param reefAlgaeVector Index of alignment vector for scoring algae (CENTER Alignments)
    * @param highAlgae Whether to use high algae or low algae intake.
    */
-  public SingleCoralAndSpitAlgaeAuto(SwerveDrive drive, Elevator elevator, Manipulator manipulator, LED led, String pathName, int reefSide, boolean highAlgae) {
+  public SingleCoralAndSpitAlgaeAuto(SwerveDrive drive, Elevator elevator, Manipulator manipulator, LED led, String pathName, int reefCoralVector, int reefAlgaeVector, boolean highAlgae) {
     super(
       // Place coral, grab algae
-      new SingleCoralAndAlgaeAuto(drive, elevator, manipulator, led, pathName, reefSide, highAlgae, false),
+      new SingleCoralAndAlgaeAuto(drive, elevator, manipulator, led, pathName, reefCoralVector, reefAlgaeVector, highAlgae, false),
       new WaitCommand(0.35),
       // Spin slowly towards cage
       new InstantCommand(() -> drive.drive(0.0, 0.0, 2.0, true, false), drive),
@@ -50,9 +52,10 @@ public class SingleCoralAndSpitAlgaeAuto extends SequentialCommandGroup {
     addRequirements(drive, elevator, manipulator);
 
     name = String.format(
-      "SingleCoralAndSpitAlgaeAuto(%s, %d, %s)", 
+      "SingleCoralAndSpitAlgaeAuto(%s, %s, %s, %s)", 
       pathName, 
-      reefSide,
+      LockOnAlignments.REEF_VECTORS[reefCoralVector].getName(),
+      LockOnAlignments.REEF_CENTER_VECTORS[reefAlgaeVector].getName(),
       highAlgae ? "HIGH" : "LOW"
     );
   }

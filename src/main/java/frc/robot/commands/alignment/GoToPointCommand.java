@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.LimelightConstants;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.util.Util;
@@ -41,6 +42,9 @@ public class GoToPointCommand extends Command {
 
   @Override
   public void initialize() {
+    // Set limelight throttle
+    drive.setLimelightThrottle(LimelightConstants.TARGETING_THROTTLE);
+
     Pose2d currentPose = drive.getPosition(false);
 
     startTime = Timer.getFPGATimestamp();
@@ -68,6 +72,9 @@ public class GoToPointCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     drive.stop();
+
+    // Set limelight throttle
+    drive.setLimelightThrottle(LimelightConstants.ENABLED_THROTTLE);
   }
   
   @Override

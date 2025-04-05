@@ -92,35 +92,43 @@ public final class AutoChooser {
 
     // Rear center reef single coral single algae autos
     chooser.addOption("CENTER CENTER Single Piece", 
-      Pair.of(startingCenter, () -> new SingleCoralAndAlgaeAuto(drive, elevator, manipulator, led, "CenterStartToReefH", 3, false))
+      Pair.of(startingCenter, () -> new SingleCoralAndAlgaeAuto(drive, elevator, manipulator, led, "CenterStartToReefH", 7, 3, false))
     );
 
     // Left left reef single coral single algae auto
     chooser.addOption("LEFT LEFT Single Piece", 
-      Pair.of(startingLeft, () -> new SingleCoralAndAlgaeAuto(drive, elevator, manipulator, led, "LeftStartToReefI", 4, true))
+      Pair.of(startingLeft, () -> new SingleCoralAndAlgaeAuto(drive, elevator, manipulator, led, "LeftStartToReefI", 8, 4, true))
     );
 
     // Right right reef single coral single algae auto
     chooser.addOption("RIGHT RIGHT Single Piece", 
-      Pair.of(startingRight, () -> new SingleCoralAndAlgaeAuto(drive, elevator, manipulator, led, "RightStartToReefF", 2, true))
+      Pair.of(startingRight, () -> new SingleCoralAndAlgaeAuto(drive, elevator, manipulator, led, "RightStartToReefF", 5, 2, true))
     );
 
     // Single coral spit algae autos
     chooser.addOption("CENTER CENTER Single Piece & Spit", 
-      Pair.of(startingCenter, () -> new SingleCoralAndSpitAlgaeAuto(drive, elevator, manipulator, led, "CenterStartToReefH", 3, false))
+      Pair.of(startingCenter, () -> new SingleCoralAndSpitAlgaeAuto(drive, elevator, manipulator, led, "CenterStartToReefH", 7, 3, false))
     );
 
     chooser.addOption("LEFT LEFT Single Piece & Spit", 
-      Pair.of(startingLeft, () -> new SingleCoralAndSpitAlgaeAuto(drive, elevator, manipulator, led, "LeftStartToReefI", 4, true))
+      Pair.of(startingLeft, () -> new SingleCoralAndSpitAlgaeAuto(drive, elevator, manipulator, led, "LeftStartToReefI", 8, 4, true))
     );
 
     chooser.addOption("RIGHT RIGHT Single Piece & Spit", 
-      Pair.of(startingRight, () -> new SingleCoralAndSpitAlgaeAuto(drive, elevator, manipulator, led, "RightStartToReefF", 2, true))
+      Pair.of(startingRight, () -> new SingleCoralAndSpitAlgaeAuto(drive, elevator, manipulator, led, "RightStartToReefF", 5, 2, true))
     );
 
     // Single coral and no algae auto
     chooser.addOption("CENTER CENTER Single Coral NO ALGAE", 
-      Pair.of(startingCenter, () -> new SingleCoralAuto(drive, elevator, manipulator, led, "CenterStartToReefH", 3))
+      Pair.of(startingCenter, () -> new SingleCoralAuto(drive, elevator, manipulator, led, "CenterStartToReefH", 7))
+    );
+
+    chooser.addOption("LEFT LEFT Single Coral NO ALGAE", 
+      Pair.of(startingLeft, () -> new SingleCoralAuto(drive, elevator, manipulator, led, "LeftStartToReefI", 8))
+    );
+
+    chooser.addOption("RIGHT RIGHT Single Coral NO ALGAE", 
+      Pair.of(startingRight, () -> new SingleCoralAuto(drive, elevator, manipulator, led, "RightStartToReefF", 5))
     );
 
     // Multi coral auto

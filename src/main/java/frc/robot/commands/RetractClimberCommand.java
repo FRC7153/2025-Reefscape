@@ -20,7 +20,7 @@ public class RetractClimberCommand extends ConditionalCommand {
         new InstantCommand(() -> climber.runClimberPivot(-0.05), climber),
         new InstantCommand(() -> climber.runClimberWinch(-0.85), climber),
         new InstantCommand(() -> climber.setBrakeMode(false, true), climber),
-        new WaitUntilCommand(() -> climber.getPivotPosition() <= 0.19), // rots to perp with ground (was .185)
+        new WaitUntilCommand(() -> climber.getPivotPosition() <= 0.19), // rots to perp with ground
         new InstantCommand(climber::stopClimber, climber),
         new InstantCommand(led.flashGreenThreeTimes::schedule)
       ),

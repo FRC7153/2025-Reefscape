@@ -30,13 +30,13 @@ public class MultiCoralAutos {
   public static Command buildForLeftSide(SwerveDrive drive, Elevator elevator, Manipulator manipulator) {
     return new SequentialCommandGroup(
       // Go to reef, score first coral
-      getScoreCoralCommand(drive, elevator, manipulator, "LeftStartToReefJ", LockOnAlignments.RO_REEF_RIGHT_VECTORS[4], true),
+      getScoreCoralCommand(drive, elevator, manipulator, "LeftStartToReefJ", LockOnAlignments.REEF_RIGHT_VECTORS[4], true),
 
       // Get another coral
       getCoralStationCommand(drive, elevator, "ReefJToCoralStation"),
 
       // Score coral
-      getScoreCoralCommand(drive, elevator, manipulator, "CoralStationToReefK", LockOnAlignments.RO_REEF_RIGHT_VECTORS[4], false),
+      getScoreCoralCommand(drive, elevator, manipulator, "CoralStationToReefK", LockOnAlignments.REEF_RIGHT_VECTORS[4], false),
 
       // End
       new PrintCommand("Left Multi Coral Auto finished"),

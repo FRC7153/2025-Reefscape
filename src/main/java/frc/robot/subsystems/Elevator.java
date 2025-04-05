@@ -207,6 +207,14 @@ public final class Elevator implements Subsystem {
   }
 
   /**
+   * Sets the elevator motors to a certain duty cycle.
+   * @param dutyCycle %, positive is up.
+   */
+  public void setHeightDutyCycle(double dutyCycle) {
+    elevatorMain.set(dutyCycle);
+  }
+
+  /**
    * @return Elevator height, in rotations.
    */
   public double getElevatorHeight() {

@@ -7,6 +7,7 @@ package frc.robot;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -22,6 +23,7 @@ import frc.robot.commands.DeployClimberCommand;
 import frc.robot.commands.ElevatorToStateCommand;
 import frc.robot.commands.ManipulatorCommand;
 import frc.robot.commands.PregameCommand;
+import frc.robot.commands.RecoverElevatorCommand;
 import frc.robot.commands.RetractClimberCommand;
 import frc.robot.commands.StowCommand;
 import frc.robot.commands.TeleopDriveCommand;
@@ -62,7 +64,7 @@ public final class RobotContainer {
   private final AutoChooser auto = new AutoChooser(base, elevator, climber, manipulator, led);
   private final Dashboard dashboard = new Dashboard(baseController, armsController);
   private final Command pregameCommand = new PregameCommand(base, elevator, climber, auto);
-  private final Limelight cageLimelight = new Limelight("limelight-rear", Version.LIMELIGHT_3G);
+  private final Limelight cageLimelight = new Limelight("limelight-cage", Version.LIMELIGHT_3G);
 
   public RobotContainer() {
     // Add Pregame command to the dashboard
@@ -143,8 +145,8 @@ public final class RobotContainer {
       .whileTrue(
         new SnapRotationCommand(
           base, 
-          baseLeftY, 
           baseLeftX, 
+          baseLeftY, 
           fastModeTrigger, 
           () -> LockOnAlignments.getBestRotationTarget(base.getPosition(false).getTranslation()))
       );
@@ -201,12 +203,17 @@ public final class RobotContainer {
 
     // Algae outtake (arms left trigger)
     armsController.leftTrigger()
-      .whileTrue(new ManipulatorCommand(manipulator, -0.3));
+      .whileTrue(new ManipulatorCommand(manipulator, -0.65));
 
     // Algae spit (arms left bumper)
     armsController.leftBumper()
       .whileTrue(new ElevatorToStateCommand(elevator, ElevatorPositions.ALGAE_SPIT).repeatedly())
       .whileTrue(new ManipulatorCommand(manipulator, -0.5));
+
+    // Recover elevator height (arms left stick Y extreme)
+    armsController.axisLessThan(XboxController.Axis.kLeftY.value, -0.875)
+      .whileTrue(new RecoverElevatorCommand(elevator))
+      .whileTrue(led.flashPurpleFiveTimes);
 
     // MARK: Climbing
 

@@ -8,7 +8,7 @@ public class LockOnAlignments {
   // MARK: Reef Scoring
 
   /** (Robot-oriented) alignment vectors for REEF LEFT scoring */
-  public static final AlignmentVector[] RO_REEF_LEFT_VECTORS = {
+  public static final AlignmentVector[] REEF_LEFT_VECTORS = {
     new AlignmentVector("REEF_A", new Translation2d(3.658, 4.249), Rotation2d.fromDegrees(0), 18, 7),
     new AlignmentVector("REEF_C", new Translation2d(3.876, 3.415), Rotation2d.fromDegrees(60), 17, 8),
     new AlignmentVector("REEF_E", new Translation2d(4.707, 3.187), Rotation2d.fromDegrees(120), 22, 9),
@@ -28,7 +28,7 @@ public class LockOnAlignments {
   };
 
   /** (Robot-oriented) Alignment vectors for REEF RIGHT scoring */
-  public static final AlignmentVector[] RO_REEF_RIGHT_VECTORS = {
+  public static final AlignmentVector[] REEF_RIGHT_VECTORS = {
     new AlignmentVector("REEF_B", new Translation2d(3.658, 3.92), Rotation2d.fromDegrees(0), 18, 7),
     new AlignmentVector("REEF_D", new Translation2d(4.161, 3.251), Rotation2d.fromDegrees(60), 17, 8),
     new AlignmentVector("REEF_F", new Translation2d(4.992, 3.352), Rotation2d.fromDegrees(120), 22, 9),
@@ -37,16 +37,14 @@ public class LockOnAlignments {
     new AlignmentVector("REEF_L", new Translation2d(3.986, 4.69), Rotation2d.fromDegrees(300), 19, 6)
   };
 
-  /** Alignment vectors for REEF RIGHT (driver station-oriented) scoring */
-  public static final AlignmentVector[] REEF_LEFT_VECTORS = {
-    RO_REEF_LEFT_VECTORS[0], RO_REEF_LEFT_VECTORS[1], RO_REEF_RIGHT_VECTORS[2], RO_REEF_RIGHT_VECTORS[3], 
-    RO_REEF_RIGHT_VECTORS[4], RO_REEF_LEFT_VECTORS[5]
-  };
-
-  /** Alignment vectors for REEF RIGHT (driver station-oriented) scoring */
-  public static final AlignmentVector[] REEF_RIGHT_VECTORS = {
-    RO_REEF_RIGHT_VECTORS[0], RO_REEF_RIGHT_VECTORS[1], RO_REEF_LEFT_VECTORS[2], RO_REEF_LEFT_VECTORS[3],
-    RO_REEF_LEFT_VECTORS[4], RO_REEF_RIGHT_VECTORS[5]
+  /** All alignment vectors, starting with A, going counter clockwise */
+  public static final AlignmentVector[] REEF_VECTORS = {
+    REEF_LEFT_VECTORS[0], REEF_RIGHT_VECTORS[0],
+    REEF_LEFT_VECTORS[1], REEF_RIGHT_VECTORS[1], 
+    REEF_LEFT_VECTORS[2], REEF_RIGHT_VECTORS[2], 
+    REEF_LEFT_VECTORS[3], REEF_RIGHT_VECTORS[3], 
+    REEF_LEFT_VECTORS[4], REEF_RIGHT_VECTORS[4], 
+    REEF_LEFT_VECTORS[5], REEF_RIGHT_VECTORS[5]
   };
 
   /** Center of reef */

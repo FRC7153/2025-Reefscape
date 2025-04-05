@@ -77,7 +77,7 @@ public final class Constants {
     public static final SparkBaseConfig MANIPULATOR_CONFIG = new SparkFlexConfig()
       .idleMode(IdleMode.kBrake)
       .inverted(false)
-      .smartCurrentLimit(60);
+      .smartCurrentLimit(80);
   }
 
   public static final class ElevatorConstants {
@@ -174,7 +174,7 @@ public final class Constants {
     public static final ElevatorState L4 = new ElevatorState(4.45, -0.02);
 
     public static final ElevatorState ALGAE_LOW = new ElevatorState(0.584, 0.2);
-    public static final ElevatorState ALGAE_HIGH = new ElevatorState(1.55, 0.2);
+    public static final ElevatorState ALGAE_HIGH = new ElevatorState(1.55 + 0.079, 0.2);
     public static final ElevatorState ALGAE_SPIT = new ElevatorState(0.2, 0.1);
   }
 
@@ -187,6 +187,7 @@ public final class Constants {
     public static final double YELLOW = 0.69;
     public static final double BLACK = 0.99;
     public static final double WHITE = 0.93;
+    public static final double PURPLE = 0.91;
   }
 
   public static final class HardwareConstants {

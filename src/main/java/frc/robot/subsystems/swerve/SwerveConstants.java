@@ -113,15 +113,21 @@ public final class SwerveConstants {
   };
 
   // Auto config
+  private static final PIDConstants TRANSLATIONAL_PID = new PIDConstants(3.0, 0.0, 0.0);
+  private static final PIDConstants ROTATIONAL_PID = new PIDConstants(9.0, 0.0, 0.0);
+
   public static final PPHolonomicDriveController AUTO_CONTROLLER = 
-    new PPHolonomicDriveController(
-      //new PIDConstants(19.303, 0.0, 1.3841), // Translational
-      new PIDConstants(3.0, 0.0, 0.0), // Translational
-      new PIDConstants(9.0, 0.0, 0.0) // Rotational
-    );
+    new PPHolonomicDriveController(TRANSLATIONAL_PID, ROTATIONAL_PID);
 
   /** PID controller for snapping rotation. Matches the one used by AUTO_CONTROLLER. Expects radians. */
-  public static final PIDController ROTATION_CONTROLLER = new PIDController(9.0, 0.0, 0.0);
+  public static final PIDController ROTATION_CONTROLLER = 
+    new PIDController(ROTATIONAL_PID.kP, ROTATIONAL_PID.kI, ROTATIONAL_PID.kD);
+
+  static {
+    // Config rotational controller
+    ROTATION_CONTROLLER.setIntegratorRange(-ROTATIONAL_PID.iZone, ROTATIONAL_PID.iZone);
+    ROTATION_CONTROLLER.enableContinuousInput(-Math.PI, Math.PI);
+  }
 
   // Default positions (against the front reef), if none is set by the auto program by PREGAME
   public static final Pose2d DEFAULT_BLUE_POSE = new Pose2d(3.6 - (BASE_DIMENSIONS.getX() / 2.0) - BUMPER_WIDTH, 4.026, Rotation2d.kZero);

@@ -24,11 +24,11 @@ public class SingleCoralAuto extends SequentialCommandGroup {
    * @param manipulator
    * @param led
    * @param pathName Name of initial path to follow from PathPlanner (starting point to reef side).
-   * @param reefSide Side of reef to use (index in LockOnAlignments).
+   * @param reefSide Side of reef to use (index in robot-oriented LockOnAlignments).
    * @param highAlgae Whether to use high algae or low algae intake.
    * @param repeatedly Whether the last command of this auto should be repeatedly (set false to chain)
    */
-  public SingleCoralAuto(SwerveDrive drive, Elevator elevator, Manipulator manipulator, LED led, String pathName, int reefSide) {
+  public SingleCoralAuto(SwerveDrive drive, Elevator elevator, Manipulator manipulator, LED led, String pathName, int reefCoralVector) {
     super(
       // Drive near reef position
       SwervePaths.getFollowPathCommand(drive, pathName, true),
@@ -37,14 +37,14 @@ public class SingleCoralAuto extends SequentialCommandGroup {
       new ElevatorToStateCommand(elevator, ElevatorPositions.L4, true, false),
       new WaitCommand(0.85),
       // Lock onto reef
-      new AutoLockOnCommand(drive, LockOnAlignments.REEF_RIGHT_VECTORS[reefSide], 0.225, 0.55, 0.8, 3.5),
+      new AutoLockOnCommand(drive, LockOnAlignments.REEF_VECTORS[reefCoralVector], 0.225, 0.55, 0.8, 3.5),
       // Drop coral
       new InstantCommand(() -> manipulator.setManipulatorVelocity(0.1), manipulator),
       new WaitCommand(0.75),
       new InstantCommand(() -> manipulator.setManipulatorVelocity(0.0), manipulator),
       // Lower elevator and back away from reef
       new ElevatorToStateCommand(elevator, ElevatorPositions.STOW),
-      new AutoLockOnCommand(drive, LockOnAlignments.REEF_RIGHT_VECTORS[reefSide], -1.25, 0.6),
+      new AutoLockOnCommand(drive, LockOnAlignments.REEF_VECTORS[reefCoralVector], -1.25, 0.6),
       new PrintCommand("SingleCoralAuto finished"),
       new ElevatorToStateCommand(elevator, ElevatorPositions.STOW).repeatedly()
     );
@@ -53,9 +53,9 @@ public class SingleCoralAuto extends SequentialCommandGroup {
     addRequirements(drive, elevator, manipulator);
 
     name = String.format(
-      "SingleCoralAuto(%s, %d)", 
+      "SingleCoralAuto(%s, %s)", 
       pathName, 
-      reefSide
+      LockOnAlignments.REEF_VECTORS[reefCoralVector].getName()
     );
   }
 

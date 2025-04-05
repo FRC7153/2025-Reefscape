@@ -18,6 +18,7 @@ public class LED extends SubsystemBase {
   public final Command flashGreenThreeTimes = new FlashLEDCommand(this, LEDColors.GREEN, 3);
   public final Command solidYellowTwoSeconds = SetLEDColorCommand.forTime(this, LEDColors.YELLOW, 2);
   public final Command flashWhiteFiveTimes = new FlashLEDCommand(this, LEDColors.WHITE, 5);
+  public final Command flashPurpleFiveTimes = new FlashLEDCommand(this, LEDColors.PURPLE, 5);
 
   /**
    * Creates a new ledController.

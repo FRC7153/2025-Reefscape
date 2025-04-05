@@ -29,11 +29,12 @@ public class SingleCoralAndAlgaeAuto extends SequentialCommandGroup {
    * @param manipulator
    * @param led
    * @param pathName Name of initial path to follow from PathPlanner (starting point to reef side).
-   * @param reefSide Side of reef to use (index in LockOnAlignments).
+   * @param reefCoralVector Index of alignment vector for scoring the coral.
+   * @param reefAlgaeVector Index of alignment vector for scoring algae (CENTER Alignments)
    * @param highAlgae Whether to use high algae or low algae intake.
    * @param repeatedly Whether the last command of this auto should be repeatedly (set false to chain)
    */
-  public SingleCoralAndAlgaeAuto(SwerveDrive drive, Elevator elevator, Manipulator manipulator, LED led, String pathName, int reefSide, boolean highAlgae, boolean repeatedly) {
+  public SingleCoralAndAlgaeAuto(SwerveDrive drive, Elevator elevator, Manipulator manipulator, LED led, String pathName, int reefCoralVector, int reefAlgaeVector, boolean highAlgae, boolean repeatedly) {
     super(
       // Drive near reef position
       SwervePaths.getFollowPathCommand(drive, pathName, true),
@@ -42,7 +43,7 @@ public class SingleCoralAndAlgaeAuto extends SequentialCommandGroup {
       new ElevatorToStateCommand(elevator, ElevatorPositions.L4, true, false),
       new WaitCommand(0.85),
       // Lock onto reef
-      new AutoLockOnCommand(drive, LockOnAlignments.REEF_RIGHT_VECTORS[reefSide], 0.225, 0.55, 0.8, 3.5),
+      new AutoLockOnCommand(drive, LockOnAlignments.REEF_VECTORS[reefCoralVector], 0.225, 0.55, 0.8, 3.5),
       // Drop coral
       new InstantCommand(() -> manipulator.setManipulatorVelocity(0.1), manipulator),
       new WaitCommand(0.75),
@@ -55,7 +56,7 @@ public class SingleCoralAndAlgaeAuto extends SequentialCommandGroup {
           ElevatorPositions.STOW.angle()
         )
       ),
-      new AutoLockOnCommand(drive, LockOnAlignments.REEF_RIGHT_VECTORS[reefSide], -1.25, 0.6),
+      new AutoLockOnCommand(drive, LockOnAlignments.REEF_VECTORS[reefCoralVector], -1.25, 0.6),
       new WaitCommand(0.1),
       // Go get algae
       new ParallelRaceGroup(
@@ -63,11 +64,11 @@ public class SingleCoralAndAlgaeAuto extends SequentialCommandGroup {
         new AlgaeCommand(elevator, manipulator, led, highAlgae ? ElevatorPositions.ALGAE_HIGH : ElevatorPositions.ALGAE_LOW),
         new SequentialCommandGroup(
           // Get piece
-          new AutoLockOnCommand(drive, LockOnAlignments.REEF_CENTER_VECTORS[reefSide], 0.3, 0.55, 1.0, 5.0),
+          new AutoLockOnCommand(drive, LockOnAlignments.REEF_CENTER_VECTORS[reefAlgaeVector], 0.3, 0.55, 1.0, 5.0),
           // Either wait for time, or until the limit switch is pressed
           new WaitCommand(0.9).raceWith(new WaitUntilCommand(elevator::getAlgaeLimitSwitch)),
           // Back up
-          new AutoLockOnCommand(drive, LockOnAlignments.REEF_CENTER_VECTORS[reefSide], -1.25, 0.75)
+          new AutoLockOnCommand(drive, LockOnAlignments.REEF_CENTER_VECTORS[reefAlgaeVector], -1.25, 0.75)
         )
       ),
       // Hold algae
@@ -79,9 +80,10 @@ public class SingleCoralAndAlgaeAuto extends SequentialCommandGroup {
     addRequirements(drive, elevator, manipulator);
 
     name = String.format(
-      "SingleCoralAndAlgaeAuto(%s, %d, %s)", 
+      "SingleCoralAndAlgaeAuto(%s, %s, %s, %s)", 
       pathName, 
-      reefSide,
+      LockOnAlignments.REEF_VECTORS[reefCoralVector].getName(),
+      LockOnAlignments.REEF_CENTER_VECTORS[reefAlgaeVector].getName(),
       highAlgae ? "HIGH" : "LOW"
     );
   }
@@ -93,11 +95,12 @@ public class SingleCoralAndAlgaeAuto extends SequentialCommandGroup {
    * @param manipulator
    * @param led
    * @param pathName Name of initial path to follow from PathPlanner (starting point to reef side).
-   * @param reefSide Side of reef to use (index in LockOnAlignments).
+   * @param reefCoralVector Index of alignment vector for scoring the coral.
+   * @param reefAlgaeVector Index of alignment vector for scoring algae (CENTER Alignments)
    * @param highAlgae Whether to use high algae or low algae intake.
    */
-  public SingleCoralAndAlgaeAuto(SwerveDrive drive, Elevator elevator, Manipulator manipulator, LED led, String pathName, int reefSide, boolean highAlgae) {
-    this(drive, elevator, manipulator, led, pathName, reefSide, highAlgae, true);
+  public SingleCoralAndAlgaeAuto(SwerveDrive drive, Elevator elevator, Manipulator manipulator, LED led, String pathName, int reefCoralVector, int reefAlgaeVector, boolean highAlgae) {
+    this(drive, elevator, manipulator, led, pathName, reefCoralVector, reefAlgaeVector, highAlgae, true);
   }
 
   @Override
