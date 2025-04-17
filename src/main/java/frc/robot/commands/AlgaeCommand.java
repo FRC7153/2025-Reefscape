@@ -26,8 +26,8 @@ public class AlgaeCommand extends SequentialCommandGroup {
       new InstantCommand(() -> manipulator.setManipulatorVelocity(0.0), manipulator),
       new WaitCommand(1.0),
       // Clamp elevator, hold here until this command is canceled
-      //new ElevatorToStateCommand(elevator, new ElevatorState(0.1, position.angle() + 0.05)).repeatedly()
-      new ElevatorToStateCommand(elevator, new ElevatorState(position.height(), position.angle() + 0.05)).repeatedly()
+      new ElevatorToStateCommand(elevator, new ElevatorState(0.1, position.angle() + 0.05)).repeatedly()
+      //new ElevatorToStateCommand(elevator, new ElevatorState(position.height(), position.angle() + 0.05)).repeatedly()
     );
   }
 }

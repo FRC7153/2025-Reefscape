@@ -19,6 +19,7 @@ import frc.robot.autos.DriveForwardAuto;
 import frc.robot.autos.MultiCoralAutos;
 import frc.robot.autos.NamedCommandHandler;
 import frc.robot.autos.SingleCoralAndAlgaeAuto;
+import frc.robot.autos.SingleCoralAndBargeAuto;
 import frc.robot.autos.SingleCoralAndSpitAlgaeAuto;
 import frc.robot.autos.SingleCoralAuto;
 import frc.robot.autos.tests.BackAndForthTestAuto;
@@ -129,6 +130,11 @@ public final class AutoChooser {
 
     chooser.addOption("RIGHT RIGHT Single Coral NO ALGAE", 
       Pair.of(startingRight, () -> new SingleCoralAuto(drive, elevator, manipulator, led, "RightStartToReefF", 5))
+    );
+
+    // Coral + Barge auto
+    chooser.addOption("CENTER CENTER Single Coral Single Barge", 
+      Pair.of(startingCenter, () -> new SingleCoralAndBargeAuto(drive, elevator, manipulator, led))
     );
 
     // Multi coral auto

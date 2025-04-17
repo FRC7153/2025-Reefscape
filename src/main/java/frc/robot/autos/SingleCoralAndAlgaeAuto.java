@@ -42,8 +42,8 @@ public class SingleCoralAndAlgaeAuto extends SequentialCommandGroup {
       new InstantCommand(() -> manipulator.setManipulatorVelocity(-0.8), manipulator),
       new ElevatorToStateCommand(elevator, ElevatorPositions.L4, true, false),
       new WaitCommand(0.85),
-      // Lock onto reef
-      new AutoLockOnCommand(drive, LockOnAlignments.REEF_VECTORS[reefCoralVector], 0.225, 0.55, 0.8, 3.5),
+      // Lock onto reef, was .225 velocity
+      new AutoLockOnCommand(drive, LockOnAlignments.REEF_VECTORS[reefCoralVector], 0.5, 0.55, 0.8, 3.5),
       // Drop coral
       new InstantCommand(() -> manipulator.setManipulatorVelocity(0.1), manipulator),
       new WaitCommand(0.75),
@@ -52,7 +52,7 @@ public class SingleCoralAndAlgaeAuto extends SequentialCommandGroup {
       new ElevatorToStateCommand(
         elevator, 
         new ElevatorState(
-          highAlgae ? ElevatorPositions.ALGAE_HIGH.height() : ElevatorPositions.ALGAE_LOW.height(), 
+          highAlgae ? ElevatorPositions.ALGAE_HIGH.height() : ElevatorPositions.ALGAE_LOW.height() + 0.05, 
           ElevatorPositions.STOW.angle()
         )
       ),
@@ -60,11 +60,16 @@ public class SingleCoralAndAlgaeAuto extends SequentialCommandGroup {
       new WaitCommand(0.1),
       // Go get algae
       new ParallelRaceGroup(
-        // Run algae intake
-        new AlgaeCommand(elevator, manipulator, led, highAlgae ? ElevatorPositions.ALGAE_HIGH : ElevatorPositions.ALGAE_LOW),
+        // Run algae intake (bit higher if low algae for some reason)
+        new AlgaeCommand(
+          elevator, 
+          manipulator,
+          led, 
+          highAlgae ? ElevatorPositions.ALGAE_HIGH : new ElevatorState(ElevatorPositions.ALGAE_LOW.height() + 0.05, ElevatorPositions.ALGAE_LOW.angle())
+        ),
         new SequentialCommandGroup(
-          // Get piece
-          new AutoLockOnCommand(drive, LockOnAlignments.REEF_CENTER_VECTORS[reefAlgaeVector], 0.3, 0.55, 1.0, 5.0),
+          // Get piece (velo was 0.3)
+          new AutoLockOnCommand(drive, LockOnAlignments.REEF_CENTER_VECTORS[reefAlgaeVector], 0.5, 0.4, 1.0, 2.5),
           // Either wait for time, or until the limit switch is pressed
           new WaitCommand(0.9).raceWith(new WaitUntilCommand(elevator::getAlgaeLimitSwitch)),
           // Back up
