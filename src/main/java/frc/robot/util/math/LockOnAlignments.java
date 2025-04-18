@@ -2,6 +2,7 @@ package frc.robot.util.math;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.util.Util;
 
 /** Alignment vectors used for automating lining up with various targets. */
 public class LockOnAlignments {
@@ -37,7 +38,7 @@ public class LockOnAlignments {
     new AlignmentVector("REEF_L", new Translation2d(3.986, 4.69), Rotation2d.fromDegrees(300), 19, 6)
   };
 
-  /** All alignment vectors, starting with A, going counter clockwise */
+  /** All alignment vectors, starting with A, going counter-clockwise */
   public static final AlignmentVector[] REEF_VECTORS = {
     REEF_LEFT_VECTORS[0], REEF_RIGHT_VECTORS[0],
     REEF_LEFT_VECTORS[1], REEF_RIGHT_VECTORS[1], 
@@ -46,6 +47,28 @@ public class LockOnAlignments {
     REEF_LEFT_VECTORS[4], REEF_RIGHT_VECTORS[4], 
     REEF_LEFT_VECTORS[5], REEF_RIGHT_VECTORS[5]
   };
+
+  // Reef overrides
+  private static final AlignmentVector REEF_H_MILSTEIN_BLUE_OVERRIDE = new AlignmentVector("REEF_H_MILSTEIN_BLUE_OVERRIDE", new Translation2d(5.321, 4.147), Rotation2d.fromDegrees(180), 21, 10);
+
+  /**
+   * Returns the specified reef vector for use in autonomous. Some of these are overridden because
+   * of inconsistences in the field.
+   * @param reef The index, starting with A, going counter-clockwise.
+   * @return The reef AlignmentVector to use.
+   */
+  public static AlignmentVector getAutonomousAlignmentVector(int reef) {
+    boolean isRedAlliance = Util.isRedAlliance();
+
+    if (!isRedAlliance && reef == 7) {
+      // World CMP, Milstein field, blue alliance reef off by 0.25"
+      System.out.println("Using REEF H MILSTEIN BLUE OVERRIDE vector (y -1.0\")");
+      return REEF_H_MILSTEIN_BLUE_OVERRIDE;
+    }
+
+    // Use default
+    return REEF_VECTORS[reef];
+  }
 
   /** Center of reef */
   public static final Translation2d REEF_CENTER = new Translation2d(4.476, 4.493);

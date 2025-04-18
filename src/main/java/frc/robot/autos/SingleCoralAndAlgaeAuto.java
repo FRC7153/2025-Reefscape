@@ -43,7 +43,7 @@ public class SingleCoralAndAlgaeAuto extends SequentialCommandGroup {
       new ElevatorToStateCommand(elevator, ElevatorPositions.L4, true, false),
       new WaitCommand(0.85),
       // Lock onto reef, was .225 velocity
-      new AutoLockOnCommand(drive, LockOnAlignments.REEF_VECTORS[reefCoralVector], 0.5, 0.55, 0.8, 3.5),
+      new AutoLockOnCommand(drive, LockOnAlignments.getAutonomousAlignmentVector(reefCoralVector), 0.5, 0.55, 0.8, 3.5),
       // Drop coral
       new InstantCommand(() -> manipulator.setManipulatorVelocity(0.1), manipulator),
       new WaitCommand(0.75),
@@ -56,7 +56,7 @@ public class SingleCoralAndAlgaeAuto extends SequentialCommandGroup {
           ElevatorPositions.STOW.angle()
         )
       ),
-      new AutoLockOnCommand(drive, LockOnAlignments.REEF_VECTORS[reefCoralVector], -1.25, 0.6),
+      new AutoLockOnCommand(drive, LockOnAlignments.getAutonomousAlignmentVector(reefCoralVector), -1.25, 0.6),
       new WaitCommand(0.1),
       // Go get algae
       new ParallelRaceGroup(
@@ -87,7 +87,7 @@ public class SingleCoralAndAlgaeAuto extends SequentialCommandGroup {
     name = String.format(
       "SingleCoralAndAlgaeAuto(%s, %s, %s, %s)", 
       pathName, 
-      LockOnAlignments.REEF_VECTORS[reefCoralVector].getName(),
+      LockOnAlignments.getAutonomousAlignmentVector(reefCoralVector).getName(),
       LockOnAlignments.REEF_CENTER_VECTORS[reefAlgaeVector].getName(),
       highAlgae ? "HIGH" : "LOW"
     );

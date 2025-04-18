@@ -37,14 +37,14 @@ public class SingleCoralAuto extends SequentialCommandGroup {
       new ElevatorToStateCommand(elevator, ElevatorPositions.L4, true, false),
       new WaitCommand(0.85),
       // Lock onto reef
-      new AutoLockOnCommand(drive, LockOnAlignments.REEF_VECTORS[reefCoralVector], 0.225, 0.55, 0.8, 3.5),
+      new AutoLockOnCommand(drive, LockOnAlignments.getAutonomousAlignmentVector(reefCoralVector), 0.225, 0.55, 0.8, 3.5),
       // Drop coral
       new InstantCommand(() -> manipulator.setManipulatorVelocity(0.1), manipulator),
       new WaitCommand(0.75),
       new InstantCommand(() -> manipulator.setManipulatorVelocity(0.0), manipulator),
       // Lower elevator and back away from reef
       new ElevatorToStateCommand(elevator, ElevatorPositions.STOW),
-      new AutoLockOnCommand(drive, LockOnAlignments.REEF_VECTORS[reefCoralVector], -1.25, 0.6),
+      new AutoLockOnCommand(drive, LockOnAlignments.getAutonomousAlignmentVector(reefCoralVector), -1.25, 0.6),
       new PrintCommand("SingleCoralAuto finished"),
       new ElevatorToStateCommand(elevator, ElevatorPositions.STOW).repeatedly()
     );
@@ -55,7 +55,7 @@ public class SingleCoralAuto extends SequentialCommandGroup {
     name = String.format(
       "SingleCoralAuto(%s, %s)", 
       pathName, 
-      LockOnAlignments.REEF_VECTORS[reefCoralVector].getName()
+      LockOnAlignments.getAutonomousAlignmentVector(reefCoralVector).getName()
     );
   }
 
