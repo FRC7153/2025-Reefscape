@@ -255,7 +255,7 @@ public final class Elevator implements Subsystem {
 
     boolean success = resp.equals(StatusCode.OK) && absPos > 0.2;
     manipulatorNotHomedAlert.set(!success);
-    hasManipulatorHomed = success;
+    hasManipulatorHomed = true;
   }
 
   public SysIdRoutine getElevatorRoutine() {
