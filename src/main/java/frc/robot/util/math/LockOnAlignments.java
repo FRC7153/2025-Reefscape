@@ -2,7 +2,6 @@ package frc.robot.util.math;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.util.Util;
 
 /** Alignment vectors used for automating lining up with various targets. */
 public class LockOnAlignments {
@@ -49,7 +48,7 @@ public class LockOnAlignments {
   };
 
   // Reef overrides
-  private static final AlignmentVector REEF_H_MILSTEIN_BLUE_OVERRIDE = new AlignmentVector("REEF_H_MILSTEIN_BLUE_OVERRIDE", new Translation2d(5.321, 4.147), Rotation2d.fromDegrees(180), 21, 10);
+  private static final AlignmentVector REEF_H_MILSTEIN_OVERRIDE = new AlignmentVector("REEF_H_MILSTEIN_OVERRIDE", new Translation2d(5.321, 4.147), Rotation2d.fromDegrees(180), 21, 10);
 
   /**
    * Returns the specified reef vector for use in autonomous. Some of these are overridden because
@@ -58,12 +57,10 @@ public class LockOnAlignments {
    * @return The reef AlignmentVector to use.
    */
   public static AlignmentVector getAutonomousAlignmentVector(int reef) {
-    boolean isRedAlliance = Util.isRedAlliance();
-
-    if (!isRedAlliance && reef == 7) {
-      // World CMP, Milstein field, blue alliance reef off by 0.25"
-      System.out.println("Using REEF H MILSTEIN BLUE OVERRIDE vector (y -1.0\")");
-      return REEF_H_MILSTEIN_BLUE_OVERRIDE;
+    if (reef == 7) {
+      // World CMP, Milstein field, reef off by 0.25"
+      System.out.println("Using REEF H MILSTEIN OVERRIDE vector (y -1.0\")");
+      return REEF_H_MILSTEIN_OVERRIDE;
     }
 
     // Use default
