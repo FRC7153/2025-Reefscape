@@ -27,6 +27,7 @@ import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -104,6 +105,7 @@ public final class SwerveDrive implements Subsystem {
 
   private final AprilTagLimelight[] limelights = {
     new AprilTagLimelight("limelight-front", Version.LIMELIGHT_4, odometry),
+    new AprilTagLimelight("limelight-cage", Version.LIMELIGHT_3G, odometry)
   };
 
   // Autonomous
@@ -192,6 +194,9 @@ public final class SwerveDrive implements Subsystem {
 
     // Warm up PathPlanner
     FollowPathCommand.warmupCommand().withName("PathPlannerWarmUpCommand").schedule();
+
+    // Set auto-only limelights
+    toggleAutoOnlyLimelights();
   }
 
   /**
@@ -291,6 +296,22 @@ public final class SwerveDrive implements Subsystem {
     }
 
     System.out.printf("Set limelight throttling to %d\n", throttle);
+  }
+
+  /**
+   * Toggles limelights that are only detecting april tags during the autonomous enabled period.
+   * (Just the rear cage limelight)
+   */
+  public void toggleAutoOnlyLimelights() {
+    if (DriverStation.isAutonomousEnabled()) {
+      // Enable auto-only limelights
+      limelights[1].setPipeline(0);
+      System.out.println("Enabling auto-only limelights");
+    } else {
+      // Disable auto-only limelights
+      limelights[1].setPipeline(1);
+      System.out.println("Disabled auto-only limelights");
+    }
   }
 
   /** Resets from a FIELD RELATIVE position */

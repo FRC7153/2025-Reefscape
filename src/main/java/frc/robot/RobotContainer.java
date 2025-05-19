@@ -43,8 +43,6 @@ import frc.robot.util.dashboard.AutoChooser;
 import frc.robot.util.dashboard.Dashboard;
 import frc.robot.util.dashboard.NotificationCommand;
 import frc.robot.util.math.LockOnAlignments;
-import frc.robot.util.vision.Limelight;
-import frc.robot.util.vision.Limelight.Version;
 import libs.Elastic;
 import libs.Elastic.Notification.NotificationLevel;
 
@@ -64,7 +62,7 @@ public final class RobotContainer {
   private final AutoChooser auto = new AutoChooser(base, elevator, climber, manipulator, led);
   private final Dashboard dashboard = new Dashboard(baseController, armsController);
   private final Command pregameCommand = new PregameCommand(base, elevator, climber, auto);
-  private final Limelight cageLimelight = new Limelight("limelight-cage", Version.LIMELIGHT_3G);
+  //private final Limelight cageLimelight = new Limelight("limelight-cage", Version.LIMELIGHT_3G);
 
   public RobotContainer() {
     // Add Pregame command to the dashboard
@@ -228,7 +226,7 @@ public final class RobotContainer {
     
     // MARK: Game mode triggers
 
-    // Match timer start/stop
+    // Robot enabled trigger
     isEnabledTrigger
       // Match timers
       .onTrue(dashboard.getRestartTimerCommand())
@@ -238,9 +236,10 @@ public final class RobotContainer {
       .onFalse(new SetLEDEnabledCommand(led, false))
       // Limelight throttling
       .onTrue(new InstantCommand(() -> base.setLimelightThrottle(LimelightConstants.ENABLED_THROTTLE)))
-      .onFalse(new InstantCommand(() -> base.setLimelightThrottle(LimelightConstants.DISABLED_THROTTLE)).ignoringDisable(true));
+      .onFalse(new InstantCommand(() -> base.setLimelightThrottle(LimelightConstants.DISABLED_THROTTLE)).ignoringDisable(true))
+      .onChange(new InstantCommand(base::toggleAutoOnlyLimelights).ignoringDisable(true));
 
-    // Switch to climber on teleop
+    // Teleop mode trigger (switch to climb tab)
     isTeleopTrigger
       .onTrue(new InstantCommand(() -> Elastic.selectTab(DashboardConstants.ELASTIC_CLIMB_TAB)).ignoringDisable(true));
 
@@ -257,7 +256,7 @@ public final class RobotContainer {
     climber.checkHardware();
     dashboard.checkHardware();
 
-    cageLimelight.checkHardware();
+    //cageLimelight.checkHardware();
   }
 
   /** Logs everything, called periodically */

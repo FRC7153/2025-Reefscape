@@ -117,7 +117,7 @@ public class AprilTagLimelight extends Limelight {
     }
 
     // Enforce Pipeline
-    cameraTable.getDoubleTopic("pipeline").publish().set(0);
+    setPipeline(0);
 
     // Init logging
     String logName = String.format("Limelight/%s/", name);

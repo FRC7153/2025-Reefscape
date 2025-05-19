@@ -1,6 +1,7 @@
 package frc.robot.util.vision;
 
 import edu.wpi.first.networktables.DoubleArraySubscriber;
+import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -39,6 +40,7 @@ public class Limelight {
   // Network tables
   private final DoubleArraySubscriber statsSub;
   private final DoubleSubscriber heartbeatSub;
+  private final DoublePublisher pipelinePub;
   private final Alert notConnectedAlert;
 
   // Stats
@@ -65,6 +67,8 @@ public class Limelight {
     statsSub = cameraTable.getDoubleArrayTopic("hw").subscribe(new double[4]);
     heartbeatSub = cameraTable.getDoubleTopic("hb").subscribe(-1.0);
 
+    pipelinePub = cameraTable.getDoubleTopic("pipeline").publish();
+
     // Init logging
     String logName = String.format("Limelight/%s/", name);
 
@@ -73,6 +77,14 @@ public class Limelight {
     ramLog = new DoubleLogEntry(DataLogManager.getLog(), logName + "ram", "%");
     tempLog = new DoubleLogEntry(DataLogManager.getLog(), logName + "temp", "f");
     isAliveLog = new BooleanLogEntry(DataLogManager.getLog(), logName + "is_alive");
+  }
+
+  /**
+   * Sets the pipeline index.
+   * @param pipeline The pipeline index.
+   */
+  public void setPipeline(int pipeline) {
+    pipelinePub.set(pipeline);
   }
 
   /**
