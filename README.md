@@ -44,7 +44,7 @@ Reefscape, 2025 Season
 
 ### New England District Ballard Division Champions
 ![Image of "Barnacle" winning the NE Ballard Division Banner](./docs/DistrictsBanner.jpg)
-As the second pick of an alliance led by [Team 190: Gompei and the HERD](https://wp.wpi.edu/frc190/) and with [Team 3467: Windham Windup](http://www.team3467.org/), we won the Ballard Division, and were finalists at the New England District Championship Event.
+As the second pick of an alliance led by [Team 3467: Windham Windup](http://www.team3467.org/) and with [Team 190: Gompei and the HERD](https://wp.wpi.edu/frc190/), we won the Ballard Division, and were finalists at the New England District Championship Event.
 
 <details><summary>View Hardware IDs</summary>
 
