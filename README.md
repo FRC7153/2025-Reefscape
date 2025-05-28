@@ -14,7 +14,7 @@ Reefscape, 2025 Season
 
 ## Controls
 * **(Driver) Xbox Controller 0:**
-    * **Left Joystick:** Drive base strafe
+    * **Left Joystick:** Drive base translation
     * **Right Joystick:** Drive base rotation
     * **Left Joystick Held:** Sprint mode
 	* **Left Trigger:** Sprint mode
