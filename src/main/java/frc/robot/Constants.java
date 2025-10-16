@@ -222,6 +222,9 @@ public final class Constants {
     public static final int MANIPULATOR_CAN = 19;
     public static final int MANIPULATOR_SENSORS_CAN = 20; // Spark Max, no motor
 
+    // Pigeon 2.0 
+    public static final int PIGEON_CAN = 21;
+
     // CAN Busses
     public static final CANBus RIO_CAN = new CANBus("rio");
     public static final CANBus CANIVORE = new CANBus("CANivore");

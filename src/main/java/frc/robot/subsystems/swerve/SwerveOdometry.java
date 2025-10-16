@@ -5,6 +5,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.Matrix;
@@ -17,6 +19,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.CalibrationTime;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
@@ -25,6 +28,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.Threads;
 import frc.robot.Constants.BuildConstants;
+import frc.robot.Constants.HardwareConstants;
 import frc.robot.util.Util;
 import frc.robot.util.dashboard.HardwareFaultTracker;
 import frc.robot.util.logging.ConsoleLogger;
@@ -45,8 +49,9 @@ public final class SwerveOdometry {
   private volatile double yVelo = 0.0;
   private volatile double jerk = 0.0;
 
-  private final ADIS16470_IMU imu;
-  private final Alert imuHardwareAlert = new Alert("ADIS16470 IMU is not connected", AlertType.kError);
+  private Pigeon2 pigeon;
+//  private final ADIS16470_IMU imu;
+//  private final Alert imuHardwareAlert = new Alert("ADIS16470 IMU is not connected", AlertType.kError);
 
   private final SwerveModulePosition[] swervePositions;
   private final BaseStatusSignal[] allSignals;
@@ -56,6 +61,10 @@ public final class SwerveOdometry {
   private final DerivativeCalculator yJerkCalculator = new DerivativeCalculator(3);
   private boolean isRedAlliance = false; // Cached later
   private boolean hasSetInitialPosition = false; // Set later
+
+  StatusSignal<Angle> pigeonYaw = pigeon.getYaw();
+
+  double yawDouble = pigeonYaw.getValueAsDouble();
 
   /**
    * Automatically starts odometry thread.
@@ -67,13 +76,22 @@ public final class SwerveOdometry {
     thread = new Thread(this::run);
     thread.setDaemon(true);
 
+//Init Pigeon 2.0
+
+    pigeon = new Pigeon2(
+      HardwareConstants.PIGEON_CAN, HardwareConstants.CANIVORE
+    );
+
+
     // Init IMU
-    imu = new ADIS16470_IMU(
-      SwerveConstants.GYRO_YAW,
-      SwerveConstants.GYRO_PITCH,
-      SwerveConstants.GYRO_ROLL,
-      Port.kOnboardCS0,
-      CalibrationTime._8s);
+        ADIS16470_IMU imu = new ADIS16470_IMU(
+          SwerveConstants.GYRO_YAW,
+          SwerveConstants.GYRO_PITCH,
+          SwerveConstants.GYRO_ROLL,
+          Port.kOnboardCS0,
+          CalibrationTime._8s);
+
+    
 
     // Get status signal and positions
     allSignals = new BaseStatusSignal[4*2];
@@ -92,7 +110,7 @@ public final class SwerveOdometry {
     // Init pose estimator
     poseEstimator = new SwerveDrivePoseEstimator(
       kinematics, 
-      Rotation2d.fromDegrees(imu.getAngle(IMUAxis.kYaw)), 
+      Rotation2d.fromDegrees(yawDouble), 
       swervePositions, 
       Pose2d.kZero,
       SwerveConstants.STATE_STD_DEVS, // State std devs
@@ -124,7 +142,7 @@ public final class SwerveOdometry {
     try {
       stateLock.writeLock().lock();
       poseEstimator.resetPosition(
-        Rotation2d.fromDegrees(imu.getAngle(IMUAxis.kYaw)), 
+        Rotation2d.fromDegrees(yawDouble), 
         swervePositions, // this should be updated in place
         newPosition);
     } finally {
@@ -168,7 +186,7 @@ public final class SwerveOdometry {
 
         // Update estimator
         poseEstimator.update(
-          Rotation2d.fromDegrees(imu.getAngle(IMUAxis.kYaw)), 
+          Rotation2d.fromDegrees(yawDouble), 
           swervePositions);
 
         Pose2d newPose = poseEstimator.getEstimatedPosition();
@@ -194,8 +212,8 @@ public final class SwerveOdometry {
 
       // Calculate jerk
       jerk = Math.hypot(
-        xJerkCalculator.calculate(imu.getAccelX()),
-        yJerkCalculator.calculate(imu.getAccelZ())
+        xJerkCalculator.calculate(pigeon.getAccelerationX().getValueAsDouble()),
+        yJerkCalculator.calculate(pigeon.getAccelerationY().getValueAsDouble())
       );
 
       // Use this to determine which axis is yaw:

@@ -85,7 +85,7 @@ public final class SwerveConstants {
       .positionWrappingEnabled(true)
     );
 
-  // ADIS16470 Gyro
+  // Pigeon 2.0 Gyro
   public static final IMUAxis GYRO_YAW = IMUAxis.kY;
   public static final IMUAxis GYRO_PITCH = IMUAxis.kZ;
   public static final IMUAxis GYRO_ROLL = IMUAxis.kX;
