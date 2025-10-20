@@ -20,12 +20,8 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.wpilibj.ADIS16470_IMU;
-import edu.wpi.first.wpilibj.ADIS16470_IMU.CalibrationTime;
-import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.Threads;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.HardwareConstants;
@@ -50,8 +46,6 @@ public final class SwerveOdometry {
   private volatile double jerk = 0.0;
 
   private Pigeon2 pigeon;
-//  private final ADIS16470_IMU imu;
-//  private final Alert imuHardwareAlert = new Alert("ADIS16470 IMU is not connected", AlertType.kError);
 
   private final SwerveModulePosition[] swervePositions;
   private final BaseStatusSignal[] allSignals;
@@ -62,9 +56,10 @@ public final class SwerveOdometry {
   private boolean isRedAlliance = false; // Cached later
   private boolean hasSetInitialPosition = false; // Set later
 
-  StatusSignal<Angle> pigeonYaw = pigeon.getYaw();
+  private StatusSignal<Angle> pigeonYaw = pigeon.getYaw();
+  private double yawValue = pigeonYaw.getValueAsDouble();
 
-  double yawDouble = pigeonYaw.getValueAsDouble();
+  private final Alert pigeonAlert = new Alert("Pigeon Alert", AlertType.kError);
 
   /**
    * Automatically starts odometry thread.
@@ -81,15 +76,6 @@ public final class SwerveOdometry {
     pigeon = new Pigeon2(
       HardwareConstants.PIGEON_CAN, HardwareConstants.CANIVORE
     );
-
-
-    // Init IMU
-        ADIS16470_IMU imu = new ADIS16470_IMU(
-          SwerveConstants.GYRO_YAW,
-          SwerveConstants.GYRO_PITCH,
-          SwerveConstants.GYRO_ROLL,
-          Port.kOnboardCS0,
-          CalibrationTime._8s);
 
     
 
@@ -110,7 +96,7 @@ public final class SwerveOdometry {
     // Init pose estimator
     poseEstimator = new SwerveDrivePoseEstimator(
       kinematics, 
-      Rotation2d.fromDegrees(yawDouble), 
+      Rotation2d.fromDegrees(yawValue), 
       swervePositions, 
       Pose2d.kZero,
       SwerveConstants.STATE_STD_DEVS, // State std devs
@@ -142,7 +128,7 @@ public final class SwerveOdometry {
     try {
       stateLock.writeLock().lock();
       poseEstimator.resetPosition(
-        Rotation2d.fromDegrees(yawDouble), 
+        Rotation2d.fromDegrees(yawValue), 
         swervePositions, // this should be updated in place
         newPosition);
     } finally {
@@ -186,7 +172,7 @@ public final class SwerveOdometry {
 
         // Update estimator
         poseEstimator.update(
-          Rotation2d.fromDegrees(yawDouble), 
+          Rotation2d.fromDegrees(yawValue), 
           swervePositions);
 
         Pose2d newPose = poseEstimator.getEstimatedPosition();
@@ -215,16 +201,6 @@ public final class SwerveOdometry {
         xJerkCalculator.calculate(pigeon.getAccelerationX().getValueAsDouble()),
         yJerkCalculator.calculate(pigeon.getAccelerationY().getValueAsDouble())
       );
-
-      // Use this to determine which axis is yaw:
-      /*System.out.printf(
-        "IMU: X: %f, Y: %f, Z: %f\n", 
-        imu.getAngle(IMUAxis.kX), imu.getAngle(IMUAxis.kY), imu.getAngle(IMUAxis.kZ));*/
-
-      // Use this to determine which axis is down:
-      /*System.out.printf(
-        "Accel: X: %f, Y: %f, Z: %f\n", 
-        imu.getAccelX(), imu.getAccelY(), imu.getAccelZ());*/
     }
   }
 
@@ -338,7 +314,7 @@ public final class SwerveOdometry {
   }
 
   public void checkHardware() {
-    HardwareFaultTracker.checkFault(imuHardwareAlert, !imu.isConnected());
+    HardwareFaultTracker.checkFault(pigeonAlert, pigeon.isConnected());
   }
 
   /**
@@ -346,20 +322,20 @@ public final class SwerveOdometry {
    * @return Yaw rate, CCW+, deg/sec
    */
   public double getYawRate(){
-   return imu.getRate(IMUAxis.kYaw);
+    return pigeon.getAngularVelocityZDevice().getValueAsDouble();
   }
 
   /**
    * @return Roll, CCW+, in degrees
    */
   public double getRoll() {
-    return imu.getAngle(IMUAxis.kRoll);
+    return pigeon.getRoll().getValueAsDouble();
   }
 
   /**
    * @return Roll, CCW+, in deg/sec
    */
   public double getRollRate() {
-    return imu.getRate(IMUAxis.kRoll);
+    return pigeon.getAngularVelocityXDevice().getValueAsDouble();
   }
 }

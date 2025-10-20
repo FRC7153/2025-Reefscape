@@ -23,7 +23,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import frc.robot.Constants.HardwareConstants;
 
 /**
@@ -84,11 +83,6 @@ public final class SwerveConstants {
       .positionWrappingInputRange(-0.5 * STEER_RATIO, 0.5 * STEER_RATIO)
       .positionWrappingEnabled(true)
     );
-
-  // Pigeon 2.0 Gyro
-  public static final IMUAxis GYRO_YAW = IMUAxis.kY;
-  public static final IMUAxis GYRO_PITCH = IMUAxis.kZ;
-  public static final IMUAxis GYRO_ROLL = IMUAxis.kX;
 
   // Odometry
   public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(0.4, 0.4, 0.01);
